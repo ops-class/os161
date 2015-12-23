@@ -1,0 +1,7 @@
+These are support functions needed by gcc to perform operations on
+64-bit integer types on 32-bit machines. The names are meaningful to
+the gcc back end. The term "millicode" is sometimes used to describe
+such compiler support code.
+
+This code was taken from NetBSD's src/common/lib/libc/quad, and
+polished some for OS/161.

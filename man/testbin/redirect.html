@@ -1,0 +1,95 @@
+<!--
+Copyright (c) 2015
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>redirect</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>redirect</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+redirect - test I/O redirection
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/redirect</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>redirect</tt> does a simple test of I/O redirection like a Unix
+shell might do.
+It first creates an input test file, then invokes
+<A HREF=../bin/cat.html>cat</A> to copy it, with standard input and
+standard output suitably redirected.
+Then it checks that the copy happened correctly, and removes the test
+files.
+</p>
+
+<p>
+The specifications of Unix system calls are such that this program
+should take no extra work to support once basic tests show that the
+pieces are working.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>redirect</tt> uses the following system calls:
+<ul>
+<li><A HREF=../syscall/open.html>open</A></li>
+<li><A HREF=../syscall/dup2.html>dup2</A></li>
+<li><A HREF=../syscall/read.html>read</A></li>
+<li><A HREF=../syscall/write.html>write</A></li>
+<li><A HREF=../syscall/close.html>close</A></li>
+<li><A HREF=../syscall/remove.html>remove</A></li>
+<li><A HREF=../syscall/fork.html>fork</A></li>
+<li><A HREF=../syscall/execv.html>execv</A></li>
+<li><A HREF=../syscall/waitpid.html>waitpid</A></li>
+<li><A HREF=../syscall/_exit.html>_exit</A></li>
+</ul>
+</p>
+
+<p>
+<tt>redirect</tt> should work once you have implemented the basic
+system calls, including fork, exec, and wait.
+</p>
+
+<p>
+Note that until you implement remove (which is typically not part of
+the basic system calls assignment), and in any case on emufs, the test
+files will not get removed.
+This is not important, just untidy.
+</p>
+
+</body>
+</html>

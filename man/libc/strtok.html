@@ -1,0 +1,101 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>strtok</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>strtok</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+strtok - tokenize string
+</p>
+
+<h3>Library</h3>
+<p>
+Standard C Library (libc, -lc)
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>#include &lt;string.h&gt;</tt><br>
+<br>
+<tt>char *</tt><br>
+<tt>strtok(char *</tt><em>string</em><tt>,
+const char *</tt><em>separators</em><tt>);</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>strtok</tt> splits up the string <em>string</em> into fields using
+the characters found in <em>separators</em> as delimiters. The
+delimiters found are discarded. Multiple delimiter characters in a row
+are treated as a single delimiter.
+</p>
+
+<p>
+When first called, <tt>strtok</tt> returns the first field of
+<em>string</em>.  To retrieve successive fields of <em>string</em>,
+call <tt>strtok</tt> again repeatedly, passing <tt>NULL</tt> as the
+first argument. When no more fields are left, <tt>NULL</tt> is
+returned. If the string is empty or contains only delimiters,
+<tt>NULL</tt> will be returned on the first call.
+</p>
+
+<h3>Cautions</h3>
+<p>
+Note that the state used to remember <em>string</em> across calls is
+global. Thus, <tt>strtok</tt> cannot be used from more than one thread
+at a time in a multithreaded program, nor can it be used in a
+subroutine called from within a loop that itself uses
+<tt>strtok</tt>. If these restrictions are problematic, use <A
+HREF=strtok_r.html>strtok_r</A>.
+</p>
+
+<p>
+The behavior if strtok is called again without passing a new
+<em>string</em> after it has returned <tt>NULL</tt> is undefined.
+</p>
+
+<p>
+The behavior if strtok is called with the first argument <tt>NULL</tt>
+without having first passed a valid <em>string</em> is also undefined.
+</p>
+
+<h3>Return Values</h3>
+<p>
+<tt>strtok</tt> returns successive components of the passed-in string,
+and <tt>NULL</tt> when no more remain.
+</p>
+
+</body>
+</html>

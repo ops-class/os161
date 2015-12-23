@@ -1,0 +1,24 @@
+User-level malloc
+-----------------
+
+   The user-level malloc implementation is defined to be simple, not
+fast or efficient. It uses a very basic first-fit block algorithm.
+
+   There's an 8-byte header which holds the offsets to the previous
+and next blocks, a used/free bit, and some magic numbers (for
+consistency checking) in the remaining available header bits. It also
+allocates in units of 8 bytes to guarantee proper alignment of
+doubles. (It also assumes its own headers are aligned on 8-byte
+boundaries.)
+
+   On malloc(), it searches the entire heap starting at the beginning
+for the first block big enough to hold the allocation. If it doesn't
+find one, it calls sbrk() to get more memory. If it does find one, it
+marks the block in use. It splits the remaining portion of the block
+off as a new free block only if said portion is large enough to hold
+both a header and some data.
+
+   On free(), it marks the block free and then tries to merge it with
+the adjacent blocks (both above and below) if they're free.
+
+   That's about all there is to it.

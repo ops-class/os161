@@ -1,0 +1,1063 @@
+#!/bin/sh
+#
+# Kernel config script for OS/161.
+#
+# Usage: ./config conf-name
+#
+#    WARNING! IF YOU JUST RUN "config" INSTEAD OF "./config" YOU WILL
+#    PROBABLY GET THE HOST SYSTEM'S KERNEL CONFIG INSTEAD OF THIS ONE,
+#    WHICH WILL CAUSE WEIRD THINGS TO HAPPEN. DON'T DO IT.
+#
+#
+# Recognized directives:
+#
+#    file <filename>          use source file
+#    debug                    turn on debug info
+#    defoption <sym>          define an option
+#    optfile <sym> <file>     if option <sym> is enabled, use file <file>
+#    optofffile <sym> <file>  if option <sym> is disabled, use file <file>
+#    defdevice <dev> <file>   define a device
+#    defattach <dev> <bus> <file>
+#                             define an attachment for a device to a bus
+#    pseudoattach <dev>       define a pseudo-attachment for a device
+#
+#    options <sym>            enable an option
+#    device <dev> [at <bus>]  enable a particular device [on a particular bus]
+#
+#    include <filename>       get additional directives from another file
+#
+# Filenames are relative to the top of the kernel tree.
+#
+# The comment character is '#'.
+#
+# The idea is that the first group of directives is used to set up a
+# static description of all possible configurations for each supported
+# architecture. Then a kernel config file uses the second group of
+# directives to specify a particular configuration. Then this script
+# is used to first check that the configuration is one of the possible
+# ones, and then to set up the compile directory, makefiles, and
+# associated material necessary to actually build that configuration.
+#
+# Further documentation is at the top of conf.kern.
+#
+
+
+#
+# Make sure we're in the right place.
+#
+if [ ! -d ../dev ]; then
+	echo "$0: Run me from src/kern/conf"
+	exit 1
+fi
+
+########################################
+#
+# 1. Get configuration name and config file.
+#
+
+CONFNAME=$1
+if [ "x$CONFNAME" = x ]; then
+    echo "Usage: $0 CONFIG-NAME"
+    exit 1
+fi
+
+FOO=`echo $CONFNAME | tr -d 'a-zA-Z0-9_-'`
+if [ "x$FOO" != x ]; then
+    echo "Illegal configuration name $CONFNAME"
+    exit 1
+fi
+
+if [ ! -f $CONFNAME ]; then
+    echo "$0: $CONFNAME not found"
+    exit 1
+fi
+echo "Configuration $CONFNAME"
+
+COMPILEDIR="../compile/$CONFNAME"
+
+########################################
+#
+# 2. Process includes.
+#    Also strip comments.
+#    Simultaneously, do a basic syntax check.
+#
+#    For an introduction to awk, see
+#        http://www.hcs.harvard.edu/~dholland/computers/awk.html
+#
+
+CONFTMP=.conftmp
+
+rm -f $CONFTMP
+
+echo "$CONFNAME" $CONFTMP | awk '
+    BEGIN {
+	#
+	# Initialize list of directives and required numbers of words for each.
+	#
+	nfields["include"] = 2;
+	nfields["file"] = 2;
+	nfields["debug"] = 1;
+	nfields["defoption"] = 2;
+	nfields["optfile"] = 3;
+	nfields["optofffile"] = 3;
+	nfields["defdevice"] = 3;
+	nfields["defattach"] = 4;
+	nfields["pseudoattach"] = 2;
+	nfields["options"] = 2;
+	nfields["device"] = 4;   # actually 2 or 4, handled specially
+	#
+	# Directives that can be made machine-dependent with "machine"
+	# or "platform".
+	#
+	okmd["file"] = 1;
+	okmd["optfile"] = 1;
+	okmd["optofffile"] = 1;
+    }
+
+    function doinclude(file,     lineno) {
+	#
+	# Include a file.
+	#
+	# lineno is a local.
+	#
+	# Read lines and hand them off recursively to processline().
+	#
+	lineno = 1;
+	while (getline < file) {
+	    if (ERRNO) {
+		printf "%s: %s\n", file, ERRNO;
+		exit(1);
+	    }
+	    processline(file, lineno);
+	    lineno++;
+	}
+    }
+
+    function processline(filename, lineno) {
+	#
+	# Handle a single config line.
+	#
+
+	# Strip comments.
+	sub("#.*", "", $0);
+
+	# Ignore blank lines.
+	if (NF==0) return;
+
+	direct = $1;
+	foundfields = NF;
+
+	if (direct == "machine" && NF > 2 && okmd[$3]) {
+	    # machine mips file ...
+	    direct = $3;
+	    foundfields -= 2;
+	}
+	else if (direct == "platform" && NF > 2 && okmd[$3]) {
+	    # platform sys161 file ...
+	    direct = $3;
+	    foundfields -= 2;
+	}
+
+	# Syntax check: reject unknown directives
+	if (!nfields[direct]) {
+	    printf "%s: %d: Unknown directive %s\n", filename, lineno, direct;
+	    exit(1);
+	}
+
+	# Syntax check: require correct # of args.
+	if (direct=="device") {
+	    # special case - device directive can have 2 or 4 words
+	    if ((NF!=2 && NF!=4) || (NF==4 && $3!="at")) {
+	        msg = sprintf("%s: Invalid arguments", direct);
+		printf "%s: %d: %s\n", filename, lineno, msg;
+		exit(1);
+	    }
+	}
+	else if (nfields[direct]!=foundfields) {
+	    printf "%s: %d: %s: Invalid arguments\n", filename, lineno, direct;
+	    exit(1);
+	}
+
+	# Now actually process the directives we need at this stage - which
+	# is only "include". Handle includes.
+
+	if (direct == "include") {
+		doinclude("../" $2);
+	}
+	else {
+		print >> outfile;
+	}
+    }
+
+    #
+    # Code called for lines input on stdin.
+    # There is only one - the one generated above with echo, which
+    # gives us the names of the input and output files to use.
+    #
+    {
+	outfile = $2;
+	doinclude($1);
+    }
+' || exit 1
+
+########################################
+#
+# 3. Create compile dir.
+#
+
+if [ ! -d "$COMPILEDIR" ]; then
+    mkdir $COMPILEDIR
+fi
+
+echo -n 'Generating files...'
+
+########################################
+#
+# 4. Process device attachments into $CONFTMP.attach.
+#    Also add device/attachment files to $CONFTMP.files.
+#
+
+rm -f $CONFTMP.files
+rm -f $CONFTMP.attach
+
+awk < $CONFTMP '
+
+    #
+    # Function to grab the "0" off "le0" or the "*" off "wd*".
+    #
+    function getunit(invalmsg, d,       u, tmp) {
+	u = d;
+	sub("^[a-zA-Z_]*", "", u);
+
+	if (u!="*") {
+	    tmp = u;
+	    sub("[0-9]*", "", tmp);
+	    if (tmp!="") {
+		printf "\n%s: Invalid device/unit specification\n", invalmsg;
+		exit(1);
+	    }
+	}
+
+	return u;
+    }
+
+    #
+    # Function to grab the "le" off "le0" or the "wd" off "wd*".
+    #
+    function getbase(invalmsg, d,       base) {
+	base = d;
+	sub("[\\*0-9]*$", "", base);
+
+	if (!use[base]) {
+	    printf "\n%s: No such device\n", invalmsg;
+	    exit(1);
+	}
+
+	return base;
+    }
+
+    #
+    # Routine invoked for "defdevice" directive lines.
+    #
+    $1=="defdevice" {
+	dev = $2;
+	file = $3;
+
+	# Check for illegal characters in device name
+	# (must be legal C symbol, and at this point must not have unit number)
+	tmp = dev;
+	sub("[a-zA-Z_]*", "", tmp);
+	if (tmp!="") {
+	    printf "\ndefdevice %s: Illegal device name\n", dev;
+	    exit(1);
+	}
+
+	# Device must not have been already defined.
+	if (use[dev]) {
+	    printf "\ndefdevice %s: %s already exists\n", dev, dev;
+	    exit(1);
+	}
+
+	# Note that it exists, but is not in use, and remember the
+	# source file for later.
+	use[dev] = "no";
+	files[dev] = file;
+    }
+
+    #
+    # Routine called for "defattach" directive lines.
+    #
+    $1=="defattach" {
+	dev = $2;
+	bus = $3;
+	file = $4;
+
+	# Even though we do not use basebus, busunit, or devunit,
+	# call the routines to compute them, because they check the
+	# syntax.
+
+	devmsg = "defattach: device " dev;
+	devunit = getunit(devmsg, dev);
+	basedev = getbase(devmsg, dev);
+
+	busmsg = "defattach: bus " bus;
+	busunit = getunit(busmsg, bus);
+	basebus = getbase(busmsg, bus);
+
+	if (pseudo[basedev]) {
+	    printf "\n%s: Already declared pseudoattach\n", devmsg;
+	    exit(1);
+	}
+
+	# The attachment is the pair of bus and device.
+	# We remember the specific names, including the unit numbers.
+	# This is because "le* at sbus*" is different from "le0 at sbus0"
+	# - the former allows le0 to be at sbus1, allows le1, etc.
+
+	attachment = bus "." dev;
+	attach[attachment] = "no";
+	files[attachment] = file;
+
+	# Remember that attachments are defined for this device. If
+	# attachments are defined, when the device is turned on later
+	# an attachment must be specified.
+	attachable[basedev] = 1;
+    }
+
+    #
+    # Routine called for "pseudoattach" directive lines.
+    #
+    $1=="pseudoattach" {
+	dev = $2;
+
+	devmsg = "pseudoattach: device " dev;
+	devunit = getunit(devmsg, dev);
+	basedev = getbase(devmsg, dev);
+
+	if (attachable[basedev]) {
+	    printf "\n%s: Attachments already declared\n", devmsg;
+	    exit(1);
+	}
+
+	# Remember that this device is a pseudo-device.
+	pseudo[basedev] = 1;
+    }
+
+    #
+    # Helper function for the "device" code.
+    #
+    function tryattach(combo) {
+	if (!attachok && attach[combo]) {
+	    # This attachment is defined. Note to compile it in, and report
+	    # success.
+	    attach[combo] = "yes";
+	    attachok = 1;
+	}
+    }
+
+    #
+    # Routine called for "device" directive lines.
+    #
+    $1=="device" {
+	dev = $2;
+	if (NF==4) {
+	    devmsg = "device: " dev " at " $4;
+	}
+	else {
+	    devmsg = "device: device " dev;
+	}
+	devunit = getunit(devmsg, dev);
+	basedev = getbase(devmsg, dev);
+	gendev = basedev "*";
+
+	if (NF==4) {
+	    #
+	    # The longer form, with an attachment ("bus").
+	    #
+	    bus = $4;
+	    busmsg = "device: " dev " at " bus ": " bus;
+	    busunit = getunit(busmsg, bus);
+	    basebus = getbase(busmsg, bus);
+	    genbus = basebus "*";
+
+	    if (use[basebus]!="yes") {
+		printf "\ndevice: bus %s: Bus device is not enabled\n", bus;
+		exit(1);
+	    }
+
+	    # If the line was "le0 at sbus0", we try to attach it using
+	    # the following attachments:
+	    #    First, the exact thing that was requested:
+	    #         sbus0.le0   (le0 at sbus0)
+	    #    Second, for any such device on that bus:
+	    #         sbus*.le0   (le0 at sbus*)
+	    #    Third, for that device on any such bus:
+	    #         sbus0.le*   (le* at sbus0)
+	    #    Fourth, for any such device on any such bus:
+	    #         sbus*.le*   (le* at sbus*)
+	    #
+	    # If the line was "le* at sbus0", some of these will be
+	    # redundant, but that is ok.
+
+	    attachok = 0;
+	    tryattach(bus "." dev);
+	    tryattach(bus "." gendev);
+	    tryattach(genbus "." dev);
+	    tryattach(genbus "." gendev);
+	    if (!attachok) {
+		# No matching attachment found.
+		printf "\ndevice: %s at %s: Undefined attachment\n", dev, bus;
+		exit(1);
+	    }
+
+	    devattach = sprintf("%s %s", basedev, devunit);
+	    baseattach = sprintf("%s %s", basebus, busunit);
+	    printf "attach %s at %s\n", devattach, baseattach >> attachfile;
+	}
+	else {
+	    # No bus specified to attach the device to (really, to find the
+	    # device attached on.) This is only legal if no attachments
+	    # at all were defined for the device, which is the case if the
+	    # device is in fact not attached to anything else (like the main
+	    # system bus, or a device like /dev/null that has no hardware.)
+
+
+	    # The opposite check to this is not required in the
+	    # preceding section because no attachment can be found if
+	    # attachable[basedev] is false.
+
+	    if (attachable[basedev]) {
+		printf "\ndevice %s: attachment required\n", dev;
+		exit(1);
+	    }
+
+	    if (pseudo[basedev]) {
+		if (devunit=="*") {
+		    printf "\n%s: May not use wildcard units here\n", devmsg;
+		    exit(1);
+		}
+		printf "pseudo %s %s\n", basedev, devunit >> attachfile;
+	    }
+	    else {
+		printf "noattach %s\n", basedev >> attachfile;
+	    }
+	}
+
+	use[basedev] = "yes";
+    }
+
+    #
+    # Routine invoked when we have seen all the input.
+    #
+    END {
+	# Print out the source filenames for the devices and attachments
+	# we are using.
+
+	for (dev in use) {
+	    if (use[dev]=="yes") {
+		printf "* * %s\n", files[dev] >> filelistfile;
+	    }
+	}
+	for (att in attach) {
+	    if (attach[att]=="yes") {
+		printf "* * %s\n", files[att] >> filelistfile;
+	    }
+	}
+    }
+
+' "attachfile=$CONFTMP.attach" "filelistfile=$CONFTMP.files" || exit 1
+
+########################################
+#
+# 5. Process options.
+#
+
+awk < $CONFTMP '
+
+    #
+    # Routine for a defoption line.
+    #
+    $1=="defoption" {
+	opt = $2;
+	options[opt] = "no";
+    }
+
+    #
+    # Routine for an optfile line.
+    #
+    $1=="optfile" || (($1=="machine" || $1=="platform") && $3=="optfile") {
+	if ($1 == "optfile") {
+	    opt = $2;
+	    file = $3;
+	    platform = "*";
+	    machine = "*";
+	}
+	else {
+	    if ($1=="machine") {
+		platform = "*";
+		machine = $2;
+	    }
+	    else {
+		platform = $2;
+		machine = "*";
+	    }
+	    opt = $4;
+	    file = $5;
+	}
+
+	if (!options[opt]) {
+	    printf "\noptfile %s %s: No such option %s\n", opt, file, opt;
+	    exit(1);
+	}
+
+	controllers[file] = opt;
+	platforms[file] = platform;
+	machines[file] = machine;
+    }
+
+    #
+    # Routine for an optofffile line.
+    #
+    $1=="optofffile" || (($1=="machine" || $1=="platform") &&$3=="optofffile"){
+	if ($1 == "optofffile") {
+	    opt = $2;
+	    file = $3;
+	    platform = "*";
+	    machine = "*";
+	}
+	else {
+	    if ($1=="machine") {
+		platform = "*";
+		machine = $2;
+	    }
+	    else {
+		platform = $2;
+		machine = "*";
+	    }
+	    opt = $4;
+	    file = $5;
+	}
+
+	if (!options[opt]) {
+	    printf "\noptofffile %s %s: No such option %s\n", opt, file, opt;
+	    exit(1);
+	}
+
+	offcontrollers[file] = opt;
+	platforms[file] = platform;
+	machines[file] = machine;
+    }
+
+    #
+    # Routine for an options line.
+    #
+    $1=="options" {
+	opt = $2;
+
+	if (!options[$2]) {
+	    printf "\noptions %s: No such option\n", opt;
+	    exit(1);
+	}
+
+	options[$2] = "yes";
+    }
+
+    #
+    # Routine invoked when we have seen everything.
+    #
+    END {
+	#
+	# First, add any files to the list of sources we are building.
+	#
+	for (file in controllers) {
+	    if (options[controllers[file]]=="yes") {
+		line = sprintf("%s %s %s",
+				platforms[file], machines[file], file);
+		printf "%s\n", line >> filelistfile;
+	    }
+	}
+	for (file in offcontrollers) {
+	    if (options[offcontrollers[file]]=="no") {
+		line = sprintf("%s %s %s",
+				platforms[file], machines[file], file);
+		printf "%s\n", line >> filelistfile;
+	    }
+	}
+	close(filelistfile);
+
+	#
+	# Now, generate the .h file for every option
+	# (both the ones that are on and the ones that are off)
+	#
+	for (opt in options) {
+	    realfile = compiledir "/opt-" opt ".h";
+	    file = realfile ".new";
+	    sym = toupper(opt);
+	    printf "/* Automatically generated; do not edit */\n" > file;
+	    printf "#ifndef _OPT_%s_H_\n", sym >> file;
+	    printf "#define _OPT_%s_H_\n", sym >> file;
+	    val = options[opt]=="yes" ? 1 : 0;
+	    printf "#define OPT_%s %d\n", sym, val >> file;
+	    printf "#endif /* _OPT_%s_H_ */\n", sym >> file;
+	    close(file);
+	}
+    }
+
+' "compiledir=$COMPILEDIR" "filelistfile=$CONFTMP.files" || exit 1
+
+# Avoid changing the actual headers if they aren't different, so as to
+# reduce unnecessary recompiles.
+
+(
+    cd $COMPILEDIR
+    for NF in opt-*.h.new; do
+	OF=`echo $NF | sed 's/\.new$//'`
+	if diff $OF $NF >/dev/null 2>&1; then
+	    rm -f $NF      # unchanged
+	else
+	    mv -f $NF $OF  # it changed
+	fi
+	echo -n " $OF"
+    done
+)
+
+########################################
+#
+# 6. Add in the unconditional files.
+#
+
+awk < $CONFTMP '
+    $1=="file" {
+	printf "* * %s\n", $2 >> filelistfile;
+    }
+    $1=="machine" && $3=="file" {
+	printf "* %s %s\n", $2, $4 >> filelistfile;
+    }
+    $1=="platform" && $3=="file" {
+	printf "%s * %s\n", $2, $4 >> filelistfile;
+    }
+
+' "filelistfile=$CONFTMP.files" || exit 1
+
+#
+# autoconf.c (which we generate further down) is always compiled in but
+# is not in the list yet. Note that the path to it is where we are about
+# to put it: it lives in the build directory, because it's part of a
+# particular build.
+#
+echo "* * compile/$CONFNAME/autoconf.c" >> $CONFTMP.files
+
+########################################
+#
+# 7. We now have the compile file list.
+#    Generate files.mk.
+#
+
+#
+# Validate list first.
+#
+# We allow C++ files, because the makefile rules we generate are
+# sufficient to compile them. However, some low-level kernel hacking
+# will be needed to actually use C++ in OS/161.
+#
+
+awk < $CONFTMP.files '
+    /\.cc$/ { next; }
+    /\.cpp$/ { next; }
+    /\.C$/ { next; }
+    /\.c$/ { next; }
+    #/\.l$/ { next; }   # will require some makefile hacking to make work
+    #/\.y$/ { next; }   # will require some makefile hacking to make work
+    /\.S$/ { next; }
+    /\.o$/ { next; }
+    {
+	printf "\n%s: Unrecognized source file type\n", $1;
+	exit(1);
+    }
+' || exit 1;
+
+#
+# Check for files with the same basename.
+#
+awk < $CONFTMP.files '
+    {
+	path = $3;
+	base = path;
+	sub("^.*/", "", base);
+	sub("\\.[^\\.]*$", "", base);
+	if (seen[base]) {
+	    msg = sprintf("%s: object file name %s.o conflicts with %s",
+			    path, base, seen[base]);
+	    printf "\n%s\n", msg;
+	    failed = 1;
+	}
+	seen[base] = path;
+    }
+    END {
+	if (failed) {
+	    exit(1);
+	}
+    }
+' || exit 1
+
+#
+# Do it.
+# Generate a make rule for each file.
+#
+
+sort < $CONFTMP.files | awk '
+    BEGIN {
+	printf "# Automatically generated by config; do not edit\n";
+    }
+
+    {
+	platform = $1;
+	machine = $2;
+	file = $3;
+
+	# get basename
+	basename = file;
+	sub(".*/", "", basename);
+
+	# get extension
+	ext = basename;
+	sub(".*\\.", "", ext);
+	sub("\\.[^\\.]*$", "", basename);
+
+	if (file ~ "^\\.\\./") {
+	    sub("^...", "", file);
+	    path = "$(TOP)/" file;
+	}
+	else {
+	    path = "$(KTOP)/" file;
+	}
+
+	#
+	# For now a file cannot be both platform-dependent and
+	# machine-dependent, so this sequence of tests is enough.
+	#
+	if (platform != "*") {
+	    printf "SRCS.PLATFORM.%s+=%s\n", platform, path;
+	}
+	else if (machine != "*") {
+	    printf "SRCS.MACHINE.%s+=%s\n", machine, path;
+	}
+	else {
+	    printf "SRCS+=%s\n", path;
+	}
+    }
+' > $COMPILEDIR/files.mk
+
+rm -f $CONFTMP.files
+
+echo -n ' files.mk'
+
+########################################
+#
+# 8. (reserved)
+#
+
+########################################
+#
+# 9. Generate Makefile
+#
+
+(
+    echo "# Automatically generated by config; do not edit."
+    echo "#"
+    echo
+    echo '# Top of the kernel tree'
+    echo 'KTOP=../..'
+    echo '# Top of the whole tree'
+    echo 'TOP=$(KTOP)/..'
+
+    echo '# Debug vs. optimize'
+    awk < $CONFTMP '
+	# Default: optimize.
+	BEGIN { debugflags="-O2"; }
+	$1=="debug" {
+	    debugflags="-g";
+	}
+
+	END {
+	    printf "KDEBUG=%s\n", debugflags;
+	}
+    '
+    echo '# Name of the kernel config file'
+    echo "CONFNAME=$CONFNAME"
+    echo
+    echo '.include "$(TOP)/mk/os161.config.mk"'
+    echo '.include "files.mk"'
+    echo '.include "$(TOP)/mk/os161.kernel.mk"'
+
+) > $COMPILEDIR/Makefile || exit 1
+
+echo -n ' Makefile'
+
+########################################
+#
+# 10. (reserved)
+#
+
+########################################
+#
+# 11. Process attachment list.
+#     Generate autoconf.[ch].
+#
+
+ACHREAL=$COMPILEDIR/autoconf.h
+ACH=$COMPILEDIR/autoconf.h.new
+ACC=$COMPILEDIR/autoconf.c
+
+echo '/* Automatically generated; do not edit */' > $ACH
+echo '/* Automatically generated; do not edit */' > $ACC
+
+echo '#ifndef _AUTOCONF_H_' >> $ACH
+echo '#define _AUTOCONF_H_' >> $ACH
+
+#
+# first, declare struct foo_softc for all devices foo.
+#
+
+echo >> $ACH
+awk < $CONFTMP.attach '{ printf "struct %s_softc;\n", $2 }' >> $ACH
+
+#
+# second, declare the autoconf_foo functions for unattached devices.
+#
+# The autoconf_foo functions for attached devices are file-static
+# in autoconf.c.
+#
+
+echo >> $ACH
+awk < $CONFTMP.attach '$1=="noattach" { print $2 }' | sort -u | awk '
+    {
+	printf "void autoconf_%s(struct %s_softc *dev, int unit);\n", $1, $1;
+    }
+' >> $ACH
+
+#
+# third, declare the attach functions.
+#
+
+echo >> $ACH
+awk < $CONFTMP.attach '
+    $1=="attach" {
+	dev = $2;
+	bus = $5;
+	f = sprintf("struct %s_softc *attach_%s_to_%s", dev, dev, bus);
+	printf "%s(int devunit, struct %s_softc *bus);\n", f, bus;
+    }
+    $1=="pseudo" {
+	dev = $2;
+	printf "struct %s_softc *pseudoattach_%s(int devunit);\n", dev, dev;
+    }
+' >> $ACH
+
+#
+# fourth, declare the config functions.
+#
+
+echo >> $ACH
+awk < $CONFTMP.attach '
+    $1=="attach" {
+	dev = $2;
+	printf "int config_%s(struct %s_softc *dev, int unit);\n", dev, dev;
+    }
+' >> $ACH
+
+#
+# Declare pseudoconfig()
+#
+echo >> $ACH
+echo 'void pseudoconfig(void);' >> $ACH
+echo >> $ACH
+
+#
+# Done with the header file.
+#
+echo '#endif /* _AUTOCONF_H_ */' >> $ACH
+
+#
+# Avoid changing the actual autoconf.h if it's not different, so as to
+# reduce unnecessary recompiles.
+#
+
+if diff $ACHREAL $ACH >/dev/null 2>&1; then
+    rm -f $ACH            # unchanged
+else
+    mv -f $ACH $ACHREAL   # it changed
+fi
+
+echo -n ' autoconf.h'
+
+#
+# now, autoconf.c
+#
+
+echo '#include <types.h>' >> $ACC
+echo '#include <lib.h>' >> $ACC
+echo '#include "autoconf.h"' >> $ACC
+
+#
+# first, declare the static autoconf_foo functions and the nextunit_foo vars
+#
+echo >> $ACC
+awk < $CONFTMP.attach '$1=="attach" || $1=="pseudo" { print $2 }' | sort -u |\
+  awk '
+    {
+	printf "static void autoconf_%s(struct %s_softc *, int);\n", $1, $1;
+    }
+' >> $ACC
+awk < $CONFTMP.attach '$1=="attach" { print $2 }' | sort -u | awk '
+    {
+	printf "static int nextunit_%s;\n", $1;
+    }
+' >> $ACC
+echo >> $ACC
+
+#
+# Now generate the tryattach_ functions.
+#
+
+awk < $CONFTMP.attach '
+    $1=="attach" {
+	dev = $2;
+	bus = $5;
+	printf "static\n";
+	printf "int\n";
+	printf "tryattach_%s_to_%s", dev, bus;
+	printf "(int devunit, struct %s_softc *bus, int busunit)\n", bus;
+	printf "{\n";
+	printf "\tstruct %s_softc *dev;\n", dev;
+	printf "\tint result;\n", dev;
+	printf "\n";
+	printf "\tdev = attach_%s_to_%s(devunit, bus);\n", dev, bus;
+	printf "\tif (dev==NULL) {\n";
+	printf "\t\treturn -1;\n";
+	printf "\t}\n";
+	printf "\tkprintf(\"%s%%d at %s%%d\", devunit, busunit);\n", dev, bus;
+	printf "\tresult = config_%s(dev, devunit);\n", dev;
+	printf "\tif (result != 0) {\n";
+	printf "\t\tkprintf(\": %%s\\n\", strerror(result));\n";
+		# Note: we leak the device softc instead of trying
+		# to clean it up.
+	printf "\t\t/* should really clean up dev */\n";
+	printf "\t\treturn result;\n";
+	printf "\t}\n";
+	printf "\tkprintf(\"\\n\");\n";
+	printf "\tnextunit_%s = devunit+1;\n", dev;
+	printf "\tautoconf_%s(dev, devunit);\n", dev;
+	printf "\treturn 0;\n";
+	printf "}\n";
+	printf "\n";
+    }
+' >> $ACC
+echo >> $ACC
+
+
+#
+# Now comes the tricky part, actually writing those autoconf
+# functions.  We need one for every device. In each one, there needs
+# to be a probe section for each line in $CONFTMP.attach in which that
+# device appears on the *right hand* (bus) side.
+#
+
+awk < $CONFTMP.attach '
+    BEGIN { nlines=0; npseudo=0; }
+    $1=="attach" {
+	devs[nlines] = $2;
+	devunits[nlines] = $3;
+	buses[nlines] = $5;
+	busunits[nlines] = $6;
+	alldevs[$2] = 1;
+	nlines++;
+    }
+    $1=="noattach" {
+	alldevs[$2] = 0;
+    }
+    $1=="pseudo" {
+	alldevs[$2] = 0;
+	pseudodevs[npseudo] = $2;
+	pseudounits[npseudo] = $3;
+	npseudo++;
+    }
+
+    function genprobe(dev, devunit, bus, busunit) {
+
+	tryfunc = sprintf("tryattach_%s_to_%s", dev, bus);
+
+	if (busunit!="*") {
+	    printf "\tif (busunit==%d) {\n", busunit;
+	}
+	else {
+	    printf "\t{\n";
+	}
+
+	if (devunit!="*") {
+	    printf "\t\tif (nextunit_%s <= %d) {\n", dev, devunit;
+	    printf "\t\t\t%s(%d, bus, busunit);\n", tryfunc, devunit;
+	    printf "\t\t}\n";
+	}
+	else {
+	    printf "\t\tint result, devunit=nextunit_%s;\n", dev;
+	    printf "\t\tdo {\n";
+	    printf "\t\t\tresult = %s(devunit, bus, busunit);\n", tryfunc;
+	    printf "\t\t\tdevunit++;\n";
+	    printf "\t\t} while (result==0);\n";
+	}
+
+	printf "\t}\n";
+    }
+
+    END {
+	for (bus in alldevs) {
+	    softc = sprintf("struct %s_softc", bus);
+
+	    if (alldevs[bus]) printf "static\n";
+	    printf "void\n";
+	    printf "autoconf_%s(%s *bus, int busunit)\n", bus, softc;
+	    printf "{\n";
+	    printf "\t(void)bus; (void)busunit;\n";
+
+	    for (i=0; i<nlines; i++) {
+		if (buses[i]==bus) {
+		    genprobe(devs[i], devunits[i], buses[i], busunits[i]);
+		}
+	    }
+
+	    printf "}\n\n";
+	}
+
+	printf "void\n";
+	printf "pseudoconfig(void)\n";
+	printf "{\n";
+	for (i=0; i<npseudo; i++) {
+	    dev = pseudodevs[i];
+	    unit = pseudounits[i];
+	    printf "\t{\n";
+	    printf "\t\tstruct %s_softc *s;\n", dev;
+	    printf "\t\t\n";
+	    printf "\t\ts = pseudoattach_%s(%s);\n", dev, unit;
+	    printf "\t\tif (s!=NULL) {\n";
+	    printf "\t\t\tkprintf(\"%s%d (virtual)\\n\");\n", dev, unit;
+	    printf "\t\t\tautoconf_%s(s, %s);\n", dev, unit;
+	    printf "\t\t}\n";
+	    printf "\t}\n";
+	}
+	printf "}\n\n";
+    }
+' >> $ACC
+
+echo -n ' autoconf.c'
+
+rm -f $CONFTMP $CONFTMP.attach
+
+########################################
+#
+# Done.
+#
+
+echo
+echo "Configuration in ../compile/$CONFNAME done"
+echo "Remember to make depend"

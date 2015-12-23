@@ -1,0 +1,110 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>OS/161 Test binaries</title>
+<link rel="stylesheet" type="text/css" media="all" href="../manindex.css">
+</head>
+<body bgcolor=#ffffff>
+
+<h2 align=center>OS/161 Test binaries (/testbin)</h2>
+
+<p align=center>
+<A HREF=..>Top</A> |
+<A HREF=../bin>Binaries</A> |
+<A HREF=../sbin>Sysadmin binaries</A> |
+<A HREF=../syscall>System calls</A> |
+<A HREF=../libc>C standard library</A> |
+<A HREF=../dev>Device drivers</A> |
+<A HREF=../misc>Miscellaneous</A>
+</p>
+<br>
+
+<ul>
+<li> <A HREF=add.html>add</A> - add two numbers
+<li> <A HREF=argtest.html>argtest</A> - display arguments passed through execv
+<li> <A HREF=badcall.html>badcall</A> - make invalid system calls
+<li> <A HREF=bigexec.html>bigexec</A> - test exec with large argv blocks
+<li> <A HREF=bigfile.html>bigfile</A> - create a large file in small chunks
+<li> <A HREF=bigfork.html>bigfork</A> - large forking test
+<li> <A HREF=bigseek.html>bigseek</A> - test 64-bit seek positions
+<li> <A HREF=bloat.html>bloat</A> - waste memory
+<li> <A HREF=conman.html>conman</A> - echo typed characters
+<li> <A HREF=crash.html>crash</A> - commit various exceptions
+<li> <A HREF=ctest.html>ctest</A> - cyclic stride-oriented VM test
+<li> <A HREF=dirconc.html>dirconc</A> - concurrent directory operations test
+<li> <A HREF=dirseek.html>dirseek</A> - seek on directories test
+<li> <A HREF=dirtest.html>dirtest</A> - simple subdirectories test
+<li> <A HREF=f_test.html>f_test</A> - basic concurrent filesystem test
+<li> <A HREF=factorial.html>factorial</A> - compute factorials using execv
+<li> <A HREF=farm.html>farm</A> - run some hogs and cats
+<li> <A HREF=faulter.html>faulter</A> - commit address fault
+<li> <A HREF=filetest.html>filetest</A> - basic filesystem test
+<li> <A HREF=forkbomb.html>forkbomb</A> - create hundreds of processes
+<li> <A HREF=forktest.html>forktest</A> - test fork system call
+<li> <A HREF=frack.html>frack</A> - file system crack
+<li> <A HREF=guzzle.html>guzzle</A> - waste cpu
+<li> <A HREF=hash.html>hash</A> - compute a simple hash function of a file
+<li> <A HREF=hog.html>hog</A> - waste cpu
+<li> <A HREF=huge.html>huge</A> - very large VM test
+<li> <A HREF=kitchen.html>kitchen</A> - run some sinks
+<li> <A HREF=malloctest.html>malloctest</A> - some simple tests for
+   userlevel malloc
+<li> <A HREF=matmult.html>matmult</A> - baseline VM stress test
+<li> <A HREF=multiexec.html>multiexec</A> - run many exec calls at once
+<li> <A HREF=palin.html>palin</A> - simple VM test
+<li> <A HREF=parallelvm.html>parallelvm</A> - concurrent VM test
+<li> <A HREF=poisondisk.html>poisondisk</A> - write known "poison"
+   values to a disk image
+<li> <A HREF=psort.html>psort</A> - concurrent file system test
+<li> <A HREF=quinthuge.html>quinthuge</A> - very very large VM test
+<li> <A HREF=quintmat.html>quintmat</A> - very large VM test
+<li> <A HREF=quintsort.html>quintsort</A> - very large VM test
+<li> <A HREF=randcall.html>randcall</A> - make randomized system calls
+<li> <A HREF=redirect.html>redirect</A> - test I/O redirection
+<li> <A HREF=rmdirtest.html>rmdirtest</A> - test removing in-use directories
+<li> <A HREF=rmtest.html>rmtest</A> - test removing open files
+<li> <A HREF=sbrktest.html>sbrktest</A> - program for testing sbrk
+<li> <A HREF=schedpong.html>schedpong</A> - scheduler pong
+<li> <A HREF=sink.html>sink</A> - accept and throw away console input
+<li> <A HREF=sort.html>sort</A> - large quicksort-based VM test
+<li> <A HREF=sparsefile.html>sparsefile</A> - generate a sparse file
+<li> <A HREF=sty.html>sty</A> - run some hogs
+<li> <A HREF=tail.html>tail</A> - print part of a file
+<li> <A HREF=tictac.html>tictac</A> - tic-tac-toe game
+<li> <A HREF=triplehuge.html>triplehuge</A> - very very large VM test
+<li> <A HREF=triplemat.html>triplemat</A> - very large VM test
+<li> <A HREF=triplesort.html>triplesort</A> - very large VM test
+<li> <A HREF=usemtest.html>usemtest</A> - test for user-level (semfs) semaphores
+<li> <A HREF=userthreads.html>userthreads</A> - simple user-level threads test
+<li> <A HREF=zero.html>zero</A> - test if VM system zeros memory
+</ul>
+
+</body>
+</html>

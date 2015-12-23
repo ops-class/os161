@@ -1,0 +1,204 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>waitpid</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>waitpid</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+waitpid - wait for a process to exit
+</p>
+
+<h3>Library</h3>
+<p>
+Standard C Library (libc, -lc)
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>#include &lt;sys/wait.h&gt;</tt><br>
+<br>
+<tt>pid_t</tt><br>
+<tt>waitpid(pid_t </tt><em>pid</em><tt>, int *</tt><em>status</em><tt>,
+int </tt><em>options</em><tt>);</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+Wait for the process specified by <em>pid</em> to exit, and return an
+encoded exit status in the integer pointed to by <em>status</em>. If
+that process has exited already, <tt>waitpid</tt> returns
+immediately. If that process does not exist, <tt>waitpid</tt> fails.
+</p>
+
+<p>
+It is explicitly allowed for <em>status</em> to be <tt>NULL</tt>, in
+which case waitpid operates normally but the status value is not
+produced.
+</p>
+
+<p>
+A process moves from "has exited already" to "does not exist" when
+every process that is expected to collect its exit status with
+<tt>waitpid</tt> has done so.
+</p>
+
+<p>
+In the standard Unix model of processes, the only process that is
+expected to collect another process's exit status is its parent.
+(If you feel this is restrictive, you might try to extend the model or
+define a new one; however, this is not recommended. The only other
+model that really makes much sense is to let any process wait for any
+other process; but then you need to check for and reject combinations
+that would cause deadlock.)
+</p>
+
+<p>
+There are several semi-standard and messy/ugly ways in Unix for a
+process to indicate that it doesn't want to collect the exit status of
+a child it forks and therefore shouldn't be expected to. You do not
+need to implement any of these, but you might find it convenient for
+your own purposes to provide this functionality.
+</p>
+
+<p>
+If a parent process exits before one or more of its children, it can
+no longer be expected collect their exit status. There are several
+ways to handle this case in practice, of which the traditional Unix
+method is only one. This is something you should design.
+</p>
+
+<p>
+The <em>options</em> argument should be 0. You are not required to
+implement any options. (However, your system should check to make sure
+that requests for options you do not support are rejected.)
+</p>
+
+<p>
+If you desire, you may implement the Unix option WNOHANG; this causes
+waitpid, when called for a process that has not yet exited, to return
+0 immediately instead of waiting.
+</p>
+
+<p>
+The Unix option WUNTRACED, to ask for reporting of processes that stop
+as well as exit, is also defined in the header files, but implementing
+this feature is not required or necessary unless you are implementing
+job control.
+</p>
+
+<p>
+You may also make up your own options if you find them helpful.
+However, please, document anything you make up.
+</p>
+
+<p>
+The encoding of the exit status is comparable to Unix and is defined
+by the flags found in &lt;kern/wait.h&gt;. (Userlevel code should
+include &lt;sys/wait.h&gt; to get these definitions.) A process can
+exit by calling <A HREF=_exit.html>_exit()</A> or it can exit by
+receiving a fatal signal. In the former case the
+<tt>_MKWAIT_EXIT()</tt> macro should be used with the user-supplied
+exit code value to prepare the exit status; in the latter, the
+<tt>_MKWAIT_SIG()</tt> macro (or <tt>_MKWAIT_CORE()</tt> if a core
+file was generated) should be used with the signal number. The result
+encoding also allows notification of processes that have stopped; this
+would be used in connection with job control and with
+<tt>ptrace</tt>-based debugging if you were to implement those things.
+</p>
+
+<p>
+The <tt>_MKWAIT</tt> flags are not standard and should be considered
+part of the implementation.
+</p>
+
+<p>
+To <em>read</em> the wait status, use the macros <tt>WIFEXITED()</tt>,
+<tt>WIFSIGNALED()</tt>, and/or <tt>WIFSTOPPED()</tt> to find out what
+happened, and then <tt>WEXITSTATUS()</tt>, <tt>WTERMSIG()</tt>, or
+<tt>WSTOPSIG()</tt> respectively to get the exit code or signal
+number. If <tt>WIFSIGNALED()</tt> is true, <tt>WCOREDUMP()</tt> can be
+used to check if a core file was generated. This is the same as Unix,
+although the value encoding is different from the historic Unix
+format.
+</p>
+
+<h3>Return Values</h3>
+<p>
+<tt>waitpid</tt> returns the process id whose exit status is reported in
+<em>status</em>. In OS/161, this is always the value of <em>pid</em>.
+<p>
+
+<p>
+(In Unix, but not by default OS/161, you can wait for any of several
+processes by passing magic values of <em>pid</em>, so this return
+value can actually be useful.)
+</p>
+
+<p>
+If you implement WNOHANG, and WNOHANG is given, and the process
+specified by <em>pid</em> has not yet exited, waitpid returns 0.
+</p>
+
+<p>
+On error, -1 is returned, and <A HREF=errno.html>errno</A> is set to a
+suitable error code for the error condition encountered.
+</p>
+
+<h3>Errors</h3>
+<p>
+The following error codes should be returned under the conditions
+given. Other error codes may be returned for other cases not
+mentioned here.
+
+<table width=90%>
+<tr><td width=5% rowspan=4>&nbsp;</td>
+    <td width=10% valign=top>EINVAL</td>
+			<td>The <em>options</em> argument requested invalid or
+			unsupported options.</td></tr>
+<tr><td valign=top>ECHILD</td>
+			<td>The <em>pid</em> argument named a process
+			that was not a child of the current
+			process.</td></tr>
+<tr><td valign=top>ESRCH</td>
+			<td>The <em>pid</em> argument named a
+			nonexistent process.</td></tr>
+<tr><td valign=top>EFAULT</td>
+			<td>The <em>status</em> argument was an
+			invalid pointer.</td></tr>
+</table>
+</p>
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!--
+Copyright (c) 2015
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>schedpong</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>schedpong</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+schedpong - scheduler pong
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/schedpong</tt> [<em>options...</em>]
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>schedpong</tt> forks a number of processes that do different kinds
+of work.
+This can be used to evaluate the behavior of your scheduler under
+different conditions.
+</p>
+
+<p>
+There are three kinds of jobs in schedpong:
+<ul>
+<li>Thinkers</li>
+<li>Grinders</li>
+<li>Pong groups</li>
+</ul>
+</p>
+
+<p>
+A thinker job is one CPU-bound process: it loops computing and doesn't
+sleep for I/O or use much memory.
+</p>
+
+<p>
+A grinder job is one memory-bound process: it loops accessing lots of
+memory, similar to the various VM stress tests.
+</p>
+
+<p>
+A pong group job is a family of I/O-bound processes.
+An arbitrary number of processes play scheduler pong using the user
+semaphores (semfs), each process signalling the next.
+</p>
+
+<p>
+By choosing different numbers of thinkers, pong groups, and grinders,
+and adjusting the pong group size, one can evaluate how well a
+scheduler does under different conditions.
+In general schedulers should be favoring the pong groups in order to
+minimize the response latency of the semaphore ponging, but without
+starving the thinkers.
+Adding grinders to the mix lets your deal with what happens when you
+also have swapping going on, which is a complicated situation not
+handled well by textbook algorithms.
+</p>
+
+<p>
+Note that you need to have a real VM system (not dumbvm) to use
+grinders.
+With dumbvm you may also need to configure a fair amount of memory to
+get all the intended processes to fork successfully.
+</p>
+
+<p>
+Options:
+<dl>
+<dt>-t N</dt><dd>Configure N thinkers. (default 2)</dd>
+<dt>-g N</dt><dd>Configure N grinders. (default 0)</dd>
+<dt>-p N</dt><dd>Configure N pong groups. (default 1)</dd>
+<dt>-s N</dt><dd>Set the pong group size to N. (default 6)</dd>
+</dl>
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>schedpong</tt> uses the following system calls:
+<ul>
+<li><A HREF=../syscall/__time.html>__time</A></li>
+<li><A HREF=../syscall/open.html>open</A></li>
+<li><A HREF=../syscall/read.html>read</A></li>
+<li><A HREF=../syscall/write.html>write</A></li>
+<li><A HREF=../syscall/lseek.html>lseek</A></li>
+<li><A HREF=../syscall/close.html>close</A></li>
+<li><A HREF=../syscall/fork.html>fork</A></li>
+<li><A HREF=../syscall/waitpid.html>waitpid</A></li>
+<li><A HREF=../syscall/_exit.html>_exit</A></li>
+<li><A HREF=../syscall/remove.html>remove</A></li>
+<li><A HREF=../syscall/sbrk.html>sbrk</A></li>
+</ul>
+Only the grinder jobs use sbrk, and remove is only used for cleaning
+up.
+</p>
+
+<p>
+However, note that schedpong relies heavily on the user semaphores;
+if they do not work (owing e.g. to bugs in open/read/write) schedpong
+will not work either.
+Make sure <A HREF=usemtest.html>usemtest</A> runs (at least up to the
+"shoot" test, even if that part doesn't) before spending time on
+schedpong.
+</p>
+
+<p>
+<tt>schedpong</tt> without grinders should work once you have
+implemented the basic system calls and they work reliably
+(particularly fork).
+<tt>schedpong</tt> with grinders should work once you have implemented
+the sbrk system call and a virtual memory system that supports dynamic
+memory allocation.
+</p>
+
+</body>
+</html>

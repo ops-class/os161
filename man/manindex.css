@@ -1,0 +1,78 @@
+/*
+ * XXX: rather than use @import, better to put fonts in your html, instead:
+ * <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic'
+ *       rel='stylesheet' type='text/css'/>
+ * <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono'
+ *       rel='stylesheet' type='text/css'/>
+ */
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic);
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono);
+
+html {
+	background-color: #222;
+}
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 11pt;
+	line-height: 100%;
+	color: #444;
+	background-color: #fff;
+	max-width: 45em;
+	margin: 0 auto;
+	padding: 2em 2em 4em 2em;
+}
+
+p {
+	line-height: 150%;
+}
+
+em {
+	font-weight: regular;
+	font-style: italic;
+}
+
+h4, h3 {
+	color: #36648b;
+}
+
+a, a:link, a:visited, a:active {
+	color: #36648b;
+	text-decoration: underline;
+	font-weight: bold;
+}
+
+a:hover {
+	color: #000;
+}
+
+h2, h4 {
+	line-height: 1em;
+	margin: 0 0 2em 0;
+}
+
+/* title */
+h2 {
+	font-size: 1.5em;
+	text-align: center;
+}
+
+/* index */
+p[align=center] {
+	width: 80%;
+	margin: 0 auto;
+}
+
+ul {
+	list-style-type: none;
+}
+
+li {
+	line-height: 150%;
+}
+
+li a:first-child {
+	display: inline-block;
+	min-width: 8em;
+}
+

@@ -1,0 +1,120 @@
+The (potential) OS/161 assignments
+----------------------------------
+
+OS/161 is used by a wide variety of courses at a wide variety of
+schools, no two of which have the exact same set of assignments and
+assignment requirements. The code base has been (to the extent
+reasonably possible) structured to allow this and not assume any
+particular structure or (particularly) numbering of assignments.
+
+That said, in various places comments and documentation must (to be
+helpful, at least) refer to particular assignments and things that are
+(typically) done in particular assignments. These are written in
+fairly general terms. This file is provided as an index for those
+terms.
+
+***  Always refer to the course materials provided by your     ***
+***  instructors when trying to figure out what functionality  ***
+***  you are and are not required to implement.                ***
+
+Note that the OS/161 code base you are given may include solutions for
+some parts of the assignments described below, or even some whole
+assignments.
+
+Also note that the text below refers to assorted technical terms and
+OS concepts without much or any explanation; you may not be familiar
+with most of them at first and that's perfectly ok.
+
+
+OS/161 is intended to support six basic assignments, most of which can
+be divided into smaller pieces. These six assignments are:
+
+   - synchronization;
+   - basic system calls;
+   - virtual memory;
+   - basic file system functionality;
+   - file system recovery via journaling;
+   - some additional piece of OS functionality.
+
+
+Synchronization.
+
+This assignment has (potentially) three parts:
+   - Implement (sleep) locks and condition variables.
+   - Implement reader-writer locks.
+   - Solve some synchronization problems of the dining-philosophers
+     variety.
+
+
+Basic system calls. (And processes.)
+
+This assignment has (potentially) up to six parts:
+   - Implement file tables and open-file objects.
+   - Implement the basic system calls for files, normally:
+	- open()
+	- dup2()
+	- read()
+	- write()
+	- lseek()
+	- close()
+	- chdir()
+	- __getcwd()
+   - Implement processes, process IDs, and the basic process system
+     calls, normally:
+	- getpid()
+	- fork()
+	- _exit()
+	- waitpid()
+   - Implement the execv() system call.
+   - Implement a scheduler.
+
+
+Virtual memory.
+
+This assignment entails replacing a provided very simple virtual
+memory system with a real one. This possibly includes providing the
+sbrk() system call. It does not split into parts readily.
+
+
+Basic file system functionality.
+
+This assignment has (potentially) up to five parts:
+   - Add more system calls for file system operations, typically taken
+     from these:
+	- sync()
+	- mkdir()
+	- rmdir()
+	- remove()
+	- link()
+	- rename()
+	- getdirentry()
+	- fstat()
+	- fsync()
+	- ftruncate()
+	- flock()
+     although others may be chosen.
+   - Implement a buffer cache.
+   - Replace a biglock with fine-grained locking in the VFS layer
+     and/or the SFS file system.
+   - Add support for subdirectories to SFS.
+   - Implement cross-directory rename in SFS.
+   - Implement larger files in SFS.
+
+
+File system recovery via journaling.
+
+This assignment has (potentially) five parts:
+   - Implement an on-disk container for a file system journal.
+   - Instrument the buffer cache to support write-ahead journaling.
+   - Design a system of journal records suitable for recovering the
+     file system after a crash.
+   - Add code to SFS to issue these journal records.
+   - Implement code to read the on-disk journal and recover from a
+     crash.
+
+
+Additional projects.
+
+There is a wide variety of things that can be done to build on the
+above assignments. None are listed here, because this file is not
+the place for it.

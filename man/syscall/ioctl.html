@@ -1,0 +1,106 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>ioctl</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>ioctl</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+ioctl - miscellaneous device I/O operations
+</p>
+
+<h3>Library</h3>
+<p>
+Standard C Library (libc, -lc)
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>#include &lt;sys/ioctl.h&gt;</tt><br>
+<br>
+<tt>int</tt><br>
+<tt>ioctl(int </tt><em>fd</em><tt>, int </tt><em>code</em><tt>,
+void *</tt><em>data</em><tt>);</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>ioctl</tt> performs an object-specific operation <em>code</em> on
+the object referred to by the file handle <em>fd</em>. The
+<em>data</em> argument may point to supplemental data required or
+returned by the operation. The size of buffer required, if any, and
+other such matters are operation-specific.
+</p>
+
+<p>
+Traditionally, ioctl is a catchall function for performing operations
+that don't fit neatly into any other model.
+</p>
+
+<p>
+The ioctl codes are defined in &lt;kern/ioctl.h&gt;, which should be
+included via &lt;sys/ioctl.h&gt; by user-level code. As of this
+writing, the base OS/161 system defines no ioctls. However, it may
+prove useful to implement some, particularly in connection with some
+less conventional possible projects.
+</p>
+
+<h3>Return Values</h3>
+<p>
+On success, <tt>ioctl</tt> returns 0. On error, -1 is returned, and
+<A HREF=errno.html>errno</A> is set according to the error
+encountered.
+</p>
+
+<h3>Errors</h3>
+<p>
+The following error codes should be returned under the conditions
+given. Other error codes may be returned for other cases not
+mentioned here.
+
+<table width=90%>
+<tr><td width=5% rowspan=3>&nbsp;</td>
+    <td width=10% valign=top>EBADF</td>
+				<td><em>fd</em> was not a valid file
+				handle.</td></tr>
+<tr><td valign=top>EIOCTL</td>	<td><em>code</em> was an invalid ioctl for the
+				object referenced.</td></tr>
+<tr><td valign=top>EFAULT</td>	<td><em>data</em> was required by the
+				operation requested, but was an
+				invalid pointer.</td></tr>
+</table>
+</p>
+
+</body>
+</html>

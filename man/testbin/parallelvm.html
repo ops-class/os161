@@ -1,0 +1,115 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013, 2015
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>parallelvm</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>parallelvm</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+parallelvm - concurrent VM system test
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/parallelvm</tt> [<tt>-w</tt>]
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>parallelvm</tt> runs a fairly large number (24) of fairly small
+processes in parallel to stress your VM system. The processes perform
+aimless matrix operations.
+</p>
+
+<p>
+Before attempting <tt>parallevm</tt> make sure the <tt>zero</tt> test
+passes; <tt>parallelvm</tt> will fail with wrong answers if its BSS
+doesn't start out zeroed. Also, it may be helpful to get it running
+successfully purely in RAM before cutting back the memory size so it
+swaps.
+</p>
+
+<p>
+If your VM system's fork is particularly slow, you will probably find
+that the early processes exit before the later ones finish forking.
+This reduces the total memory load and can easily cause
+<tt>parallelvm</tt> to run completely in RAM without needing to swap;
+this in turn makes it a much less effective stress test.
+</p>
+
+<p>
+For this reason, the <tt>-w</tt> option can be used to make all the
+subprocesses sync up before starting to compute.
+They use user-level semaphores for coordination.
+</p>
+
+<p>
+If benchmarking, always use <tt>-w</tt>.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>parallelvm</tt> uses the following system calls:
+<ul>
+<li> <A HREF=../syscall/getpid.html>getpid</A>
+<li> <A HREF=../syscall/fork.html>fork</A>
+<li> <A HREF=../syscall/fork.html>waitpid</A>
+<li> <A HREF=../syscall/write.html>write</A>
+<li> <A HREF=../syscall/_exit.html>_exit</A>
+</ul>
+</p>
+
+<p>
+Adding the <tt>-w</tt> option also uses:
+<ul>
+<li> <A HREF=../syscall/open.html>open</A>
+<li> <A HREF=../syscall/write.html>read</A>
+<li> <A HREF=../syscall/close.html>close</A>
+<li> <A HREF=../syscall/remove.html>remove</A>
+</ul>
+</p>
+
+<p>
+<tt>parallelvm</tt> should run properly once your VM system is complete.
+</p>
+
+<p>
+Until the remove system call has been implemented, which is
+typically not part of the basic system calls assignment,
+<tt>parallelvm -w</tt> will be unable to clean up its semaphores.
+This is merely untidy and not a real problem.
+</p>
+
+</body>
+</html>

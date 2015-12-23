@@ -1,0 +1,143 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>printf</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>printf</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+printf - print formatted output
+</p>
+
+<h3>Library</h3>
+<p>
+Standard C Library (libc, -lc)
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>#include &lt;stdio.h&gt;</tt><br>
+<br>
+<tt>int</tt><br>
+<tt>printf(const char *</tt><em>format</em><tt>, ...);</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>printf</tt> prints formatted text to standard output. The text is
+generated from the <em>format</em> argument and subsequent arguments
+according to the following rules.
+</p>
+
+<p>
+Characters in <em>format</em> that are not the percent sign
+(<tt>%</tt>) are printed verbatim. When a percent sign is encountered,
+the next argument of the arguments following <em>format</em> is
+retrieved and printed. The type of the argument expected, as well as
+some simple formatting instructions, are derived from the characters
+following the percent sign.
+</p>
+
+<p>
+The following characters designate types to print. One of these
+characters concludes the format sequence begun with a percent sign,
+and also determines the type expected as an argument.
+</p>
+
+<table width=90%>
+<tr><td width=5% rowspan=9>
+    <td width=5%>%</td>	<td>A percent sign is printed; no argument
+				is consumed.</td></tr>
+<tr><td>c</td>	<td>Character (char, passed as an integer value)</td></tr>
+<tr><td>d</td>	<td>Signed integer value printed in decimal</td></tr>
+<tr><td>o</td>	<td>Unsigned integer value printed in octal</td></tr>
+<tr><td>p</td>	<td>Pointer (void *)</td></tr>
+<tr><td>s</td>	<td>String (const char *)</td></tr>
+<tr><td>u</td>	<td>Unsigned integer value printed in decimal</td></tr>
+<tr><td>x</td>	<td>Unsigned integer value printed in hexadecimal</td></tr>
+<tr><td>X</td>	<td>Unsigned integer value printed in uppercase hex</td></tr>
+</table>
+
+<p>
+The following characters are modifiers; they can be found between the
+percent sign and the type designator.
+</p>
+
+<table width=90%>
+<tr><td width=5% rowspan=6>
+    <td width=5% valign=top>#</td> <td>Select an "alternate
+				format". On integer formats this
+				causes the C base prefix to be printed
+				along with the integer. On other
+				formats, this has no effect.</td></tr>
+<tr><td valign=top>l</td> <td>Assume an integer argument is
+				<tt>long</tt> or <tt>unsigned
+				long</tt> instead of <tt>int</tt> or
+				<tt>unsigned int</tt>. If repeated,
+				the argument is taken to be <tt>long
+				long</tt> or <tt>unsigned long
+				long</tt>. </td></tr>
+<tr><td valign=top>z</td> <td>Assume an integer argument is
+				<tt>ssize_t</tt> or <tt>size_t</tt>
+				instead of <tt>int</tt> or
+				<tt>unsigned int</tt>. </td></tr>
+<tr><td valign=top>0-9</td> <td>Digits are treated as a decimal number,
+				which is considered to be the field
+				width. The argument is printed
+				right-aligned in a field that many
+				characters wide.</td></tr>
+<tr><td valign=top>0</td> <td>If the field width has a leading 0, the
+				padding character for alignment is
+				made 0 (zero) instead of
+				space.</td></tr>
+<tr><td valign=top>-</td> <td>If a field width is given, use it for
+				left alignment instead of right
+				alignment.</td></tr>
+</table>
+
+<h3>Restrictions</h3>
+<p>
+Note that this is a limited printf implementation - it has no support
+for precisions (".number" as a modifier), floating-point formats,
+field widths passed as arguments, or the rarely-used plus and space
+modifiers.
+</p>
+
+<h3>Return Values</h3>
+<p>
+<tt>printf</tt> returns the number of characters printed.
+</p>
+
+</body>
+</html>

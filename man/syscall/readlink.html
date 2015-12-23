@@ -1,0 +1,104 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>readlink</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>readlink</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+readlink - fetch symbolic link contents
+</p>
+
+<h3>Library</h3>
+<p>
+Standard C Library (libc, -lc)
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>#include &lt;unistd.h&gt;</tt><br>
+<br>
+<tt>int</tt><br>
+<tt>readlink(const char *</tt><em>path</em><tt>, char *</tt><em>buf</em><tt>,
+size_t </tt><em>len</em><tt>);</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>readlink</tt> retrieves the contents of the symbolic link named by
+<em>path</em> and places them in the buffer <em>buf</em>. At most
+<em>len</em> bytes are written.
+</p>
+
+<p>
+<tt>readlink</tt> does not include a null terminator in <em>buf</em>.
+</p>
+
+<p>
+The call (like all system calls) should be atomic.
+Note that the kernel is not obliged to (and generally cannot) make the
+read atomic with respect to other threads in the same process
+accessing the buffer during the operation.
+</p>
+
+<h3>Return Values</h3>
+<p>
+<tt>readlink</tt> returns the number of characters transferred. If an
+error occurs, -1 is returned, and <A HREF=errno.html>errno</A> is set
+according to the error encountered.
+</p>
+
+<h3>Errors</h3>
+<p>
+The following error codes should be returned under the conditions
+given. Other error codes may be returned for other cases not
+mentioned here.
+
+<table width=90%>
+<tr><td width=5% rowspan=6>&nbsp;</td>
+    <td width=10% valign=top>ENODEV</td>
+				<td>The device prefix of <em>filename</em> did
+				not exist.</td></tr>
+<tr><td valign=top>ENOTDIR</td>	<td>A non-final component of <em>path</em>
+				was not a directory.</td></tr>
+<tr><td valign=top>ENOENT</td>	<td>The named file does not exist.</td></tr>
+<tr><td valign=top>EINVAL</td>	<td>The named file is not a symlink.</td></tr>
+<tr><td valign=top>EIO</td>	<td>A hard I/O error occurred.</td></tr>
+<tr><td valign=top>EFAULT</td>	<td><em>buf</em> or <em>path</em> points to an
+				invalid address.</td></tr>
+</table>
+</p>
+
+</body>
+</html>

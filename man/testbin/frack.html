@@ -1,0 +1,160 @@
+<!--
+Copyright (c) 2015
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>frack</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>frack</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+frack - file system crack
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/frack</tt> <tt>list</tt><br>
+<tt>/testbin/frack</tt> <tt>do</tt> <em>workload</em> [<em>arg</em>]<br>
+<tt>/testbin/frack</tt> <tt>check</tt> <em>workload</em> [<em>arg</em>]<br>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>frack</tt> is a general-purpose file system checker.
+It has a number of workloads built into it (currently 58, some of
+which are families of related workloads), each of which can be run in
+either <tt>do</tt> mode or <tt>check</tt> mode.
+</p>
+
+<p>
+In <tt>do</tt> mode, <tt>frack</tt> executes the chosen workload
+against the file system.
+</p>
+
+<p>
+In <tt>check</tt> mode, <tt>frack</tt> executes the chosen workload
+against an internal model of a file system, and builds a
+representation of all the successive states the file system reaches.
+Then it inspects the file system it is run on and matches its state
+against this representation.
+It finds the closest matching state, and then prints out the
+discrepancies it finds between that state and what it sees.
+</p>
+
+<p>
+Note that the <tt>check</tt> mode expects that the <tt>do</tt> mode
+was run on an empty (newly formatted) file system volume.
+Otherwise, any other stuff on the volume will appear as a discrepancy
+and may cause the state matching algorithm to fail.
+</p>
+
+<p>
+The intended use is for testing file system recovery: run a workload
+in <tt>do</tt> mode, crash during the workload (e.g. using the
+System/161 doom counter), run file system recovery, then run the same
+workload in <tt>check</tt> mode.
+Ideally, the <tt>check</tt> mode run will find the resulting on-disk
+state after recovery to exactly match some valid state the workload
+reached.
+In practice, some forms of discrepancy are often considered
+acceptable; your course staff should give you guidance on what you are
+and are not required to handle.
+</p>
+
+<p>
+Note that you probably want to get your recovery code to the point
+where it reliably produces a valid, self-consistent volume that
+<A HREF=../sbin/sfsck.html>sfsck</A> accepts before worrying about
+whether the <tt>frack check</tt> phase passes.
+</p>
+
+<p>
+<tt>frack</tt> can also be used for testing the general correctness of
+a file system, such as by running the <tt>do</tt> mode of a workload
+to completion and then immediately (or after shutting down cleanly and
+rebooting) running in <tt>check</tt> mode.
+</p>
+
+<p>
+Use <tt>frack list</tt> to see the available workloads.
+Some workloads take arguments; <em>size</em> arguments should be one
+of the keywords <tt>small</tt>, <tt>medium</tt>, or <tt>large</tt>,
+reflecting the size of the test file(s).
+<em>Seed</em> arguments are integer random seeds from 0 to
+2<sup>31</sup>-1.
+</p>
+
+<p>
+Some workloads contain an explicit <tt>sync</tt>; generally these are
+meant to be crashed after, not before (or during) the sync call.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>frack</tt> uses the following system calls:
+<ul>
+<li><A HREF=../syscall/open.html>open</A></li>
+<li><A HREF=../syscall/fstat>fstat</A></li>
+<li><A HREF=../syscall/ftruncate>ftruncate</A></li>
+<li><A HREF=../syscall/lseek.html>lseek</A></li>
+<li><A HREF=../syscall/getdirentry>getdirentry</A></li>
+<li><A HREF=../syscall/read>read</A></li>
+<li><A HREF=../syscall/write.html>write</A></li>
+<li><A HREF=../syscall/close.html>close</A></li>
+<li><A HREF=../syscall/link>link</A></li>
+<li><A HREF=../syscall/remove>remove</A></li>
+<li><A HREF=../syscall/chdir>chdir</A></li>
+<li><A HREF=../syscall/mkdir>mkdir</A></li>
+<li><A HREF=../syscall/rmdir>rmdir</A></li>
+<li><A HREF=../syscall/rename>rename</A></li>
+<li><A HREF=../syscall/sync>sync</A></li>
+<li><A HREF=../syscall/_exit.html>_exit</A></li>
+</ul>
+but note that it is intended to be able to exercise all the
+file-system-related calls and its exact requirements are
+workload-dependent.
+</p>
+
+<p>
+<tt>frack</tt> is most useful for testing file system recovery, by
+intentionally crashing during workload runs.
+But it is also useful for checking general correctness of a file
+system.
+</p>
+
+<h3>Bugs</h3>
+<p>
+Currently, none of the specific workloads are documented.
+</p>
+
+</body>
+</html>

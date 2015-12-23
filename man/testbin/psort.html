@@ -1,0 +1,127 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013, 2014
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>psort</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>psort</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+psort - concurrent file system test
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/psort</tt> [<tt>-p</tt> <em>numprocs</em>]
+[<tt>-k</tt> <em>numkeys</em>] [<tt>-r</tt> | <tt>-s</tt> <em>randomseed</em>]
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>psort</tt> does an on-disk parallelizing sort of a large number of
+randomly generated integers.
+It is loosely based on some real parallel sort benchmarks.
+</p>
+
+<p>
+Be aware of its size vs. the size of your buffer cache, and adjust its
+size as needed. Running it so it fits entirely in cache and running it
+so it overflows the cache are both valid stress tests, but have quite
+different characteristics.
+</p>
+
+<h3>Options</h3>
+<ul>
+<li> <tt>-k</tt> Set the number of integers. Default is 131072.
+<li> <tt>-p</tt> Set the number of processes. Default is 4.
+<li> <tt>-r</tt> Get a random seed from the <tt>random:</tt> device.
+<li> <tt>-s</tt> <em>randomseed</em> Choose an explicit random seed.
+</ul>
+<p>
+The memory footprint depends on the number of processes and the
+per-process work buffer size (which can be changed at compile time);
+the file system footprint depends on the number of integers.
+Specifically, the memory footprint is the number of processes (default
+4) times the buffer size (default 384K), and the file size is the
+number of integers (default 131,072) multiplied by the size of an
+integer (here 4) multiplied by the maximum number of copies of the
+data that appear at once, which is 3, so 1.5 MB.
+</p>
+
+<p>
+Note that the parent psort process does not serve as one of the worker
+processes; it also has a work buffer, but doesn't use it.
+Also note that it forks several (six) sets of subprocesses in the
+course of execution.
+A virtual memory system that doesn't support the zerofilled page
+optimization will both use 1/n more memory for the extra work buffer
+and also incur a fairly large cost copying it in every fork.
+Also, because of the large number of forks the amount of RAM required
+to run psort using dumbvm is likely prohibitive.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>psort</tt> uses the following system calls:
+<ul>
+<li> <A HREF=../syscall/open.html>open</A>
+<li> <A HREF=../syscall/dup2.html>dup2</A>
+<li> <A HREF=../syscall/read.html>read</A>
+<li> <A HREF=../syscall/write.html>write</A>
+<li> <A HREF=../syscall/lseek.html>lseek</A>
+<li> <A HREF=../syscall/close.html>close</A>
+<li> <A HREF=../syscall/stat.html>stat</A> or
+     <A HREF=../syscall/fstat.html>fstat</A> (optional)
+<li> <A HREF=../syscall/remove.html>remove</A>
+<li> <A HREF=../syscall/fork.html>fork</A>
+<li> <A HREF=../syscall/execv.html>execv</A>
+<li> <A HREF=../syscall/waitpid.html>waitpid</A>
+<li> <A HREF=../syscall/_exit.html>_exit</A>
+</ul>
+It also execs <A HREF=../bin/cat.html>cat</A>.
+</p>
+
+<p>
+<tt>psort</tt> should be able to run properly on SFS filesystems once
+the basic system calls are implemented. However, you may need to
+adjust its workload size depending on the level of large-file support
+you have in SFS.
+</p>
+
+<p>
+<tt>psort</tt> will mostly run on emufs, but there isn't really much
+point in that.
+</p>
+
+</body>
+</html>

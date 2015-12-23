@@ -1,0 +1,116 @@
+<!--
+Copyright (c) 2015
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>multiexec</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>multiexec</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+multiexec - run many exec calls at once
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/multiexec</tt> [-j <em>nprocs</em>]
+				[<em>prog</em> [<em>arg</em> ...]]
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>multiexec</tt> forks several subprocesses and then uses user-level
+semaphores to cause them to all enter
+<A HREF=../syscalls/execv>execv</A> at as close as possible to the
+same time.
+This is useful for seeing what happens if having too many argv buffers
+in use at once causes the kernel to run into problems, or to test the
+efficacy of measures to mitigate those problems.
+</p>
+
+<p>
+The default number of subprocesses is 12.
+The default program each subprocess runs is <A HREF=../bin/pwd.html>pwd</A>.
+Other larger programs can be run by giving the program name and
+arguments on <tt>multiexec</tt>'s command line.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>multiexec</tt> uses the following system calls:
+<ul>
+<li><A HREF=../syscall/getpid.html>getpid</A></li>
+<li><A HREF=../syscall/open.html>open</A></li>
+<li><A HREF=../syscall/read.html>read</A></li>
+<li><A HREF=../syscall/write.html>write</A></li>
+<li><A HREF=../syscall/close.html>close</A></li>
+<li><A HREF=../syscall/remove.html>remove</A></li>
+<li><A HREF=../syscall/fork.html>fork</A></li>
+<li><A HREF=../syscall/execv.html>execv</A></li>
+<li><A HREF=../syscall/waitpid.html>waitpid</A></li>
+<li><A HREF=../syscall/_exit.html>_exit</A></li>
+</ul>
+</p>
+
+<p>
+<tt>multiexec</tt> should work once you have implemented the basic
+system calls.
+Exactly what the requirements are for handling large multiexec
+invocations is up to your course staff, although probably at a minimum
+your kernel shouldn't crash.
+</p>
+
+<p>
+Until you implement remove, which is typically not part of the basic
+system calls assignment, <tt>multiexec</tt> will not be able to clean
+up after itself.
+This is untidy but not a problem.
+</p>
+
+<h3>Bugs</h3>
+<p>
+<tt>multiexec</tt> has a compiled-in limit of 64 words in the argv
+array to be passed to its subprocesses.
+Also, there should be an easy way to pass a very large argv.
+In the meantime, perhaps try having <tt>multiexec</tt> run
+<A HREF=bigexec.html>bigexec</A>.
+</p>
+
+<h3>Restrictions</h3>
+<p>
+Be aware that until you do the VM assignment and replace dumbvm,
+running a lot of execs will run the system out of memory very
+rapidly.
+</p>
+
+</body>
+</html>

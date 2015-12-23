@@ -1,0 +1,80 @@
+<!--
+Copyright (c) 2015
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>bigseek</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>bigseek</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+bigseek - test 64-bit seek positions
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/bigseek</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>bigseek</tt> tests manipulation of seek pointers past
+2<sup>31</sup>.
+It is somewhat limited in what it can do, because neither SFS nor
+emufs supports files larger than 2<sup>32</sup> bytes; but it can
+still seek around and check that the resulting seek position is
+reported correctly.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>bigseek</tt> uses the following system calls:
+<ul>
+<li><A HREF=../syscall/open.html>open</A></li>
+<li><A HREF=../syscall/lseek.html>lseek</A></li>
+<li><A HREF=../syscall/write.html>read</A></li>
+<li><A HREF=../syscall/write.html>write</A></li>
+<li><A HREF=../syscall/close.html>close</A></li>
+<li><A HREF=../syscall/close.html>remove</A></li>
+<li><A HREF=../syscall/_exit.html>_exit</A></li>
+</ul>
+</p>
+
+<p>
+<tt>bigseek</tt> should work once you have implemented the basic
+system calls.
+Until you implement remove, it will not be able to delete its test
+file; this is merely untidy, not a problem.
+</p>
+
+</body>
+</html>

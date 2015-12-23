@@ -1,0 +1,55 @@
+                      SHELL DESIGN NOTES
+                      ------------------
+
+   The shell has few bells and whistles. It allows up to 128
+backgrounded jobs (after this point you have to wait for some to exit,
+because the table it uses to track these cannot be resized.)
+
+   The background jobs are tracked in an array of MAXBG pid_t's. If an
+open slot is found, a background job's pid can be stashed there.
+Background jobs can be collected using the "wait" built-in command,
+which removes any pids whose exit status it collects from the
+background jobs table.
+
+   The wait built-in command takes an optional argument, the process
+id to wait for. The shell will attempt to wait for any process, not
+just the ones it actually started as its own background jobs. However,
+since no facility exists for looking up the pids of running processes,
+this ability is not necessarily useful. If no argument is provided,
+wait waits for all outstanding background jobs.
+
+   The shell uses WNOHANG if WNOHANG is defined, in which case
+background jobs are polled after every command, like in Unix shells.
+If WNOHANG is not defined, background jobs are polled only by user
+request. In OS/161 2.0, WNOHANG is always defined in the kernel header
+files, but the implementation is only suggested, not required. To make
+the shell stop trying to use WNOHANG, patch it, or remove WNOHANG from
+kern/wait.h.
+
+   There are two other built-in commands: chdir, which uses the chdir
+system call to change directory, and can also be accessed as just cd,
+and exit, which causes the shell to exit with a specified exit status
+(0 if not supplied).
+
+   Note that all these built-in commands must be built into the shell
+in order to work usefully.
+
+   The shell processes commands by reading lines and then splitting
+them up into words using whitespace characters (space, tab, carriage
+return, and newline) as separators. No punctuation characters are
+interpreted, except for `&'. No variable substitution or argument
+wildcard expansion ("globbing") is performed.
+
+   The `&' character, if present as the last word on a command line,
+is treated as the "background" operator: the command is run as a
+background job, that is, after starting it the shell immediately
+prints another prompt and accepts more commands. Note that the `&'
+must be preceded by whitespace to be recognized. The process id of the
+background job is printed as it starts. Note that shell builtins
+cannot be backgrounded; furthermore, because the OS/161 console does
+not support job control, starting background jobs that perform
+terminal input (or, to a lesser extent, terminal output) may produce
+confusing and/or unwanted results.
+
+   The shell also supports the "sh -c COMMAND" syntax in the hopes
+that it will be useful.

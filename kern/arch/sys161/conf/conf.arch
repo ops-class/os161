@@ -1,0 +1,34 @@
+
+#
+# Platform-dependent sources for System/161.
+#
+
+
+#
+# locore
+#
+
+# Cache handling for the kind of MIPS we have
+platform sys161 file    arch/mips/locore/cache-mips161.S
+
+# Exception handling (assembler entry points) for the kind of MIPS we have
+platform sys161 file    arch/mips/locore/exception-mips1.S
+
+#
+# VM
+#
+
+# TLB handling for the kind of MIPS we have
+platform sys161 file    arch/mips/vm/tlb-mips161.S
+
+#
+# Devices. We have LAMEbus.
+#
+
+platform sys161 file    arch/sys161/dev/lamebus_machdep.c
+include dev/lamebus/conf.lamebus
+
+#
+# Startup and initialization.
+#
+platform sys161 file    arch/sys161/main/start.S

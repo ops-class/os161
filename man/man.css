@@ -1,0 +1,93 @@
+/*
+ * Rather than use @import, it's better to put fonts in your html:
+ * <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic'
+ *       rel='stylesheet' type='text/css'/>
+ * <link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono'
+ *       rel='stylesheet' type='text/css'/>
+ */
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700,400italic);
+@import url(http://fonts.googleapis.com/css?family=Droid+Sans+Mono);
+
+html {
+	background-color: #222;
+}
+
+body {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 11pt;
+	line-height: 100%;
+	color: #444;
+	background-color: #fff;
+	max-width: 45em;
+	margin: 0 auto;
+	padding: 2em 2em 4em 2em;
+}
+
+p {
+	text-align: left;
+	line-height: 150%;
+}
+
+tt, code, pre {
+	color: #444;
+	font-family: 'Droid Sans Mono', monospace;
+	font-size: 10pt;
+	line-height: 100%;
+}
+
+em {
+	font-weight: regular;
+	font-style: italic;
+}
+
+h4, h3 {
+	color: #36648b;
+}
+
+a, a:link, a:visited, a:active {
+	color: #36648b;
+	text-decoration: underline;
+	font-weight: bold;
+}
+
+a:hover {
+	color: #000;
+}
+
+h2, h4 {
+	line-height: 1em;
+	margin: 0 0 2em 0;
+}
+
+/* title */
+h2 {
+	font-size: 1.5em;
+	text-align: right;
+	float: right;
+}
+
+/* manual */
+h4 {
+	font-size: inherit;
+	text-align: left;
+	float: left;
+}
+
+/* section */
+h3 {
+	clear: both;
+	margin: 2em 0 0 0;
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+table {
+	margin: 1em 0 1em 0;
+	border: none;
+}
+
+td, th {
+	padding: 0.5ex 1ex;
+	border: none;
+}
+

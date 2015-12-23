@@ -1,0 +1,101 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>badcall</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>badcall</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+badcall - make invalid system calls
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/badcall</tt> [<em>test...</em>]
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>badcall</tt> contains a variety of tests for system call error
+conditions and error handling. The tests are grouped by system call;
+all available tests for a particular system call are run when that
+system call is selected.
+</p>
+
+<p>
+None of the tests should crash the system. If you kill processes when
+system calls fail with EFAULT (a valid thing to do) <tt>badcall</tt>
+itself may get killed. Otherwise, <tt>badcall</tt> should not get
+killed either.
+</p>
+
+<p>
+Tests may be selected on the command line; if so, all the tests
+selected on the command line will be run in order. If nothing is
+selected on the command line, a menu is printed and tests are prompted
+for.
+</p>
+
+<p>
+The tests for the individual syscalls are specified with the letters
+`a' through `y'. A single-digit number may also be specified; this
+tests all the system calls that are supposed to work once the
+corresponding assignment is completed. `*' may be used to test
+everything. Use `!' to quit.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>badcall</tt> can test every system call. It requires
+<A HREF=../syscall/read.html>read</A> and
+<A HREF=../syscall/write.html>write</A> itself to work properly, and
+some of the tests may use syscalls other than the ones being tested.
+</p>
+
+<p>
+At the completion of each assignment, the system should pass the tests
+for the syscalls associated with that (and previous) assignments. At
+no time should anything <tt>badcall</tt> does crash the system.
+</p>
+
+<p>
+Ideally, your course staff will have updated the copy of
+<tt>badcall</tt> you received with OS/161 to reflect the system calls
+required in each of the assignments in your course. In practice, this
+will probably not be the case. It is likely a better idea to test each
+system call explicitly than rely on the per-assignment lists.
+</p>
+
+</body>
+</html>

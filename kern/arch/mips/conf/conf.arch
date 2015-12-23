@@ -1,0 +1,79 @@
+
+#
+# The machine dependent sources for MIPS.
+#
+
+# Standard C functions
+machine mips file    ../common/libc/arch/mips/setjmp.S
+
+# 64-bit integer ops support for gcc
+machine mips file    ../common/gcc-millicode/adddi3.c
+machine mips file    ../common/gcc-millicode/anddi3.c
+machine mips file    ../common/gcc-millicode/ashldi3.c
+machine mips file    ../common/gcc-millicode/ashrdi3.c
+machine mips file    ../common/gcc-millicode/cmpdi2.c
+machine mips file    ../common/gcc-millicode/divdi3.c
+machine mips file    ../common/gcc-millicode/iordi3.c
+machine mips file    ../common/gcc-millicode/lshldi3.c
+machine mips file    ../common/gcc-millicode/lshrdi3.c
+machine mips file    ../common/gcc-millicode/moddi3.c
+machine mips file    ../common/gcc-millicode/muldi3.c
+machine mips file    ../common/gcc-millicode/negdi2.c
+machine mips file    ../common/gcc-millicode/notdi2.c
+machine mips file    ../common/gcc-millicode/qdivrem.c
+machine mips file    ../common/gcc-millicode/subdi3.c
+machine mips file    ../common/gcc-millicode/ucmpdi2.c
+machine mips file    ../common/gcc-millicode/udivdi3.c
+machine mips file    ../common/gcc-millicode/umoddi3.c
+machine mips file    ../common/gcc-millicode/xordi3.c
+
+#
+# Low-level stuff ("locore")
+# The platform should select cache handling and exception handling from
+# among these:
+#
+#    cache-mips1.S
+#    cache-mips161.S
+#    cache-mips32.S
+#
+#    exception-mips1.S
+#    exception-mips32.S
+#
+
+machine mips file    arch/mips/locore/trap.c	# Common trap handler.
+
+#
+# Thread subsystem
+#
+
+machine mips file    arch/mips/thread/cpu.c	# CPU control.
+machine mips file    arch/mips/thread/switch.S	# Thread context switch
+machine mips file    arch/mips/thread/switchframe.c	# New thread prep
+machine mips file    arch/mips/thread/thread_machdep.c	# MD thread code
+machine mips file    arch/mips/thread/threadstart.S	# New thread startup
+
+#
+# VM system
+# The platform should select TLB handling from among these:
+#
+#    tlb-mips1.S
+#    tlb-mips161.S
+#    tlb-mips32.S
+#
+
+machine mips file    arch/mips/vm/ram.c		# Physical memory accounting
+
+# This is included here rather than in conf.kern because
+# it may not be suitable for all architectures.
+machine mips file    vm/copyinout.c		# copyin/out et al.
+
+# For the early assignments, we supply a very stupid MIPS-only skeleton
+# of a VM system. It is just barely capable of running a single userlevel
+# program as long as that program's not very large.
+defoption   dumbvm
+machine mips optfile dumbvm    arch/mips/vm/dumbvm.c
+
+#
+# System call layer
+#
+machine mips file    arch/mips/syscall/syscall.c	# System call handler

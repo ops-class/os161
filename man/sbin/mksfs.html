@@ -1,0 +1,113 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>mksfs</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>mksfs</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+mksfs - create an SFS filesystem
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/sbin/mksfs</tt> <em>raw-device</em> <em>volname</em> <br>
+<tt>host-mksfs</tt> <em>disk-image-file</em> <em>volname</em>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>mksfs</tt> creates a new SFS filesystem on the specified device or
+disk image. The volume name is set to <em>volname</em>.
+</p>
+
+<p>
+If <tt>mksfs</tt> is used under OS/161, the first form should be used,
+where <em>raw-device</em> is a raw device name (such as "lhd1raw:").
+Don't use a device that's already mounted. Don't use a device that's
+being used for swap, either.
+</p>
+
+<p>
+<tt>mksfs</tt> can also be used on the System/161 host OS, in which
+case the second form should be used. The host-compiled version of
+<tt>mksfs</tt> knows how to deal with the header on System/161 disk
+images and does the right thing.
+</p>
+
+<p>
+Note that as of this writing <tt>host-mksfs</tt> cannot create
+System/161 disk image files. This is a bug and will hopefully be
+addressed eventually.
+</p>
+
+<h3>Requirements</h3>
+
+<p>
+<tt>mksfs</tt> uses the following system calls:
+<ul>
+<li> <A HREF=../syscall/open.html>open</A>
+<li> <A HREF=../syscall/read.html>read</A>
+<li> <A HREF=../syscall/write.html>write</A>
+<li> <A HREF=../syscall/lseek.html>lseek</A>
+<li> <A HREF=../syscall/fstat.html>fstat</A>
+<li> <A HREF=../syscall/close.html>close</A>
+<li> <A HREF=../syscall/_exit.html>_exit</A>
+</ul>
+</p>
+
+<p>
+<tt>mksfs</tt> should function properly under OS/161 once the file
+system assignment is complete.
+</p>
+
+<p>
+The host version of <tt>mksfs</tt>, since it runs outside of OS/161,
+should always work regardless of what you have and have not
+implemented.
+</p>
+
+<p>
+You will likely need to make some changes to <tt>mksfs</tt> in the
+course of doing the file system assignment.
+</p>
+
+<h3>See Also</h3>
+<p>
+<A HREF=dumpsfs.html>dumpsfs</A>,
+<A HREF=sfsck.html>sfsck</A>
+</p>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>execvp</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>execvp</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+execvp - execute a program found on the search path
+</p>
+
+<h3>Library</h3>
+<p>
+Standard C Library (libc, -lc)
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>#include &lt;unistd.h&gt;</tt><br>
+<br>
+<tt>int</tt><br>
+<tt>execvp(const char *</tt><em>program</em><tt>,
+char **</tt><em>args</em><tt>);</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>execvp</tt> searches for <em>program</em> on the program search
+path and execs it with <A HREF=../syscall/execv.html>execv</A> if
+found. If <em>program</em> is not found or a serious error occurs, it
+returns.
+</p>
+
+<p>
+If <em>program</em> contains a slash, no search is done; the specified
+string is passed directly to <tt>execv</tt>.
+</p>
+
+<p>
+The <em>args</em> argument should be prepared exactly as for
+<tt>execv</tt>.
+</p>
+
+<p>
+The search path is a colon-delimited list of directories retrieved by
+calling <A HREF=getenv.html>getenv</A> to retrieve the <tt>PATH</tt>
+environment variable. Unless you implement <tt>execve</tt> and
+environment variable passing, the value used is from a default
+environment compiled into libc. This path searches the <tt>/bin</tt>,
+<tt>/sbin</tt>, and <tt>/testbin</tt> directories.
+</p>
+
+<h3>Return Values</h3>
+<p>
+On success, <tt>execvp</tt> does not return; instead, the new program
+begins executing. On failure, <tt>execvp</tt> returns -1, and sets
+<A HREF=errno.html>errno</A> to a suitable error code for the error
+condition encountered.
+</p>
+
+<h3>Errors</h3>
+<p>
+<tt>execvp</tt> can fail for any of the reasons <tt>execv</tt> can.
+In addition, it produces ENOENT if the requested program is not
+found.
+</p>
+
+</body>
+</html>

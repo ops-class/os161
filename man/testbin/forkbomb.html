@@ -1,0 +1,96 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>forkbomb</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>forkbomb</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+forkbomb - create hundreds of processes
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/forkbomb</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>forkbomb</tt> does
+<pre>
+   while (1) fork();
+</pre>
+doing a bit of additional checking similar to that done by
+<A HREF=forktest.html>forktest</A>.
+</p>
+
+</p>
+<strong>
+DO NOT RUN THIS ON A REAL SYSTEM - IT WILL GRIND TO A HALT AND
+PEOPLE WILL COME AFTER YOU WIELDING BASEBALL BATS AND/OR THE AD
+BOARD<sup><font size=-1>*</font></sup>. WE WARNED YOU.
+</strong>
+</p>
+
+<p>
+<font size=-1><i><sup>*</sup> The Administrative Board of Harvard
+College handles formal disciplinary action.</i></font>
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>forkbomb</tt> uses the following system calls:
+<ul>
+<li> <A HREF=../syscall/fork.html>fork</A>
+<li> <A HREF=../syscall/getpid.html>getpid</A>
+<li> <A HREF=../syscall/write.html>write</A>
+<li> <A HREF=../syscall/_exit.html>_exit</A>
+</ul>
+</p>
+
+<p>
+We don't expect your system to withstand this without grinding to
+a halt, but once your basic system calls are complete it shouldn't
+crash. Likewise for after your virtual memory system is complete.
+</p>
+
+<p>
+Note that this may turn out to be hard to achieve in practice. Don't
+spend much time fixing problems <tt>forkbomb</tt> triggers that won't
+arise under more normal operation. (If in doubt, consult your course
+staff.)
+</p>
+
+</body>
+</html>

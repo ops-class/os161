@@ -1,0 +1,440 @@
+#
+# Machine-independent kernel config definitions.
+#
+# The idea is that the files, options, and facilities in the system
+# are declared by conf.kern and the various files it includes. Then a
+# kernel config (such as ASST1, or GENERIC, or TEST, or whatever) is
+# used to select options and facilities for a particular kernel build.
+#
+# To add new files to the system, you need to edit this file (or
+# others like it) and rerun the config script.
+#
+# Note: when running the config script, be sure to be in the
+# right directory (the same one this file is in) and run it as
+# "./config", not just "config" - in the latter case you will
+# probably get the host system's kernel config utility, which
+# will likely make a mess and produce mysterious error messages.
+#
+# The documentation for the syntax of these files follows.
+#
+
+############################################################
+#
+# Kernel config file syntax:
+#
+# The syntax for including the system definition is:
+#
+#    include conf.kern
+#
+#       This should come first. This is because the system must be
+#       defined before you can do much else useful.
+#
+#       You can also include other files using the same syntax.
+#
+#
+# The syntax for turning on a kernel compile option is:
+#
+#    options optname
+#
+#       A previous "defoption" must have been seen first. See below
+#       for more information.
+#
+#       The act of compiling with debug info is (has to be) handled
+#       specially, and is just "debug" without the "options".
+#
+#
+# The syntax for turning on a device driver is:
+#
+#    device foo%
+#    device foo% at bar%
+#
+#       where the % is either a number or a star, which is treated as
+#       a wildcard. The first line enables a device foo that is not
+#       supposed to be "attached" to anything. The second line enables
+#       a device foo that is attached to a device bar. For more
+#       information about what this means, see below.
+#
+#
+############################################################
+#
+# Kernel definition file syntax:
+#
+# Note: All source file names are relative to the top directory of the
+# kernel source, that is, src/kern.
+#
+# The syntax for adding a regular source file is:
+#
+#    [machine M | platform P] file sourcefile.c
+#
+#       Such a file is always included automatically in every kernel
+#       built for machine M, or platform P, or all kernels.
+#
+#
+# The syntax for defining optional source files is:
+#
+#    defoption optname
+#    [machine M | platform P] optfile optname sourcefile.c
+#    [machine M | platform P] optofffile optname sourcefile.c
+#
+#       "defoption" declares the name of a kernel option. These are
+#       then turned on by including "options optname" in a
+#       kernel config.
+#
+#       Source files added with optfile are compiled in if the option
+#       specified is enabled. Source files added with optofffile are
+#       compiled in if the option specified is not enabled.
+#
+#       Additionally, a file "opt-optname.h" is created in the compile
+#       directory, which defines a C preprocessor symbol OPT_OPTNAME.
+#       This symbol is #defined to either 0 or 1 in the logical way.
+#       Thus, you can have small bits of code that are enabled or
+#       disabled by particular options by writing constructs like
+#
+#            #include "opt-foo.h"
+#            #if OPT_FOO
+#               code();
+#            #else
+#               other_code();
+#            #endif
+#
+#       *** Be sure to use #if and not #ifdef - you want the value
+#           of the symbol.
+#       *** Be sure to remember to include the header file for the
+#           option - if you don't, cpp will silently assume it is 0,
+#           which can be quite frustrating.
+#
+#       The defoption must be seen before any optional file
+#       declarations that use it.
+#
+#
+# The syntax for defining device drivers is:
+#
+#    defdevice devname                  sourcefile.c
+#    defattach devname% otherdevname%   sourcefile.c
+#    pseudoattach devname%
+#
+#       Declare a device driver and its "attachment(s)". (The device
+#       driver can then be selectively included or not included in any
+#       particular kernel by using the "device" statement in the
+#       kernel config file.)
+#
+#       The specified source files are only compiled if the device
+#       is enabled.
+#
+#       The % is either a specific number N, meaning "only the Nth
+#       such device can be attached this way", or a star (*), meaning
+#       "any such device can be attached this way".
+#
+#       In OS/161, device drivers are conceptually organized into
+#       trees. This mimics the organization of real hardware, where
+#       several expansion cards are plugged into one bus and there
+#       might be several devices on each expansion card and so forth.
+#
+#       There can be any number of these trees. However, devices at
+#       the root of each tree must be able to probe and "find"
+#       themselves completely on their own. This generally means that
+#       they are either all software with no hardware, or they are the
+#       system main bus which is located in a machine-dependent way.
+#
+#       Software-only devices are known as "pseudo-devices". These
+#       are "attached" with the pseudoattach directive; functions
+#       of the form
+#
+#           pseudoattach_devname
+#
+#       are called from autoconf.c to create instances as requested.
+#       These calls are made from the function pseudoconfig(), which
+#       should be called from dev/init.c after hardware device
+#       initialization completes. The pseudoattach functions should
+#       perform all setup and initialization necessary. (No
+#       config_devname function will be called.)
+#
+#       Devices with attachments are automatically probed and
+#       configured from code in autoconf.c. This file is generated
+#       by the config script. It contains functions called
+#       "autoconf_devname", for each device. These functions call
+#       other functions, which are supplied by device drivers,
+#       which have the following hardwired names:
+#
+#           attach_devname1_to_devname2
+#
+#                 A "devname2" device has been found and configured;
+#                 this function attempts to probe the devname2 for
+#                 a "devname1" device. Returns NULL if nothing was
+#                 found.
+#
+#           config_devname
+#
+#                 A "devname" device has been found. This function
+#                 can then perform initialization that's shared
+#                 among all the possible things it can be attached
+#                 to.
+#
+#       The idea is that there can be multiple attachments for
+#       the same device to different underlying devices. In the
+#       real world this can be used to great effect when you have,
+#       for instance, the same ethernet chipset used on both PCI
+#       and ISA cards - the chipset behaves the same way in both
+#       cases, but the probe and attach logic is very different.
+#
+#       The attach_foo_to_bar functions are put in the files
+#       specified with defattach; the config_foo function (and
+#       generally the rest of the driver for the foo device) is
+#       put in the file specified with defdevice.
+#
+#       One selects particular attachments when including the device
+#       in the kernel. A top-level device with no attachments should
+#       be included with this syntax:
+#
+#              device bar
+#
+#       A pseudo-device should be included with this syntax:
+#
+#              device bar0
+#
+#       To make use of device foo, which can be found attached to
+#       device bar, one of the following syntaxes is used:
+#
+#              device foo* at bar*
+#              device foo* at bar0
+#              device foo0 at bar*
+#              device foo0 at bar0
+#
+#       depending on to what extent you want to configure only a
+#       specific device number.
+#
+#       It sometimes matters what order things are handled in; probes
+#       occur more or less in the order things appear in the config,
+#       as constrained by the tree structure of the available devices.
+#
+#       Note that OS/161 does not make extensive use of this
+#       functionality, and the device driver architecture outlined
+#       here is overkill for such a limited environment as System/161.
+#       However, it's similar to the way real systems are organized.
+#
+#
+# The syntax for including other config/definition files is:
+#
+#    include filename
+#
+#       The filename is relative to the top of the kernel source tree.
+#
+#       Thus,
+#          include conf/conf.foo     includes src/kern/conf/conf.foo
+#
+#
+############################################################
+
+
+########################################
+#                                      #
+# Generic machine-independent devices. #
+#                                      #
+########################################
+
+#
+# These are abstract system services we expect the system hardware to
+# provide: beeping, system console I/O, and time of day clock.
+#
+# These come before the archinclude so that the hardware device
+# definitions, which are included from there, can define attachments
+# for them.
+#
+
+defdevice       beep			dev/generic/beep.c
+defdevice	con			dev/generic/console.c
+defdevice       rtclock                 dev/generic/rtclock.c
+defdevice       random                  dev/generic/random.c
+
+########################################
+#                                      #
+#        Machine-dependent stuff       #
+#                                      #
+########################################
+
+#
+# Get the definitions for each machine and platform supported. The
+# ones used will be selected by make at compile time based on the
+# contents of the top-level defs.mk file.
+#
+# This will declare a bunch of machine-dependent source files and also
+# declare all the hardware devices (since what sorts of hardware we
+# expect to find is machine-dependent.)
+#
+
+include   arch/mips/conf/conf.arch
+include   arch/sys161/conf/conf.arch
+
+########################################
+#                                      #
+#            Support code              #
+#                                      #
+########################################
+
+#
+# Kernel utility code
+#
+
+file      lib/array.c
+file      lib/bitmap.c
+file      lib/bswap.c
+file      lib/kgets.c
+file      lib/kprintf.c
+file      lib/misc.c
+file      lib/time.c
+file      lib/uio.c
+
+defoption noasserts
+
+
+#
+# Standard C functions
+#
+# For most of these, we take the source files from our libc.  Note
+# that those files have to have been hacked a bit to support this.
+#
+
+file      ../common/libc/printf/__printf.c
+file      ../common/libc/printf/snprintf.c
+file      ../common/libc/stdlib/atoi.c
+file      ../common/libc/string/bzero.c
+file      ../common/libc/string/memcpy.c
+file      ../common/libc/string/memmove.c
+file      ../common/libc/string/memset.c
+file      ../common/libc/string/strcat.c
+file      ../common/libc/string/strchr.c
+file      ../common/libc/string/strcmp.c
+file      ../common/libc/string/strcpy.c
+file      ../common/libc/string/strlen.c
+file      ../common/libc/string/strrchr.c
+file      ../common/libc/string/strtok_r.c
+
+########################################
+#                                      #
+#       Core kernel source files       #
+#                                      #
+########################################
+
+#
+# Thread system
+#
+
+file      thread/clock.c
+file      thread/spl.c
+file      thread/spinlock.c
+file      thread/synch.c
+file      thread/thread.c
+file      thread/threadlist.c
+
+#
+# Process system
+#
+
+file      proc/proc.c
+
+#
+# Virtual memory system
+# (you will probably want to add stuff here while doing the VM assignment)
+#
+
+file      vm/kmalloc.c
+
+optofffile dumbvm   vm/addrspace.c
+
+#
+# Network
+# (nothing here yet)
+#
+
+defoption  net
+#optfile   net    net/net.c
+
+#
+# VFS layer
+#
+
+file      vfs/device.c
+file      vfs/vfscwd.c
+file      vfs/vfsfail.c
+file      vfs/vfslist.c
+file      vfs/vfslookup.c
+file      vfs/vfspath.c
+file      vfs/vnode.c
+
+#
+# VFS devices
+#
+
+file      vfs/devnull.c
+
+#
+# System call layer
+# (You will probably want to add stuff here while doing the basic system
+# calls assignment.)
+#
+
+file      syscall/loadelf.c
+file      syscall/runprogram.c
+file      syscall/time_syscalls.c
+
+#
+# Startup and initialization
+#
+
+file      main/main.c
+file      main/menu.c
+
+########################################
+#                                      #
+#             Filesystems              #
+#                                      #
+########################################
+
+#
+# semfs (fake filesystem providing userlevel semaphores)
+#
+defoption semfs
+optfile   semfs  fs/semfs/semfs_fsops.c
+optfile   semfs  fs/semfs/semfs_obj.c
+optfile   semfs  fs/semfs/semfs_vnops.c
+
+#
+# sfs (the small/simple filesystem)
+#
+
+defoption sfs
+optfile   sfs    fs/sfs/sfs_balloc.c
+optfile   sfs    fs/sfs/sfs_bmap.c
+optfile   sfs    fs/sfs/sfs_dir.c
+optfile   sfs    fs/sfs/sfs_fsops.c
+optfile   sfs    fs/sfs/sfs_inode.c
+optfile   sfs    fs/sfs/sfs_io.c
+optfile   sfs    fs/sfs/sfs_vnops.c
+
+#
+# netfs (the networked filesystem - you might write this as one assignment)
+#
+defoption netfs
+#optfile  netfs     fs/netfs/netfs_fs.c   # or whatever
+
+#
+# Note that "emufs" is completely contained in the "emu" device.
+#
+
+
+########################################
+#                                      #
+#              Test code               #
+#                                      #
+########################################
+
+file		test/arraytest.c
+file		test/bitmaptest.c
+file		test/threadlisttest.c
+file		test/threadtest.c
+file		test/tt3.c
+file		test/synchtest.c
+file		test/semunit.c
+file		test/kmalloctest.c
+file		test/fstest.c
+optfile net	test/nettest.c

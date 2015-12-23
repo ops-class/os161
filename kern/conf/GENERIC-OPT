@@ -1,0 +1,36 @@
+# Kernel config file for an ordinary, generic kernel.
+# This config file should be used once you start working on
+# your own VM system.
+#
+# This config builds with optimization for performance testing.
+
+include conf/conf.kern		# get definitions of available options
+
+#debug				# Optimizing compile (no debug).
+options noasserts		# Disable assertions.
+
+#
+# Device drivers for hardware.
+#
+device lamebus0			# System/161 main bus
+device emu* at lamebus*		# Emulator passthrough filesystem
+device ltrace* at lamebus*	# trace161 trace control device
+device ltimer* at lamebus*	# Timer device
+device lrandom* at lamebus*	# Random device
+device lhd* at lamebus*		# Disk device
+device lser* at lamebus*	# Serial port
+#device lscreen* at lamebus*	# Text screen (not supported yet)
+#device lnet* at lamebus*	# Network interface (not supported yet)
+device beep0 at ltimer*		# Abstract beep handler device
+device con0 at lser*		# Abstract console on serial port
+#device con0 at lscreen*	# Abstract console on screen (not supported)
+device rtclock0 at ltimer*	# Abstract realtime clock
+device random0 at lrandom*	# Abstract randomness device
+
+#options net			# Network stack (not supported)
+options semfs			# Semaphores for userland
+
+options sfs			# Always use the file system
+#options netfs			# You might write this as a project.
+
+#options dumbvm			# Use your own VM system now.

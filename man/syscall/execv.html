@@ -1,0 +1,171 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>execv</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>execv</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+execv - execute a program
+</p>
+
+<h3>Library</h3>
+<p>
+Standard C Library (libc, -lc)
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>#include &lt;unistd.h&gt;</tt><br>
+<br>
+<tt>int</tt><br>
+<tt>execv(const char *</tt><em>program</em><tt>,
+char **</tt><em>args</em><tt>);</tt>
+<br>
+<tt>int</tt><br>
+<tt>execve(const char *</tt><em>program</em><tt>,
+char **</tt><em>args</em>,
+char **</tt><em>environ</em><tt>);</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>execv</tt> replaces the currently executing program with a newly
+loaded program image. This occurs within one process; the process id
+is unchanged.
+</p>
+
+<p>
+The pathname of the program to run is passed as <em>program</em>. The
+<em>args</em> argument is an array of 0-terminated strings. The array
+itself should be terminated by a <tt>NULL</tt> pointer.
+</p>
+
+<p>
+The argument strings should be copied into the new process as the new
+process's <tt>argv[]</tt> array. In the new process,
+<tt>argv[argc]</tt> must be <tt>NULL</tt>.
+</p>
+
+<p>
+By convention, <tt>argv[0]</tt> in new processes contains the name
+that was used to invoke the program. This is not necessarily the same
+as <em>program</em>, and furthermore is only a convention and should
+not be enforced by the kernel.
+</p>
+
+<p>
+The process file table and current working directory are not modified
+by <tt>execv</tt>.
+</p>
+
+<p>
+The <tt>execve</tt> call is the same as <tt>execv</tt> except that a
+<tt>NULL</tt>-terminated list of environment strings (of the form
+<tt>var=value</tt>) is also passed through. In Unix, <tt>execv</tt> is
+a small wrapper for <tt>execve</tt> that supplies the current process
+environment. <b>In OS/161, <tt>execv</tt> is the primary exec call and
+<tt>execve</tt> is not supported or needed</b> unless you put in extra
+work to implement it.
+</p>
+
+<p>
+The maximum total size of the argv (and environment, if any) data is
+given by the system constant <tt>ARG_MAX</tt>. This comes set to 64K
+by default. You may change this limit, but don't reduce it without
+asking your course staff. The fact that argv blocks can be large is
+part of the design problem; while it's possible to set the limit to 4K
+and still have most things work, you are probably supposed to put at
+least some thought into engineering a real solution. (One problem to
+consider is that after the system has been up a while and system
+memory starts to become fragmented, you still need to be able to
+allocate enough memory to handle exec. Another is to make sure the
+system doesn't choke if too many processes are trying to exec at
+once. There are lots of ways to tackle this; be creative.)
+</p>
+
+<p>
+Whether the size of the pointers appearing in the <tt>argv</tt> array
+count towards the <tt>ARG_MAX</tt> limit is implementation-defined.
+Either way it should be possible to pass a lot of small arguments
+without bumping into some other limit on the number of pointers.
+</p>
+
+<h3>Return Values</h3>
+<p>
+On success, <tt>execv</tt> does not return; instead, the new program
+begins executing. On failure, <tt>execv</tt> returns -1, and sets
+<A HREF=errno.html>errno</A> to a suitable error code for the error
+condition encountered.
+</p>
+
+<h3>Errors</h3>
+<p>
+The following error codes should be returned under the conditions
+given. Other error codes may be returned for other errors not
+mentioned here.
+
+<table width=90%>
+<tr><td width=5% rowspan=9>&nbsp;</td>
+    <td width=10% valign=top>ENODEV</td>
+			<td>The device prefix of <em>program</em> did
+				not exist.</td></tr>
+<tr><td valign=top>ENOTDIR</td>
+			<td>A non-final component of <em>program</em>
+				was not a directory.</td></tr>
+<tr><td valign=top>ENOENT</td>
+			<td><em>program</em> did not exist.</td></tr>
+<tr><td valign=top>EISDIR</td>
+			<td><em>program</em> is a directory.</td></tr>
+<tr><td valign=top>ENOEXEC</td>
+			<td><em>program</em> is not in a recognizable
+				executable file format, was for the
+				wrong platform, or contained invalid
+				fields.</td></tr>
+<tr><td valign=top>ENOMEM</td>
+			<td>Insufficient virtual memory is available.</td></tr>
+<tr><td valign=top>E2BIG</td>
+			<td>The total size of the argument strings
+				exceeeds <tt>ARG_MAX</tt>.</td></tr>
+<tr><td valign=top>EIO</td>
+			<td>A hard I/O error occurred.</td></tr>
+<tr><td valign=top>EFAULT</td>
+
+			<td>One of the arguments is an invalid
+			pointer.</td></tr>
+</table>
+</p>
+
+</body>
+</html>

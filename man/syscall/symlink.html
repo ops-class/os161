@@ -1,0 +1,107 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>symlink</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>symlink</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+symlink - create symbolic link
+</p>
+
+<h3>Library</h3>
+<p>
+Standard C Library (libc, -lc)
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>#include &lt;unistd.h&gt;</tt><br>
+<br>
+<tt>int</tt><br>
+<tt>symlink(const char *</tt><em>oldname</em><tt>,
+const char *</tt><em>linkname</em><tt>);</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>symlink</tt> creates a symbolic link. The symlink itself is named
+<em>linkname</em>, and it points to <em>oldname</em>.
+</p>
+
+<p>
+<em>oldname</em> need not exist or be on the same filesystem.
+</p>
+
+<p>
+The call (like all system calls) must be atomic; that is, the symlink
+should either be created or not created, and no other process should
+see an intermediate state (such as, for example, a blank symlink whose
+name hasn't been written out yet...) For recoverable file systems,
+this includes after crash recovery.
+</p>
+
+<h3>Return Values</h3>
+<p>
+On success, <tt>symlink</tt> returns 0. On error, -1 is returned, and
+<A HREF=errno.html>errno</A> is set according to the error
+encountered.
+</p>
+
+<h3>Errors</h3>
+<p>
+The following error codes should be returned under the conditions
+given. Other error codes may be returned for other cases not
+mentioned here.
+
+<table width=90%>
+<tr><td width=5% rowspan=7>&nbsp;</td>
+    <td width=10% valign=top>ENODEV</td>
+				<td>The device prefix of <em>filename</em> did
+				not exist.</td></tr>
+<tr><td valign=top>ENOTDIR</td>	<td>A non-final component of <em>linkname</em>
+				was not a directory.</td></tr>
+<tr><td valign=top>ENOENT</td>	<td>A non-final component of <em>linkname</em>
+				did not exist.</td></tr>
+<tr><td valign=top>EEXIST</td>	<td><em>linkname</em> already exists.</td></tr>
+<tr><td valign=top>ENOSPC</td>	<td>The filesystem that was to hold the link
+				is full.</td></tr>
+<tr><td valign=top>EIO</td>	<td>A hard I/O error occurred.</td></tr>
+<tr><td valign=top>EFAULT</td>	<td><em>linkname</em> or <em>oldname</em> was
+				an invalid pointer.</td></tr>
+</table>
+</p>
+
+</body>
+</html>

@@ -1,0 +1,689 @@
+OS/161 was written by David A. Holland, with contributions from
+	Amos Blackman
+	Alexandra Fedorova
+	Ada T. Lim
+	Georgi Matev
+	Jay Moorthi
+	Geoffrey Werner-Allen
+
+Additional small patches and bug reports have been contributed by
+various other people, all of whom are (hopefully) listed below.
+
+------------------------------------------------------------
+
+20150805 dholland	OS/161 2.0.1 released.
+20150804 dholland	Improve multiexec's error reporting.
+20150804 dholland	Minor fixes to frack check.
+20150722 dholland	Add assertions to dumbvm to check that sleeping is ok
+........		in various contexts real VM systems typically sleep.
+20150722 dholland	Initialize curcpu/curthread a bit earlier.
+20150721 dholland	Remove proc->p_threads[] array. Just count the number
+........		of threads in each proc. This is enough to get going
+........		on, and it's easy for students to add and synchronize
+........		an explicit array of threads themselves if they want
+........		it. (It needs a sleeplock; but by that point they'll
+........		have those. We don't out of the box though.)
+20150713 dholland	Make all sfs prints/panics include the volume name.
+20150713 dholland	Have sfsck print invalid inode type values.
+20150713 dholland	Have forktest print ABCD instead of 1234 for clarity.
+20150713 dholland	Kill off allwchans[]; in practice it isn't useful.
+20150710 dholland	Split out the pieces of sys_sync for reusability.
+20150706 dholland	Add support for new sys161 profiler control registers.
+20150625 dholland	Fix frack "writetruncseq" workload.
+20150605 dholland	Have semfs update uio_offset; increases robustness.
+20150605 dholland	Don't do semfs I/O from NULL. It causes consternation.
+20150605 dholland	Warn that copying threadlist structures breaks them.
+20150605 dholland	New test: schedpong, an actual scheduler workload, now
+........		possible because we have semfs.
+20150603 dholland	Add example unit tests for the provided semaphores.
+20150603 dholland	In panic, drop to the debugger before sync, not after.
+........		Otherwise, the sync complicates postmortem analysis.
+20150603 dholland	Make "dumpsfs -i N -a image" work.
+20150603 dholland	Improve the printouts of testbin/badcall.
+20150603 dholland	Make kernel config script reject duplicate .o names.
+20150603 dholland	Improve printouts of testbin/crash for legibility.
+20150528 dholland	Comment up testbin/frack/check.c. Badly needed.
+20150527 dholland	Fix various minor bugs found by clang-static-analyzer.
+........		From Keno Fischer.
+20150527 dholland	Make the skeleton userland stdio less needlessly dumb.
+20150527 dholland	New kernel menu test: at2; tests arrays > 1 page.
+20150519 dholland	New test: bigfork, intended mostly for performance
+........		testing.
+20150513 dholland	Fix "unexpected EOF" bug in frack check.
+20150513 dholland	Fix flagrantly wrong assert in frack check.
+20150513 dholland	Fix fd leaks in frack check.
+20150428 dholland	Fix error-path assertions in sfs_domount; from
+........		Sam Fishman and Michelle Deng.
+20150422 dholland	Re-enable ftruncate in frack by default.
+20150417 dholland	Fix configure test for ntohll. From Nikhil Benesch.
+20150417 dholland	Use printf instead of echo -n in shell scripts; it
+........		seems that even in 2015 Mac OS X comes with a broken
+........		echo, and we don't care about OSes too old to have
+........		printf in sh. From Nikhil Benesch.
+20150322 dholland	Fix typos in non-dumbvm addrspace.h; from Anne Madoff.
+20150322 dholland	Fix some typos in comments.
+20150127 dholland	Patch more Linux build problems caused by glibc bugs.
+
+20150115 dholland	OS/161 2.0 released.
+20150113 dholland	Drop to the debugger on panic.
+20150113 dholland	Document parallelvm -w.
+20150113 dholland	Better man page typesetting. From Katherine Flavel.
+20150108 dholland	Fix FSOP_GETROOT signature/usage so it can fail.
+20150108 dholland	Add several missing man pages for testbin programs.
+20150108 dholland	Fix naming of semaphores in testbin/multiexec.
+20150107 dholland	Also change malloctest* symbols to kmalloctest*. 
+20150107 dholland	Rename kern/malloctest.c to kmalloctest.c for clarity.
+20140924 dholland	Print the kernel build number after linking.
+
+20140924 dholland	OS/161 1.99.08 released. Consider this 2.0-RC1.
+20140924 dholland	Make km3 rotate object sizes as originally intended.
+20140924 dholland	Make frack print a visible divider when it syncs.
+20140922 dholland	Add /bin/tac, which uses unlinked scratch files.
+20140919 dholland	Allow giving testbin/bigfile the chunk size to write.
+20140919 dholland	Add a design doc about the structure of assignments.
+20140919 dholland	Make certain sfsck checks set the exit status properly.
+20140918 dholland	Provide general-purpose metadata I/O function in sfs.
+20140916 dholland	Remove size workaround in bigexec; fixed solution set.
+20140904 dholland	Fix problem with stray symlinks in $(OSTREE)/include.
+20140904 dholland	Change sfs_vnode->sv_v to sv_absvn for consistency.
+20140904 dholland	Add bloat test; it uses all available memory rapidly.
+20140904 dholland	Fix testbin/crash for gcc 4.8.
+20140904 dholland	Make testbin/filetest do something useful if no argv.
+20140904 dholland	Declare userland err* __DEAD.
+20140904 dholland	Add sys/cdefs.h and move userland __DEAD there.
+20140903 dholland	Simplify ram.c interface as suggested by my students.
+20140829 dholland	Add km4: a kmalloc test for multipage allocations.
+20140829 dholland	Add multiexec test for lots of procs in exec at once.
+20140828 dholland	Tighten asm constraints for gcc 4.8.
+20140828 dholland	Fix inlining for gcc 4.8, and a few other build issues.
+20140825 dholland	Remove vnode open count and VOP_INC/DECOPEN.
+20140825 dholland	Remove VOP_LASTCLOSE; nothing uses it any more.
+20140825 dholland	Don't fsync in sfs_lastclose; it's outdated practice.
+20140825 dholland	Remove DEVOP_LASTCLOSE; nothing uses it and we will
+........         	never add rewind-on-close tape devices.
+20140825 dholland	Use a separate spinlock for vnode refcounts. (Using
+........                vfs_biglock causes sleeping while holding spinlocks.)
+20140825 dholland	Don't use sfs_io() for directory entries.
+20140821 dholland	Replace VOP_TRYSEEK with static VOP_ISSEEKABLE.
+20140821 dholland	Make devices check seek position validity on the fly.
+20140806 dholland	Make sfs_link reject directories. From Anne Madoff.
+20140730 dholland	Make testbin/hog run longer.
+20140729 dholland	Document psort's sizing knobs.
+20140729 dholland	Make psort big enough to be useful as a fs test.
+20140729 dholland	Add ARRAYCOUNT() macro for static array length.
+20140729 dholland	Add array_preallocate().
+20140729 dholland	Make npages argument of alloc_kpages() unsigned.
+20140729 dholland	Tidy up construction/destruction of struct sfs_fs.
+20140728 dholland	Make sfs_read/writeblock take the buffer length.
+........		(Always do that, even if it's the same everywhere.)
+20140728 dholland	struct sfs_super -> struct sfs_superblock.
+20140728 dholland	Adjust SFS code to make it more readily extensible.
+20140728 dholland	Always call SFS's free block bitmap the "freemap".
+20140728 dholland	Rename a bunch of the SFS constants for clarity.
+20140725 dholland	Add usemtest for checking the semfs semaphores.
+20140724 dholland	Make failed SFS writes not increase the file size.
+20140724 dholland	Distinguish MIPS 512M RAM limit and LAMEbus 508M limit.
+20140722 dholland	sfs_dir -> sfs_direntry, by popular demand.
+20140722 dholland	Add some notes about the atomicity of dup2().
+20140722 dholland	Add notes about the limits of syscall atomicity in
+........         	multithreaded processes. From Jared Pochtar.
+20140722 dholland	Add redirect test to check stdin/stdout redirection.
+20140722 dholland	Fix emufs handling of seek positions beyond 2^32.
+20140722 dholland	Add bigseek test for checking seeks beyond 2^32.
+20140721 dholland	Add file open mode checks to badcall.
+20140721 dholland	Fix interaction of kmalloc guards and kmalloc labels.
+20140721 dholland	Be more conservative about panic on stray interrupt.
+20140721 dholland	Fix userland build to not rebuild unnecessarily.
+20140721 dholland	Fix userland build to not belch on removed .h files.
+20140721 dholland	In badcall, don't shout if mkdir isn't implemented.
+20140717 dholland	Fix misleading comments and variable names in proc.c.
+20140716 dholland	Add -w option to parallelvm to wait for forking.
+20140716 dholland	Replace a busywait in badcall with the new semaphores.
+20140716 dholland	Provide userlevel semaphores via semfs filesystem.
+........                Open "sem:<name>", then read to P() and write to V().
+20140716 dholland	Move the just-fail vnode op stubs to VFS.
+20140710 dholland	Added new test program: sbrktest.
+20140710 dholland	Make the libc qsort() actually quicksort.
+20140709 dholland	Ship qsort() in libc, not in sfsck's compat code.
+20140709 dholland	SWAP{S,L,LL} -> SWAP{16,32,64} in sfs tools.
+20140709 dholland	Fix reversed found/expected printout in frack check.
+20140518 dholland	Fix embarrasing sort bugs in native sfsck.
+20140430 dholland	Add poisondisk tool for testing file system recovery.
+20140428 dholland	Add hostcompat logic for 64-bit byte-swapping.
+20140417 dholland	Fix zero to use page-sized sbrk calls.
+20140415 dholland	Rewrite dumpsfs and make it much more useful.
+20140414 dholland	Fix missing initialization of cpu->c_spinlocks.
+20140410 dholland	Fix bug in malloc changes. Add assertion to malloctest.
+20140326 dholland	Make userlevel malloc allocate in page-sized chunks.
+20140326 dholland	Fix the (unused) 64-bit userlevel malloc code.
+20140314 dholland	Make forktest show how much output is expected.
+20140220 dholland	Add new sy4 test for CVs.
+20140211 dholland	Tidy some logic in thread_make_runnable.
+20140211 dholland	Mark threads READY when waking them. From Anne Madoff.
+20140201 dholland	Fix some outdated comments, reported by Emmet Jao.
+20140128 dholland	Fix default OSTREE in configure script.
+
+20140123 dholland	OS/161 1.99.07 released.
+20140123 dholland	Add "frack" test (filesystem recover and check).
+20140123 dholland	Add factorial test that computes using execv.
+20140123 dholland	Add fs6 test that creates lots of small files.
+20140122 dholland	Mark enter_new_process and related code __DEAD.
+20140122 dholland	Make the semaphore counter unsigned.
+20140122 dholland	When kmalloc gets a page, assert that it's aligned.
+20140122 dholland	Fix error leak in sfs_balloc; from Christian Anderson.
+20140122 dholland	Use ssize_t and pid_t more in unistd.h.
+20140122 dholland	Add discussion of ARG_MAX to execv man page.
+20140122 dholland	Add missing <stdbool.h> for userland.
+20140122 dholland	Added sparsefile test program for making sparse files.
+20140122 dholland	splx() needs to work before curcpu/curthread exists.
+20140122 dholland	Clarify that proc_remthread requires splhigh.
+20140115 dholland	Remove VOP_INIT/CLEANUP macros. Use vnode_init/cleanup.
+20140115 dholland	Make device open/close eachopen/lastclose like vnodes.
+20140115 dholland	Move vfs-level device ops to an ops table struct.
+20140115 dholland	Clarify/correct comments pertaining to O_APPEND.
+20140114 dholland	Reorganize SFS sources.
+20131112 dholland	In SFS, always provide N{,D,T}INDIRECT macros.
+20131112 dholland	Reorganize sfsck sources; rework and improve sfsck.
+20131110 dholland	Don't use uninitialized file permissions in badcall.
+20131110 dholland	Provide __UNUSED along with __PF and __DEAD.
+20131108 dholland	Rearrange (and fix) hacks for _exit() returning.
+........		It now faults on "0xeeeee00f" if it can't exit.
+20131107 dholland	Handle TLB pipeline hazards correctly.
+20131107 dholland	Add some sample/experimental gdb scripts.
+20131107 dholland	Make the console polling logic not use internal vars.
+20131107 dholland	Have wchan_sleep assert if holding extra spinlocks.
+20131107 dholland	Don't use assignment numbers for kernel configs.
+20131107 dholland	Remove the synch problems from the base system.
+20131107 dholland	Rename src/user -> src/userland. Seems to be the best
+........		choice among a number of unappealing alternatives.
+20131105 dholland	Disallow EINVAL for "no such process" in badcall.
+20131105 dholland	Clean up sh's use of exit codes.
+20131105 dholland	Have testbin/crash check the signal numbers produced.
+20131105 dholland	Create an array of all wchans for debug purposes.
+20131105 dholland	Rearranged wchan API to make wchans more like CVs.
+20131105 dholland	Print the processor ID and version correctly.
+20131105 dholland	Fix boot on pre-multiprocessor System/161.
+20131105 dholland	Parallelize the kernel depend logic.
+20131104 dholland	Add and use memory barrier ops header. Minor impact.
+20131104 dholland	Rename sfs_inode to sfs_dinode.
+20131101 dholland	Edit and revise the man pages. Add some missing ones.
+20131101 dholland	Updated the docs and specs for waitpid.
+20131030 dholland	Use execvp() in sh. Don't have to type /bin/cat now.
+20131030 dholland	Provide getenv() and execvp() in libc.
+20131030 dholland	enter_user_process() now accepts an environ pointer.
+20131030 dholland	Add quinthuge, quintmat, quintsort tests.
+20131030 dholland	Added a libtest with common stuff for testbin/.
+20131030 dholland	Rewrote the .depend-munging script to be readable.
+20131030 dholland	Use ENOSYS (standard) instead of EUNIMP (which isn't).
+20131030 dholland	Fix badcall to expect with null status to succeed.
+20131030 dholland	Don't use unportable function casts in sfs.
+20131029 dholland	Add a memory leak detection mode to kmalloc.
+20131029 dholland	Add more kmalloc debugging modes and checks.
+20131028 dholland	Move the whole-filesystem ops to an ops table struct.
+20131028 dholland	Use designated initializers for the vnode ops tables.
+20131028 dholland	Fix the way thread_panic zaps the run queue.
+20131028 dholland	Moved memset.c to common/ for use in the kernel.
+20131028 dholland	Mark thread_exit() __DEAD.
+20131028 dholland	Fix addrspace handling in proc_destroy().
+20131025 dholland	Improved kmalloc to support larger kernel heaps.
+20131025 dholland	Add another kmalloc test, this one of variable size.
+20131025 dholland	Make printf accept %zd/%zu for size_t.
+20130531 dholland	Add tests for the threadlist code.
+20130531 dholland	Fix threadlist iterators again. From Steven Talbot.
+20130531 dholland	Do thread migration *before* running the scheduler.
+20130531 dholland	Add some more assertions to kfree.
+20130531 dholland	Make badcall understand wait-for-any waitpid().
+20130531 dholland	Provide a predepend: hook for makefiles.
+20130531 dholland	Put .depend files in build tree where they belong.
+20130531 dholland	Fix depends bug in os161.hostcompile.mk.
+20130531 dholland	Remove getinterval(); replace with timespec arithmetic.
+20130531 dholland	Use struct timespec inside the kernel.
+20130531 dholland	Move kern/startup -> kern/main, like it was in 1.x.
+20130531 dholland	Add "zero" test; checks if the VM system zeros pages.
+20130531 dholland	Change as_activate() to always activate curproc's AS.
+20130531 dholland	Provide both thread and process structures by default.
+20130530 dholland	Fix the scheme for probing LAMEbus device versions;
+........		don't require lockstep upgrades for System/161 changes.
+20130530 dholland	Fix typo in comment, from Saagar Deshpande.
+20130530 dholland	Add comment warning against borrowing from dumbvm.
+20130530 dholland	Increase DUMBVM_STACKPAGES so 64K argv blocks will fit.
+20130514 dholland	Teach sfsck to handle dirs with invalid inode numbers.
+20130503 dholland	Fix another problem in the inode array in sfsck.
+........		Reported by multiple students.
+20130429 dholland	Fix sfsck bitmap-checking problem.
+20130311 dholland	Declare panic() and badassert() noreturn.
+20130308 dholland	Fix fd leak in badcall, found by George Kulakowski.
+20130306 dholland	Fix off_t printing in randcall, found by David Palmer.
+20110427 dholland	Fix typo in badcall, from Andy Brody.
+20110425 dholland	Fix catastrophic bug in sfsck. Found by Jim Danz.
+20110420 dholland	Add new bigexec test for checking large argvs.
+20110319 dholland	Use va_copy() in __printf. (At least if available.)
+20110223 dholland	array.h needs cdefs.h and lib.h. Caught by Amy Tai.
+20110127 dholland	Fix host-psort build problem caused by glibc on Linux.
+
+20110126 dholland	OS/161 1.99.06 released.
+20110126 dholland	Fix some parallel build problems.
+20110126 dholland	Rename fs5 test to "long stress test".
+20110126 dholland	Clarify that struct tlbshootdown is a placeholder.
+20110126 dholland	Fix randcall makefile to put calls.c in the build dir.
+20110126 dholland	VOP_OPEN -> VOP_EACHOPEN; VOP_CLOSE -> VOP_LASTCLOSE.
+20110126 dholland	Name struct spinlock's members splk_*, not lk_*.
+20110126 dholland	sfs_fs.c -> sfs_fsops.c, sfs_vnode.c -> sfs_vnops.c
+20100819 dholland	Fix the stray console IRQs problem properly. This
+........		requires System/161 1.99.05 or higher.
+20100819 dholland	Revert start/endpolling hack for stray console IRQs.
+........ 		(But keep the code for masking interrupts.)
+20100819 dholland	Don't leave the IPI spinlock dangling on a panic IPI.
+
+20100108 dholland	OS/161 1.99.05 released.
+20100108 dholland	Don't cut corners with relocs in mips-exception1.S.
+20100108 dholland	Rearrange how curthread/curcpu get defined, so the
+........		mips gdb can see curthread.
+20100108 dholland	Disable BSS zeroing in loadelf, because VM systems
+........		should already provide zeroed pages. Make dumbvm do so.
+20100108 dholland	Add ASST3-OPT optimizing config.
+20100108 dholland	Add the usermalloc design doc to design/.
+20100108 dholland	Add the shell's design doc to design/.
+20100108 dholland	Fix outdated comment in start.S.
+20100108 dholland	Move clocksleep() decl to <clock.h>.
+20100107 dholland	Clarify various comments that seem lacking.
+20090427 dholland	Fix miscommented uio direction constants. Doh.
+........		Found by the students...
+20090424 dholland	Add missing as_activate(NULL) during thread exit.
+20090416 dholland	Fix err/warn vs. errx/warnx usage in various tests.
+........		Mostly from Robert J. Helblin and Peter Salas.
+20090413 dholland	Use EFBIG, not EINVAL, for "file too large".
+20090402 dholland	Make sbrk badcall "unaligned negative" really negative.
+20090402 dholland	Add clarifying comments to struct tlbshootdown.
+20090320 dholland	Fix DEBUG() so it accepts zero vararg parameters.
+20090214 dholland	Remove some references to obsolete name "md_usermode".
+20090213 dholland	Note that wchans don't promise to be FIFO.
+20090205 dholland	Add missing 'volatile' to spinlock.h.
+
+20090414 dholland	OS/161 1.99.04 released.
+20090414 dholland	Fix typo in kern/sfs.h.
+20090414 dholland	Fix testbin/psort up so it works adequately on sfs.
+20090413 dholland	Make sfsck track indirect blocks in the free map right.
+20090413 dholland	Fix bug where sfsck chokes on size 0 directories.
+20090413 dholland	Fix case where sfsck can't add missing ./.. entries.
+20090413 dholland	Add sfsck, simple check/recovery tool for sfs.
+
+20090402 dholland	OS/161 1.99.03 released.
+20090402 dholland	Fix build of testbin/malloctest.
+20090320 dholland	Check CURCPU_EXISTS in spinlock_do_i_hold.
+20090313 dholland	Fix threadlist iterator macros.
+
+20090219 dholland	OS/161 1.99.02 released.
+20090219 dholland	Add missing W* macros with waitpid in testbin progs.
+20090219 dholland	Work around gcc tailcall bug affecting testbin/crash.
+20090219 dholland	Fix missing vfs_biglock ops in vfs_getcwd().
+20090219 dholland	Fix bad userland declaration of lseek().
+20090219 dholland	Fix userland .depend file generation.
+20090219 dholland	Add join32to64 and split64to32.
+20090219 dholland	Clarify some comments in the mips syscall.c.
+20090219 dholland	Make stack frames in assembly code 64-bit aligned.
+20090217 dholland	Fix some glitches in the shell.
+20090210 dholland	Fix interrupt level management in trap handling.
+20090209 dholland	The on-chip timers can't be used for clocksleep().
+
+20090203 dholland	OS/161 1.99.01 released.
+20090202 dholland	Don't ever migrate curthread to another cpu.
+20090202 dholland	Use the W* wait macros in the shell.
+20090202 dholland	Document the W* wait macros.
+
+20090202 dholland	OS/161 1.99.00 released.
+20090201 dholland	Fix some bugs.
+20090201 dholland	Add an input buffer to the console device.
+20090201 dholland	Change kernel load address to waste less low memory.
+20090201 dholland	Implement kernel-side support for the GP register.
+20090201 dholland	Update man pages for 2.x.
+20090201 dholland	Remove the built-in copy of make. Too much realism;
+			it creates unnecessary hassles. Just ship make with
+			the toolchain.
+200901** dholland	Assorted major hacking to prepare first pre-2.0 tree.
+			Multiprocessor support.
+			Improve organization of source tree.
+			Add the shell and user malloc to the base system.
+20081224 dholland	Begin importing OS/161 1.x bits.
+			(OS/161 2.x branches off from what's projected to be
+			OS/161 1.x release 1.12.)
+
+
+
+OS/161 1.x change log:
+------------------------------------------------------------
+
+20090115 dholland	Fix wrong comment in lib.h.
+20090106 dholland	Fix typo in error message in newvers.sh.
+20080825 dholland	Fix typo in comment in start.S.
+20080825 dholland	Add curspl assertion to thread_yield.
+			(Reported by Melissa O'Neill a long time ago.)
+
+20050913 dholland	OS/161 1.11 released.
+20050907 dholland	Minor changes for clean build under gcc 4.0.1.
+20050321 dholland	Add volatile to testbin/ctest. (found by Qicheng Ma)
+20050307 dholland	Create <machine/ktypes.h> for vaddr_t/paddr_t.
+20050228 dholland	Some standards compliance. (found by R.L. West)
+20040510 dholland	Fix args handling in testbin/tail. (Lukasz Strozek)
+20040204 dholland	Be more consistent about refcounts in vfscwd.c.
+
+20040203 dholland	OS/161 1.10 released.
+20040203 dholland	Support for hosting OS/161 on Solaris.
+20040202 dholland	Update stdarg.h for gcc 3.x; remove machine/stdarg.h.
+
+20031227 dholland	OS/161 1.09 released.
+20031224 dholland	Add missing man page for triplesort.
+20031224 dholland	Fix failed compile in lnet.c, currently a null driver.
+20031224 dholland	Fix badcall so it doesn't blow up on empty stdin.
+20031224 dholland	Fix argument handling in bin/ln. (Hassan Sultan)
+20031224 dholland	Fix link count leak in sfs_rename. (Brian Greenberg)
+20031224 dholland	Fix silly use-after-free in an SFS mount error path.
+20031224 dholland	Fix unaligned sections in dumbvm. (Mike Hamburg)
+20031224 dholland	Change "asst1probs" to "synchprobs".
+20031224 dholland	Refer to assts by content, not number, where possible.
+20031224 dholland	Fix some nonsensical but working code in /bin/pwd.
+20031224 dholland	Update stack assertions in mips/trap.c for 4k stacks.
+20031224 dholland	Install kernels using their configuration name.
+20031224 dholland	Clarify some aspects of the locks/CVs API.
+20031224 dholland	Fix assorted comment typos and glitches.
+20030626 dholland	Commit the fix for a refcounting mistake in SFS.
+20030626 dholland	Fix glitch in one of the dup2 tests in testbin/badcall.
+20030626 dholland	Add missing sized type in mksfs/support.h.
+20030626 dholland	Fix "make depend" glitch in dumpsfs.
+20030626 dholland	Fix minor off-by-one error in menu code.
+20030421 dholland       Fix assertion failure in kernel heap dump code.
+20030421 dholland       Fix crash in testbin/dirconc.
+20030309 dholland	Make shell accept being run with argc==0.
+20030309 dholland	Add support for WNOHANG to shell.
+
+20030221 dholland	OS/161 1.08 released.
+20030221 dholland	Fix broken hostcompat build with some Linux libcs.
+20030207 gwa/dholland	Fix broken ASST1 build caused by rushed release.
+
+20030131 dholland	OS/161 1.07 released.
+20030131 gwa		New assignment 1 problems for 2003.
+20030129 dholland	Make console device full-duplex.
+20030129 dholland	Check for short reads when loading executable headers.
+20030129 dholland	Make rmtest a single standalone executable.
+20030129 dholland	Make first thread stack also 4k rather than 8k.
+20030129 dholland	Fix minor VFS bug handling multiple leading slashes.
+20030129 dholland	Remove code duplication in triple* tests.
+20030129 dholland	Add triplesort test (like triplemat).
+20030128 dholland	Make f_test a single standalone executable.
+20030128 dholland	Add t_ prefix to struct thread members for consistency.
+20030128 dholland	bzero by words instead of bytes when properly aligned.
+20030128 dholland	Add memcmp() to libc.
+20030127 dholland	Minor fixes to parallelvm.
+
+20030117 dholland	OS/161 1.06 released.
+20030110 dholland	Fix bug in setjmp/longjmp.
+20030110 dholland	Add small explanatory comment to dev/lamebus/emu.c.
+20021120 dholland	Have configure script provide NM and HOST_NM.
+20021120 dholland	Merge hostcompat fixes for Mac OS X.
+20021001 dholland	Avoid undefined C behavior in atoi().
+20020920 dholland	Provide string names for mips trap codes.
+20020920 dholland	Fix handling of boot-time kernel memory faults.
+
+20020917 dholland	OS/161 1.05 released.
+20020913 dholland	Created this changelog from CVS log data.
+20020904 dholland	Cleanup/improvement for testbin/malloctest.
+20020904 dholland	Add code to shell to do timing of subprocesses.
+20020904 dholland	Adjust prototype for __time() for hostcompat reasons.
+20020904 dholland	Add parallelvm and dirconc to the default build.
+20020904 dholland	Add mode to testbin/crash to fork and run everything.
+20020904 dholland	Retry certain I/O errors in emufs and sfs.
+20020904 dholland	Make vfs_close not fail.
+20020830 dholland	Prohibit slashes and colons in volume names in mksfs.
+20020830 dholland	_O_RDWRMASK -> O_ACCMODE, per POSIX.
+20020830 dholland	Shrink kernel stacks from 8k to 4k.
+20020830 dholland	Merge the code for the 'p' and 's' menu commands.
+20020830 dholland	Don't use OPEN_MAX in the base system.
+20020829 dholland	Include a copy of the error strings in the kernel.
+20020829 dholland	Assert that spl is 0 on syscall entry and exit.
+20020829 dholland	Fixes and new tests for testbin/badcall.
+20020829 dholland	Add code and menu command for dumping kernel heap.
+20020827 dholland	Close current directory at shutdown time.
+20020827 dholland	Clear bootfs at shutdown time.
+20020827 dholland	Remove extraneous magic argument from free_kpages().
+20020827 dholland	Fix dangling lock bug in emufs.
+20020826 dholland	Man page fixes for read, write, waitpid.
+20020808 dholland	Make Ant-32 port mostly work.
+20020625 dholland	Kernel makefile tweak for stupid makes.
+20020618 dholland	Fixes to the Ant-32 port.
+20020617 dholland	Update the (unreleased) Ant-32 port.
+20020523 dholland	Make matmult exit 1 on failure.
+20020523 dholland	Fix various forking userlevel tests to wait properly.
+20020523 dholland	Check for short reads when loading executables.
+20020523 dholland	Fix bug in tt3 test.
+20020523 dholland	Some make/build fixes.
+20020523 dholland	More mips calling conventions fixes.
+20020522 dholland	Fix bug in new mips exception code.
+20020522 dholland	Revamp testbin/badcall.
+20020515 dholland	Various accumulated minor cleanups and fixes.
+20020515 dholland	New tests: dirconc, parallelvm.
+20020515 dholland	Add missing V() in lhd driver.
+20020515 dholland	Fixes for the thread code.
+20020515 dholland	Tweak mips exception code for gdb's benefit.
+20020515 dholland	Clean up dumbvm code.
+20020515 dholland	Initialize mips stacks better, for gdb's benefit.
+20020425 dholland	Fixes for testbin/f_test.
+20020424 dholland	Fix kmalloc bug (found by Richard Eisenberg).
+20020424 dholland	Fix incorrect error codes in testbin/badcall.
+20020424 dholland	Move stray assert in vfs code.
+20020407 dholland	Fix off-by-one error in lhd driver.
+20020325 dholland	Fix memory leak in malloctest.
+20020318 dholland	Patch for race in thread_exit (fixed properly 5/15).
+20020305 dholland	Fix spl leak on thread_fork failure.
+20020305 dholland	Fix for testbin/crash.
+
+20020216 dholland	OS/161 1.04 released.
+20020216 dholland	Fix warning in kmalloc debugging code.
+20020216 dholland	Adjust testbin/badcall to assignment 2 requirements.
+20020215 dholland	Add cpu_halt() to supplement cpu_idle(), to fix crash.
+20020215 dholland	Fixes for matmult.
+20020215 dholland	Fix garbled comment in vm.h.
+20020215 dholland	Fix prototype of _exit().
+20020208 dholland	Fix stack frame of mips __start for gdb's benefit.
+20020208 dholland	Fix queue bug.
+20020208 dholland	Fix bug in testbin/{badcall,crash,faulter}.
+
+20020131 dholland	OS/161 1.03 released.
+20020131 dholland	Yield more on thread start (OPT_ASST1PROBS only).
+20020131 dholland	Fix whalemating code to match assignment.
+20020131 dholland	New asst1 problems for 2002.
+20020131 dholland	Include fix in mips pcb.h.
+20020130 fedorova	Adjust tt3 iteration counts/sizes.
+20020129 georgi 	Fix broken mksfs and dumpsfs build.
+20020124 dholland	Put time() in libc; add __time() syscall.
+20020124 dholland	Have hostcompat make stdout and stderr unbuffered.
+20020124 dholland	Add sample optimizing config (ASST2-OPT).
+20020124 dholland	New tests: dirseek, rmdirtest, triplemat.
+20020123 dholland	Move matmult2 over original matmult.
+20020123 dholland	Assert nobody's waiting when destroying a semaphore.
+20020123 dholland	Add driver for new ltrace device.
+20020123 dholland	Fix cosmetic bug in hardclock config.
+20020121 dholland	Support ls over emufs.
+20020121 dholland	Fix bug in copyinstr/copyoutstr code.
+20020121 dholland	Fix broken Linux build of libhostcompat.
+20020119 dholland	Alter dumbvm and loadelf for new toolchain.
+20020117 dholland	Check for stack overflow during context switch.
+20020117 dholland	Stop using -O2 with -g for mips.
+20020117 dholland	More mips calling conventions fixes.
+20020117 dholland	Correct the inline asm in spl.c.
+20020117 dholland	Remove machine/inlineasm.h; fold into spl.c.
+20020117 dholland	Avoid using default make-supplied CFLAGS.
+20020117 dholland	Fix use of libhostcompat in mksfs and dumpsfs.
+20020117 dholland	Fix cosmetic bug in configure script.
+20020116 dholland	Adjust various things for new toolchain.
+20020110 dholland	Install hostcompat includes properly.
+20020110 dholland	Various fixes for new gcc (3.0.3) and binutils.
+20020104 dholland	More man pages.
+20020103 dholland	Remove excess register saves from mips context switch.
+20020103 dholland	Move old getcwd to __getcwd; put POSIX getcwd in libc.
+20020103 dholland	Tinker with tt3 test.
+20020102 dholland	Change thread_fork so it can return errors.
+20020102 dholland	Preallocate various things to avoid dying in mi_switch.
+20010925 dholland	Add a bunch of consistency checks to sfs.
+20010925 dholland	Fix bug in new panic code.
+20010925 dholland	Add menu command to panic intentionally.
+20010925 dholland	Fix bug in emufs.
+20010925 dholland	memcpy by words instead of bytes when properly aligned.
+20010925 dholland	Use setjmp() and longjmp() for aborting copyin/copyout.
+20010925 dholland	Add code for setjmp() and longjmp().
+20010921 dholland	Add VOP_KILL (undoes VOP_INIT, which can now fail too.)
+20010921 dholland	Fix race conditions in vnode reclaim.
+20010921 dholland	Fix VFS behavior for things like "rmdir foo:".
+
+20010921 dholland	OS/161 1.02 released.
+20010921 dholland	Revise device config/attach code.
+20010920 dholland	Standards compliance fixes for strchr/strrchr.
+20010920 dholland	Fix bug in system().
+20010919 dholland	More man pages.
+20010918 dholland	Changed MAXNAMLEN to NAME_MAX.
+20010918 dholland	Fix bug in kernel menu pwd command.
+20010918 dholland	Panic handling improvements.
+20010918 dholland	Kernel bootup and shutdown cleanup.
+20010918 dholland	Fixes for testbin/badcall.
+20010824 dholland	Make config script probe for <err.h>.
+20010821 dholland	Changes to queue code for consistent naming.
+20010808 dholland	Add man pages.
+20010808 dholland	The shell can now use <err.h> again, so do so.
+20010808 dholland	Add explicit support for host-runnable programs.
+20010807 dholland	Clean up -nostdinc/-nostdlib handling.
+20010807 dholland	Fix bug in cp.
+20010807 dholland	New test in testbin/crash.
+20010807 dholland	Fixes for testbin/malloctest.
+20010806 dholland	Fix glitch in testbin/badcall.
+20010806 dholland	New test: randcall.
+20010804 dholland	Add missing strrchr proto to <string.h>.
+20010803 dholland	Clean up ls; among other things, fix ls -R.
+20010803 dholland	Fixes for testbin/badcall.
+20010803 dholland	Add memset() to libc.
+20010803 dholland	Split part of testbin/crash to new testbin/badcall.
+20010802 dholland	Add comments to testbin describing intended uses.
+20010802 dholland	Fix testbin/ctest to be large enough to be interesting.
+20010802 dholland	Fix testbin/sort to be quicksort instead of bubble.
+20010802 dholland	Various minor testbin fixes/cleanup.
+20010802 dholland	Add dummy <fcntl.h> to make porting easier.
+20010802 dholland	Add dummy <time.h> to make porting easier.
+20010802 dholland	Add dummy <sys/ioctl.h> to make porting easier.
+20010802 dholland	Add dummy <sys/reboot.h> to make porting easier.
+20010802 dholland	Add dummy <sys/wait.h> to make porting easier.
+20010802 dholland	Have kfree deadbeef out free blocks.
+20010801 dholland	Time execution of every kernel menu command.
+20010801 dholland	Add getinterval() function for subtracting times.
+20010801 dholland	Print commands as they execute from the command string.
+20010801 dholland	New test tt3; add atoi from libc to kernel build.
+20010801 dholland	Add memcpy from libc.
+20010801 dholland	Fix size_t and add memcpy() to libc.
+20010801 dholland	Reset mips TLB at boot time.
+20010801 dholland	Revise kernel menu layout.
+20010801 dholland	Add tests for arrays, bitmaps, queues, and semaphores.
+20010801 dholland	Add "reconfig" rule to kernel makefiles.
+20010801 dholland	Fix queue code.
+20010731 dholland	Move main.c from kern/thread to kern/main.
+20010730 dholland	Add kernel menu command to unmount things.
+20010730 dholland	Add vfs_unmountall() for shutdown time.
+20010730 dholland	Report mounts to the console as they happen.
+20010730 dholland	Abolish pointless kernel shutdown functions.
+20010726 dholland	Add random: device accessible through VFS.
+20010726 dholland	Add pseudorand device for when hardware is missing.
+20010726 dholland	Add config support for pseudo-devices.
+20010724 dholland	Yield randomly at thread start if OPT_ASST1PROBS set.
+20010724 dholland	Clarify comments in mips exception.S.
+20010724 dholland	Don't allow calling P() from an interrupt handler.
+20010724 dholland	Fixes for lser driver.
+20010723 dholland	More mips calling conventions fixes.
+20010626 dholland	Add pwd and sync to kernel menu.
+20010626 dholland	Massive changes to kernel menu UI.
+20010619 dholland	Change as_copy so it can return error codes.
+20010619 dholland	Merge bitmap_isset() from sol3.
+20010619 dholland	Various fixes for new dumbvm.
+20010619 dholland	Fix overly enthusiastic test in vnode_check().
+20010619 dholland	Provide a sketch of the skeleton for doing fork.
+20010618 dholland	Add asserts to synch code.
+20010618 dholland	Clean up/clarify syscall entry code.
+20010618 dholland	New dumbvm supporting multiple address spaces.
+20010618 dholland	Remove mips dependencies from loadelf.c.
+20010618 dholland	Add hacks to prevent looping "Unknown syscall -1".
+20010615 dholland	Merge the kmalloc and kfree from sol3.
+20010614 dholland	Move kernel menu stuff to its own file.
+20010614 dholland	Fixes for sfs and vfs layer.
+20010612 dholland	Add sfs_rwblock to encapsulate sfs_device->d_io().
+20010612 dholland	Add lbolt and clocksleep() functionality to kernel.
+20010612 dholland	Add -W to standard warning options.
+20010611 dholland	Abolish rcsids.
+20010611 dholland	Fix memory leak on error in thread_fork.
+20010611 dholland	Don't panic if kmalloc fails. Add checks.
+20010611 dholland	Add VOP_MAGIC to vnode ops tables, and lots of checks.
+20010611 dholland	Add array_setguy().
+20010608 dholland	Add random() and srandom() to libc.
+20010608 dholland	Add some framework for user-level malloc to libc.
+20010608 dholland	Correct prototypes for read() and write().
+20010608 dholland	kprintf synchronization cleanups.
+20010523 dholland	Allow DEL as well as BS for backspacing in shell.
+20010523 dholland	Add warning about the consequences of touching paddr 0.
+20010523 dholland	Fix open count handling on VOP_CLOSE error.
+20010523 dholland	New test: malloctest.
+20010428 dholland	Handle multiple leading slashes on pathnames.
+20010423 dholland	Fix deadlock in vfs layer.
+20010423 dholland	Fix bug in testbin/dirtest.
+20010423 dholland	Fix multiple bugs in ls.
+20010422 dholland	Fix bug in sfs.
+20010419 dholland	Fix bug in sfs (patch from Amos Blackman).
+20010416 dholland	Fix fstest code.
+20010416 dholland	Remove stray debug output from dumpsfs.
+20010414 dholland	Fix host mksfs/dumpsfs build on DU.
+20010414 dholland	Makefile fix: build mksfs and dumpsfs by default.
+20010414 dholland	Fix bug in sfs (found by Dafina Toncheva).
+20010414 dholland	Fix endianness bug in dumpsfs.
+20010414 dholland	Do a sync at shutdown time.
+20010414 dholland	Format depend.mk files consistently.
+20010414 dholland	Fix memory leak in sfs.
+20010413 dholland	Allow VOP_FSYNC on sfs directories.
+20010412 dholland	Detect infinite loop triggerable by uio misuse.
+20010411 dholland	Fix bug in bitmap code.
+20010406 dholland	Fix calling conventions in mips asm code.
+20010323 dholland	Fix multi-sector lhd I/Os (found by Jeff DeSoto).
+20010322 dholland	Fix bug in comment in pcb.c (found by Jeffrey Enos).
+20010319 dholland	Make matmult smaller.
+20010318 moorthi	Fix bug in array code.
+20010314 dholland	Fix bug in mv (found by Edward Lim).
+20010314 dholland	Fix bug in testbin/crash (found by Mike Vernal).
+20010314 dholland	Fix bug in bitmap code.
+20010308 moorthi	Fix bug in sfs.
+
+20010226 dholland	OS/161 1.01 released.
+20010226 dholland	Shell fixes.
+20010226 dholland	Add a lock to the console device.
+20010226 dholland	Fix another bug in copyin/copyout code.
+20010226 dholland	Add vfs_getdevname().
+20010226 dholland	Use device name for FSes that don't return a volname.
+20010226 dholland	Fix two bugs in pwd.
+20010226 dholland	Make /bin/pwd work in emufs.
+20010225 dholland	Fix bug in mips trap code.
+20010225 dholland	Fix bug in mips copyin/copyout code.
+20010224 dholland	Add appropriate volatile keywords in various places.
+20010224 dholland	Fix synchronization in placeholder kmalloc.
+20010221 dholland	Fix bug in CV code.
+
+20010208 dholland	OS/161 1.00 released.
+20010208 dholland	Add EBADF to error list.
+20010208 dholland	Fix specification of VOP_STAT.
+20010208 blackman	Fix naming of queue functions.
+20010208 blackman	Driver for lrandom device.
+20010207 dholland	Check all calls to thread_fork for failure.
+20010206 dholland	Fix comment in mips/specialreg.h.
+20010205 dholland	Prevent recursive scheduler calls. (Fixes crash.)
+20010205 dholland	Make syscall wrapper generation more robust.
+20010205 dholland	Fix bug in cp.
+
+20010202 dholland	OS/161 0.99 released.
+20010202 dholland	Add host-sh (host-runnable version) to sh makefile.
+20010202 dholland	Add licensing boilerplate.
+20010201 dholland	Switch from getfilesize() to fstat().
+20010201 dholland	Add system().
+20010130 dholland	Add strtok() and strtok_r().
+20010129 dholland	Add ELF code.
+20010111 dholland	Fix bug in ls.
+20010103 dholland	Initial checkin of development tree.

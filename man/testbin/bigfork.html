@@ -1,0 +1,88 @@
+<!--
+Copyright (c) 2015
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>bigfork</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>bigfork</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+bigfork - large forking test
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/bigfork</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>bigfork</tt> is a combination of
+the <A HREF=forktest.html>forktest</A>
+and <A HREF=parallelvm.html>parallelvm</A> tests.
+It forks geometrically like forktest, but more times (it goes six
+deep instead of four) and in between each it does some aimless matrix
+operations similar to those in parallelvm.
+It was written to try to come up with a test that generates lots of
+processes (like parallelvm) but works better as a benchmark than
+parallelvm does.
+It is only modestly successful; multiple runs of bigfork still
+typically give a moderately high variance; but as multiple runs of
+parallelvm typically exhibit a huge variance it's a step forward.
+</p>
+
+<p>
+It uses about 4M of memory, which is bigger than parallelvm but
+comparable to some of the other VM stress tests.
+When run in-core it also offers a limited ability to test the
+multiprocessor scalability of your VM system.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>bigfork</tt> uses the following system calls:
+<ul>
+<li><A HREF=../syscall/write.html>write</A></li>
+<li><A HREF=../syscall/fork.html>fork</A></li>
+<li><A HREF=../syscall/waitpid.html>waitpid</A></li>
+<li><A HREF=../syscall/_exit.html>_exit</A></li>
+</ul>
+</p>
+
+<p>
+<tt>bigfork</tt> should run correctly to completion once the VM
+assignment is complete.
+</p>
+
+</body>
+</html>

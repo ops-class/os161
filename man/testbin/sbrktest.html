@@ -1,0 +1,134 @@
+<!--
+Copyright (c) 2015
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>sbrktest</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>sbrktest</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+sbrktest - program for testing <A HREF=../syscall/sbrk.html>sbrk</A>
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/sbrktest</tt> [<em>test-number ...</em>]
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>sbrktest</tt> contains a number of tests for memory allocation,
+using the <A HREF=../syscall/sbrk.html>sbrk</A> low-level interface
+directly instead of via <A HREF=../libc/malloc.htmlm>malloc</A>.
+It is similar to <A HREF=malloctest.html>malloctest</A> in general
+layout and approach, but concentrates on kernel-level memory
+allocation rather than the behavior of C malloc.
+</p>
+
+<p>
+There are 21 tests:
+<table>
+<tr><td width=5% valign=top>1</td><td>Allocate one page.</td></tr>
+<tr><td valign=top>2</td><td>Allocate and free one page.</td></tr>
+<tr><td valign=top>3</td><td>Allocate and free several pages.</td></tr>
+<tr><td valign=top>4</td><td>Allocate several pages and free them one
+				at a time.</td></tr>
+<tr><td valign=top>5</td><td>Check the heap end.
+				This test crashes intentionally.</td></tr>
+<tr><td valign=top>6</td><td>Allocate and check the heap end.
+				This test crashes intentionally.</td></tr>
+<tr><td valign=top>7</td><td>Allocate and free and check the heap end.
+				This test crashes intentionally.</td></tr>
+<tr><td valign=top>8</td><td>Allocate several, free some, then check
+				the heap end.
+				This test crashes intentionally.</td></tr>
+<tr><td valign=top>9</td><td>Allocate all memory in a big chunk.</td></tr>
+<tr><td valign=top>10</td><td>Allocate all memory one page at a time.</td></tr>
+<tr><td valign=top>11</td><td>Allocate a lot and intentionally leak
+				it.</td></tr>
+<tr><td valign=top>12</td><td>Fork and then allocate.</td></tr>
+<tr><td valign=top>13</td><td>Allocate and then fork.</td></tr>
+<tr><td valign=top>14</td><td>Allocate and then fork and free.</td></tr>
+<tr><td valign=top>15</td><td>Allocate, fork, allocate more, and
+				free.</td></tr>
+<tr><td valign=top>16</td><td>Small stress test.</td></tr>
+<tr><td valign=top>17</td><td>Randomized small stress test.</td></tr>
+<tr><td valign=top>18</td><td>Small stress test with specific seed.</td></tr>
+<tr><td valign=top>19</td><td>Large stress test.</td></tr>
+<tr><td valign=top>20</td><td>Randomized large stress test.</td></tr>
+<tr><td valign=top>21</td><td>Large stress test with specific seed.</td></tr>
+</table>
+</p>
+
+<p>
+One or more tests may be run specifically by giving the numbers on the
+command line; otherwise, <tt>sbrktest</tt> prints the list and prompts
+for a test number to run.
+</p>
+
+<p>
+Note that the tests that crash intentionally should crash the
+<tt>sbrktest</tt> program with an illegal memory access
+(<tt>SIGSEGV</tt>) -- they should not crash your kernel.
+</p>
+
+<p>
+The tests that attempt to allocate all available memory may be slow,
+depending on the per-process limits you place on memory allocation (if
+any) relative to the amount of available physical RAM.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>sbrktest</tt> uses the following system calls:
+<ul>
+<li><A HREF=../syscall/sbrk.html>sbrk</A></li>
+<li><A HREF=../syscall/open.html>open</A></li>
+<li><A HREF=../syscall/read.html>read</A></li>
+<li><A HREF=../syscall/write.html>write</A></li>
+<li><A HREF=../syscall/close.html>close</A></li>
+<li><A HREF=../syscall/fork.html>fork</A></li>
+<li><A HREF=../syscall/waitpid.html>waitpid</A></li>
+<li><A HREF=../syscall/_exit.html>_exit</A></li>
+</ul>
+</p>
+
+<p>
+<tt>sbrktest</tt> should work properly once you have implemented the
+sbrk system call and a virtual memory system that supports dynamic
+memory allocation.
+It will not work with dumbvm.
+</p>
+
+</body>
+</html>

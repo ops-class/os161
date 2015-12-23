@@ -1,0 +1,87 @@
+<!--
+Copyright (c) 2014
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>semfs</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>semfs</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+semfs - semaphore filesystem
+</p>
+
+<h3>Synopsis</h3>
+<p>
+options semfs
+</p>
+
+<h3>Description</h3>
+<p>
+semfs is a simple "fake" (memory-only) file system that provides
+synchronization facilities to userland in the form of counting
+semaphores.
+There is one semfs instance, called "sem:", which is created and
+mounted during system boot.
+</p>
+
+<p>
+Semaphores in semfs appear as files in "sem:". To create a semaphore,
+open such a file using <tt>O_CREAT</tt>. To destroy it, remove it with
+<tt>remove()</tt>.
+</p>
+
+<p>
+To use the semaphore, write one byte to increase the semaphore count
+by one (the "V" operation) and write one byte to decrease the
+semaphore count by one (the "P" operation). The count will not
+decrease below zero; attempts to do so will block until other
+concurrent write operations raise the count again.
+You can also set the count explicitly using <tt>ftruncate()</tt>; this
+is useful for initializing a semaphore to a nonzero value. Note that
+no data is actually transferred by the read and write calls; it is
+acceptable to pass NULL as the data pointer.
+</p>
+
+<p>
+You can create as many semaphores as you want (until memory runs out
+or the directory reaches 2^32 entries); however, semfs does not
+support subdirectories, hard links of semaphores, or renaming.
+</p>
+
+<h3>Files</h3>
+<p>
+<tt>sem:</tt>
+</p>
+
+</body>
+</html>

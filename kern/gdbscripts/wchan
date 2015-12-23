@@ -1,0 +1,85 @@
+# gdb scripts for manipulating wchans
+
+define allwchans
+    set $n = allwchans.arr.num
+    set $i = 0
+    while ($i < $n)
+	set $p = (struct wchan *)(allwchans.arr.v[$i])
+	set $pnm = $p->wc_name
+	set $pth = &$p->wc_threads
+	set $pct = $pth->tl_count
+	printf "wchan %u @0x%x: %-16s %u\n", $i, $p, $pnm, $pct
+	set $i++
+    end
+end
+document allwchans
+Dump the allwchans table.
+Usage: allwchans
+end
+
+define wchan
+    set $p = (struct wchan *)(allwchans.arr.v[$arg0])
+    set $pnm = $p->wc_name
+    set $pth = $p->wc_threads
+    set $pct = $pth.tl_count
+    printf "wchan %u @0x%x: %-16s %u:\n", $arg0, $p, $pnm, $pct
+    threadlist $pth
+end
+document wchan
+Dump a particular wchan.
+Usage: wchan N
+(where N is the index into allwchans[] reported by allwchans)
+end
+
+define threadlist
+    set $t = $arg0.tl_head.tln_next->tln_self
+    while ($t != 0)
+	printf "thread %s @0x%x\n", $t->t_name, $t
+	set $t = $t->t_listnode.tln_next->tln_self
+    end
+end
+document threadlist
+Dump a threadlist.
+Usage: threadlist mycpu->c_runqueue
+end
+
+define allcpus
+    set $n = allcpus.arr.num
+    set $i = 0
+    while ($i < $n)
+	set $c = (struct cpu *)(allcpus.arr.v[$i])
+	set $id = $c->c_isidle
+	set $ln = $c->c_spinlocks
+	set $t = $c->c_curthread
+	set $zom = $c->c_zombies.tl_count
+	set $rn = $c->c_runqueue.tl_count
+	printf "cpu %u @0x%x: ", $i, $c
+	if ($id)
+	    printf "idle, "
+	else
+	    printf "running, "
+	end
+	printf "%u spinlocks, ", $ln
+	if ($t)
+	    printf "current: %s @0x%x\n", $t->t_name, $t
+	else
+	    printf "no current thread (?)\n"
+	end
+	if ($zom > 0)
+	    printf "%u zombies:\n", $zom
+	    threadlist $c->c_zombies
+	end
+	if ($rn > 0)
+	    printf "%u threads in run queue:\n", $rn
+	    threadlist $c->c_zombies
+	else
+	    printf "run queue empty\n"
+	end
+	printf "\n"
+	set $i++
+    end
+end
+document allcpus
+Dump all cpus.
+Usage: allcpus
+end

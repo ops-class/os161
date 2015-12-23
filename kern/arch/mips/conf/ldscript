@@ -1,0 +1,98 @@
+/*
+ * This is a pile of crap that tells the linker how to link the kernel,
+ * because it's too stupid to be able to work it out on its own.
+ */
+ENTRY(__start)
+
+_DYNAMIC_LINK = 0;
+SECTIONS
+{
+	/*
+	 * Base address for the kernel.
+	 */
+	. = 0x80000200;
+
+	/*
+	 * Read-only loaded sections.
+	 */
+
+	/* code */
+	.text : { *(.text) }
+
+	/* linker-provided symbol for end of code */
+	_etext = .;
+
+	/* read-only data */
+	.rodata : { *(.rodata) *(.rodata.*) }
+
+	/* MIPS register-usage blather */
+	.reginfo : { *(.reginfo) }
+
+	/*
+	 * Move to a fresh page. This method puts read-only and
+	 * read-write material on separate pages without having to
+	 * waste space on page-alignment in the on-disk file; the
+	 * on-disk page that contains both text and data is mapped
+	 * twice.
+	 *
+	 * For mips kernels we can't write-protect the text anyhow so
+	 * there's no point doing it.
+	 */
+	/* . = . + 0x1000; */
+
+	/*
+	 * Read-write loaded sections.
+	 */
+
+	/* initialized data */
+	.data : {
+		*(.data)
+		CONSTRUCTORS
+	}
+
+	/* Value for GP register */
+	_gp = ALIGN(16) + 0x7ff0;
+
+	/* Small data accessed via GP register */
+	.lit8 :  { *(.lit8) }
+	.lit4 :  { *(.lit4) }
+	.sdata : { *(.sdata) }
+
+	/* cleared-to-zero data */
+	.sbss : { *(.sbss *.scommon) }
+	.bss : { *(.bss) *(COMMON) }
+
+	/* linker-provided symbol for end of program */
+	_end = .;
+
+	/*
+	 * Debug info
+	 */
+
+	/* stabs debug sections */
+	.stab 0:		{ *(.stab) }
+	.stabstr 0:		{ *(.stabstr) }
+
+	/* DWARF debug sections */
+	.debug 0:		{ *(.debug) }
+	.line 0:		{ *(.line) }
+	.debug_srcinfo 0:	{ *(.debug_srcinfo) }
+	.debug_sfnames 0:	{ *(.debug_sfnames) }
+	.debug_aranges 0:	{ *(.debug_aranges) }
+	.debug_pubnames 0:	{ *(.debug_pubnames) }
+	.debug_info 0:		{ *(.debug_info .gnu.linkonce.wi.*) }
+	.debug_abbrev 0:	{ *(.debug_abbrev) }
+	.debug_line 0:		{ *(.debug_line) }
+	.debug_frame 0:		{ *(.debug_frame) }
+	.debug_str 0:		{ *(.debug_str) }
+	.debug_loc 0:		{ *(.debug_loc) }
+	.debug_macinfo 0:	{ *(.debug_macinfo) }
+	.debug_weaknames 0:	{ *(.debug_weaknames) }
+	.debug_funcnames 0:	{ *(.debug_funcnames) }
+	.debug_typenames 0:	{ *(.debug_typenames) }
+	.debug_varnames 0:	{ *(.debug_varnames) }
+
+	/* These must appear regardless of  .  */
+	.gptab.sdata : { *(.gptab.data) *(.gptab.sdata) }
+	.gptab.sbss : { *(.gptab.bss) *(.gptab.sbss) }
+}

@@ -1,0 +1,93 @@
+<!--
+Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009, 2013
+	The President and Fellows of Harvard College.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+3. Neither the name of the University nor the names of its contributors
+   may be used to endorse or promote products derived from this software
+   without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE UNIVERSITY AND CONTRIBUTORS ``AS IS'' AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED.  IN NO EVENT SHALL THE UNIVERSITY OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+SUCH DAMAGE.
+-->
+<html>
+<head>
+<title>rmtest</title>
+<link rel="stylesheet" type="text/css" media="all" href="../man.css">
+</head>
+<body bgcolor=#ffffff>
+<h2 align=center>rmtest</h2>
+<h4 align=center>OS/161 Reference Manual</h4>
+
+<h3>Name</h3>
+<p>
+rmtest - test removing open files
+</p>
+
+<h3>Synopsis</h3>
+<p>
+<tt>/testbin/rmtest</tt>
+</p>
+
+<h3>Description</h3>
+<p>
+<tt>rmtest</tt> deletes a file while it's open and then attempts to do
+further I/O to it, and tries to check that the right things happen.
+</p>
+
+<h3>Requirements</h3>
+<p>
+<tt>rmtest</tt> uses the following system calls:
+<ul>
+<li> <A HREF=../syscall/fork.html>fork</A>
+<li> <A HREF=../syscall/execv.html>execv</A>
+<li> <A HREF=../syscall/waitpid.html>waitpid</A>
+<li> <A HREF=../syscall/open.html>open</A>
+<li> <A HREF=../syscall/read.html>read</A>
+<li> <A HREF=../syscall/write.html>write</A>
+<li> <A HREF=../syscall/lseek.html>lseek</A>
+<li> <A HREF=../syscall/close.html>close</A>
+<li> <A HREF=../syscall/_exit.html>_exit</A>
+</ul>
+</p>
+
+<p>
+<tt>rmtest</tt> also spawns a copy of
+<A HREF=../bin/rm.html>/bin/rm</A>, which uses these system calls:
+<ul>
+<li> <A HREF=../syscall/remove.html>remove</A>
+<li> <A HREF=../syscall/write.html>write</A>
+<li> <A HREF=../syscall/_exit.html>_exit</A>
+</ul>
+</p>
+
+<p>
+<tt>rmtest</tt> should run correctly once the file system assignment
+is complete.
+</p>
+
+<h3>Bugs</h3>
+<p>
+There's no particular reason it should use <tt>/bin/rm</tt> instead of
+calling <A HREF=../syscall/remove.html>remove</A> itself. But I guess
+it makes life more exciting.
+</p>
+
+</body>
+</html>
