@@ -294,7 +294,7 @@ cvtest(int nargs, char **args)
 	(void)args;
 
 	inititems();
-	kprintf("Starting new CV test...\n");
+	kprintf("Starting CV test...\n");
 	kprintf("Threads should print out in reverse order.\n");
 
 	testval1 = NTHREADS-1;
