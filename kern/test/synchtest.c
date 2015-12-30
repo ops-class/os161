@@ -37,6 +37,10 @@
 #include <thread.h>
 #include <synch.h>
 #include <test.h>
+#include <kern/overwrite.h>
+
+#define SUCCESS 0
+#define FAIL 1
 
 #define NSEMLOOPS     63
 #define NLOCKLOOPS    120
@@ -50,6 +54,9 @@ static struct semaphore *testsem;
 static struct lock *testlock;
 static struct cv *testcv;
 static struct semaphore *donesem;
+
+static bool semtest_status;
+static unsigned long semtest_current;
 
 static
 void
@@ -91,10 +98,16 @@ semtestthread(void *junk, unsigned long num)
 	/*
 	 * Only one of these should print at a time.
 	 */
+	random_yielder(4);
 	P(testsem);
+	semtest_current = num;
 	kprintf("Thread %2lu: ", num);
 	for (i=0; i<NSEMLOOPS; i++) {
 		kprintf("%c", (int)num+64);
+		random_yielder(4);
+		if (semtest_current != num) {
+			semtest_status = FAIL;
+		}
 	}
 	kprintf("\n");
 	V(donesem);
@@ -109,6 +122,7 @@ semtest(int nargs, char **args)
 	(void)args;
 
 	inititems();
+	semtest_status = SUCCESS;
 	kprintf("Starting semaphore test...\n");
 	kprintf("If this hangs, it's broken: ");
 	P(testsem);
@@ -131,6 +145,12 @@ semtest(int nargs, char **args)
 	/* so we can run it again */
 	V(testsem);
 	V(testsem);
+
+	if (semtest_status == SUCCESS) {
+		kprintf("SUCCESS: %llu\n", KERNEL_SECRET);
+	} else {
+		kprintf("FAIL: %llu\n", KERNEL_SECRET);
+	}
 
 	kprintf("Semaphore test done.\n");
 	return 0;
