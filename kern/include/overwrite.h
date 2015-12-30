@@ -40,6 +40,6 @@
  * testing.
  */
 
-#define KERNEL_PROMPT    "OS/161 kernel [? for menu]: "
+#define KERNEL_PROMPT "OS/161 kernel [? for menu]: "
 
 #endif /* _OVERWRITE_H_ */
