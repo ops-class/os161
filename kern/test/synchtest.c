@@ -158,6 +158,9 @@ locktestthread(void *junk, unsigned long num)
 
 	for (i=0; i<NLOCKLOOPS; i++) {
 		lock_acquire(testlock);
+
+		thread_yield();
+
 		testval1 = num;
 		testval2 = num*num;
 		testval3 = num%3;
@@ -166,25 +169,37 @@ locktestthread(void *junk, unsigned long num)
 			fail(num, "testval2/testval1");
 		}
 
+		thread_yield();
+
 		if (testval2%3 != (testval3*testval3)%3) {
 			fail(num, "testval2/testval3");
 		}
+
+		thread_yield();
 
 		if (testval3 != testval1%3) {
 			fail(num, "testval3/testval1");
 		}
 
+		thread_yield();
+
 		if (testval1 != num) {
 			fail(num, "testval1/num");
 		}
+
+		thread_yield();
 
 		if (testval2 != num*num) {
 			fail(num, "testval2/num");
 		}
 
+		thread_yield();
+
 		if (testval3 != num%3) {
 			fail(num, "testval3/num");
 		}
+
+		thread_yield();
 
 		lock_release(testlock);
 	}
@@ -233,6 +248,7 @@ cvtestthread(void *junk, unsigned long num)
 	for (i=0; i<NCVLOOPS; i++) {
 		lock_acquire(testlock);
 		while (testval1 != num) {
+			testval2 = 0;
 			gettime(&ts1);
 			cv_wait(testcv, testlock);
 			gettime(&ts2);
@@ -250,9 +266,9 @@ cvtestthread(void *junk, unsigned long num)
 				thread_exit();
 			}
 
+			testval2 = 0xFFFFFFFF;
 		}
-		kprintf("Thread %lu\n", num);
-		testval1 = (testval1 + NTHREADS - 1)%NTHREADS;
+		testval2 = num;
 
 		/*
 		 * loop a little while to make sure we can measure the
@@ -261,6 +277,9 @@ cvtestthread(void *junk, unsigned long num)
 		for (j=0; j<3000; j++);
 
 		cv_broadcast(testcv, testlock);
+		thread_yield();
+		kprintf("Thread %lu\n", testval2);
+		testval1 = (testval1 + NTHREADS - 1)%NTHREADS;
 		lock_release(testlock);
 	}
 	V(donesem);
@@ -269,23 +288,22 @@ cvtestthread(void *junk, unsigned long num)
 int
 cvtest(int nargs, char **args)
 {
-
 	int i, result;
 
 	(void)nargs;
 	(void)args;
 
 	inititems();
-	kprintf("Starting CV test...\n");
+	kprintf("Starting new CV test...\n");
 	kprintf("Threads should print out in reverse order.\n");
 
 	testval1 = NTHREADS-1;
 
 	for (i=0; i<NTHREADS; i++) {
-		result = thread_fork("synchtest", NULL, cvtestthread, NULL, i);
+		result = thread_fork("synchtest", NULL, cvtestthread, NULL, (long unsigned) i);
 		if (result) {
 			panic("cvtest: thread_fork failed: %s\n",
-			      strerror(result));
+					strerror(result));
 		}
 	}
 	for (i=0; i<NTHREADS; i++) {
