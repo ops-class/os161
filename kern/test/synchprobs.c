@@ -1,8 +1,8 @@
 /*
- * 08 Feb 2012 : GWA : Please make any changes necessary to test your code to
- * the drivers in this file. However, the automated testing suite *will
- * replace this file in its entirety* with driver code intented to stress
- * test your synchronization problem solutions.
+ * NO NOT MODIFY THIS FILE
+ *
+ * All the contents of this file are overwritten during automated
+ * testing. Please consider this before changing anything in this file.
  */
 
 #include <types.h>
@@ -17,49 +17,38 @@
 #define PROBLEMS_MAX_SPINNER 8192
 
 /*
- * 08 Feb 2012 : GWA : Driver code for the whalemating problem.
- */
-
-/*
- * 08 Feb 2012 : GWA : The following functions are for you to use when each
- * whale starts and completes either mating (if it is a male or female) or
- * matchmaking. We will use the output from these functions to verify the to
- * verify the correctness of your solution. These functions may spin for
- * arbitrary periods of time or yield.
+ * Driver code for the whalemating problem.
  */
 
 inline void male_start(void) {
 	random_yielder(PROBLEMS_MAX_YIELDER);
-	kprintf("%s starting\n", curthread->t_name);
+	random_spinner(PROBLEMS_MAX_SPINNER);
+	tkprintf("%s starting\n", curthread->t_name);
 }
 
 inline void male_end(void) {
-	kprintf("%s ending\n", curthread->t_name);
+	tkprintf("%s ending\n", curthread->t_name);
 }
 
 inline void female_start(void) {
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	kprintf("%s starting\n", curthread->t_name);
+	random_yielder(PROBLEMS_MAX_YIELDER);
+	tkprintf("%s starting\n", curthread->t_name);
 }
 
 inline void female_end(void) {
-	kprintf("%s ending\n", curthread->t_name);
+	tkprintf("%s ending\n", curthread->t_name);
 }
 
 inline void matchmaker_start(void) {
 	random_yielder(PROBLEMS_MAX_YIELDER);
-	kprintf("%s starting\n", curthread->t_name);
+	random_spinner(PROBLEMS_MAX_SPINNER);
+	tkprintf("%s starting\n", curthread->t_name);
 }
 
 inline void matchmaker_end(void) {
-	kprintf("%s ending\n", curthread->t_name);
+	tkprintf("%s ending\n", curthread->t_name);
 }
-
-/*
- * 08 Feb 2012 : GWA : The following function drives the entire whalemating
- * process. Feel free to modify at will, but make no assumptions about the
- * order or timing of threads launched by our testing suite.
- */
 
 #define NMATING 10
 
@@ -72,8 +61,7 @@ int whalemating(int nargs, char **args) {
 	int i, j, err = 0;
 	char name[32];
 
-	whalematingMenuSemaphore = sem_create("Whalemating Driver Semaphore",
-			0);
+	whalematingMenuSemaphore = sem_create("Whalemating Driver Semaphore", 0);
 	if (whalematingMenuSemaphore == NULL ) {
 		panic("whalemating: sem_create failed.\n");
 	}
@@ -118,37 +106,20 @@ int whalemating(int nargs, char **args) {
 }
 
 /*
- * 08 Feb 2012 : GWA : Driver code for the stoplight problem.
- */
-
-/*
- * 08 Feb 2012 : GWA : The following functions should be called by your
- * stoplight solution when a car is in an intersection quadrant. The
- * semantics of the problem are that once a car enters any quadrant it has to
- * be somewhere in the intersection until it call leaveIntersection(), which
- * it should call while in the final quadrant.
- *
- * As an example, let's say a car approaches the intersection and needs to
- * pass through quadrants 0, 3 and 2. Once you call inQuadrant(0), the car is
- * considered in quadrant 0 until you call inQuadrant(3). After you call
- * inQuadrant(2), the car is considered in quadrant 2 until you call
- * leaveIntersection().
- * 
- * As in the whalemating example, we will use the output from these functions
- * to verify the correctness of your solution. These functions may spin for
- * arbitrary periods of time or yield.
+ * Driver code for the stoplight problem.
  */
 
 inline void inQuadrant(int quadrant) {
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	kprintf("%s in quadrant %d\n", curthread->t_name, quadrant);
+	random_yielder(PROBLEMS_MAX_YIELDER);
+	tkprintf("%s in quadrant %d\n", curthread->t_name, quadrant);
 }
 
 inline void leaveIntersection() {
-	kprintf("%s left the intersection\n", curthread->t_name);
+	tkprintf("%s left the intersection\n", curthread->t_name);
 }
 
-#define NCARS 99
+#define NCARS 32
 
 struct semaphore * stoplightMenuSemaphore;
 
