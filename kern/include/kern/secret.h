@@ -45,7 +45,7 @@
  * normal test output.
  */
 
-#define KERNEL_SECRET ((unsigned long long)1) // Cast for consistent printf
-//#define KERNEL_SECRET ((unsigned long long)0) // Cast for consistent printf
+// #define KERNEL_SECRET ((unsigned long long)1) // Cast for consistent printf
+#define KERNEL_SECRET ((unsigned long long)0) // Cast for consistent printf
 
 #endif /* _SECRET_H_ */
