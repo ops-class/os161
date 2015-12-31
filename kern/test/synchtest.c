@@ -487,3 +487,18 @@ cvtest2(int nargs, char **args)
 
 	return 0;
 }
+
+/*
+ * Complete this for ASST1.
+ */
+
+int rwtest(int nargs, char **args) {
+	
+	(void) nargs;
+	(void) args;
+	
+	tkprintf("rwtest unimplemented\n");
+	success(FAIL, "rwtest");
+
+	return 0;
+}

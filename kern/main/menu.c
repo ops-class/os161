@@ -477,6 +477,7 @@ static const char *testmenu[] = {
 	"[sy2] Lock test             (1)     ",
 	"[sy3] CV test               (1)     ",
 	"[sy4] CV test #2            (1)     ",
+	"[sy5] RW lock test          (1)     ",
 	"[semu1-22] Semaphore unit tests     ",
 	"[fs1] Filesystem test               ",
 	"[fs2] FS read stress                ",
@@ -579,6 +580,7 @@ static struct {
 	{ "sy2",	locktest },
 	{ "sy3",	cvtest },
 	{ "sy4",	cvtest2 },
+	{ "sy5",	rwtest },
 
 	/* semaphore unit tests */
 	{ "semu1",	semu1 },
