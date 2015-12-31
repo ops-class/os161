@@ -395,7 +395,7 @@ sleepthread(void *junk1, unsigned long junk2)
 			V(gatesem);
 			random_yielder(4);
 			spinlock_acquire(&status_lock);
-			testval1++;
+			testval4++;
 			spinlock_release(&status_lock);
 			cv_wait(testcvs[i], testlocks[i]);
 			random_yielder(4);
