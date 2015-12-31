@@ -41,7 +41,7 @@
 #include <sfs.h>
 #include <syscall.h>
 #include <test.h>
-#include <overwrite.h>
+#include <prompt.h>
 #include "opt-sfs.h"
 #include "opt-net.h"
 
