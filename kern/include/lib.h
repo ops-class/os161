@@ -197,4 +197,13 @@ void kprintf_bootstrap(void);
 void random_yielder(uint32_t);
 void random_spinner(uint32_t);
 
+/*
+ * Testing variants of kprintf. tprintf is silent during automated testing.
+ * sprintf prefixes the kernel secret to kprintf messages during automated
+ * testing.
+ */
+
+int tkprintf(const char *format, ...) __PF(1,2);
+int skprintf(const char *format, ...) __PF(1,2);
+
 #endif /* _LIB_H_ */
