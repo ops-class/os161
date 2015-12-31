@@ -204,6 +204,5 @@ void random_spinner(uint32_t);
  */
 
 int tkprintf(const char *format, ...) __PF(1,2);
-int skprintf(const char *format, ...) __PF(1,2);
 
 #endif /* _LIB_H_ */

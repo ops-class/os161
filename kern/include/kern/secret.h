@@ -38,14 +38,12 @@
 #define _SECRET_H_
 
 /*
- * During automated testing this is set to a random 32-bit value, to ensure
- * that the kernel is actually running the compiled binaries. A non-zero value
- * can also be used as a flag to change test output.  During normal testing
- * this can be set to zero to disable printing the kernel secret and enable
- * normal test output.
+ * During automated testing all instances of KERNEL_SECRET in trusted tests
+ * are rewritten to a random value to ensure that the kernel is actually
+ * running the appropriate tests. So this value is never actually used, but
+ * allows normally compilation and operation.
  */
 
-// #define KERNEL_SECRET ((unsigned long long)1) // Cast for consistent printf
-#define KERNEL_SECRET ((unsigned long long)0) // Cast for consistent printf
+#define KERNEL_SECRET ""
 
 #endif /* _SECRET_H_ */

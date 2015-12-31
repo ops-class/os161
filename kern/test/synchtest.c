@@ -98,9 +98,9 @@ static
 void
 success(bool status, const char *msg) {
 	if (status == SUCCESS) {
-		skprintf("%s: SUCCESS\n", msg);
+		kprintf("%s%s: SUCCESS\n", KERNEL_SECRET, msg);
 	} else {
-		skprintf("%s: FAIL\n", msg);
+		kprintf("%s%s: FAIL\n", KERNEL_SECRET, msg);
 	}
 }
 
