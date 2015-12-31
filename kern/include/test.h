@@ -30,6 +30,8 @@
 #ifndef _TEST_H_
 #define _TEST_H_
 
+#include "opt-synchprobs.h"
+
 /*
  * Declarations for test code and other miscellaneous high-level
  * functions.
@@ -105,5 +107,24 @@ void menu(char *argstr);
 /* The main function, called from start.S. */
 void kmain(char *bootstring);
 
+#if OPT_SYNCHPROBS
+
+/*
+ * Synchronization driver primitives.
+ */
+
+void male_start(void);
+void male_end(void);
+void female_start(void);
+void female_end(void);
+void matchmaker_start(void);
+void matchmaker_end(void);
+int whalemating(int, char **);
+
+void inQuadrant(int);
+void leaveIntersection(void);
+int stoplight(int, char **);
+
+#endif
 
 #endif /* _TEST_H_ */

@@ -44,6 +44,7 @@
 #include <prompt.h>
 #include "opt-sfs.h"
 #include "opt-net.h"
+#include "opt-synchprobs.h"
 
 /*
  * In-kernel menu and command dispatcher.
@@ -478,6 +479,10 @@ static const char *testmenu[] = {
 	"[sy3] CV test               (1)     ",
 	"[sy4] CV test #2            (1)     ",
 	"[sy5] RW lock test          (1)     ",
+#if OPT_SYNCHPROBS
+	"[sp1] Whalemating test      (1)     ",
+	"[sp2] Stoplight test        (1)     ",
+#endif
 	"[semu1-22] Semaphore unit tests     ",
 	"[fs1] Filesystem test               ",
 	"[fs2] FS read stress                ",
@@ -581,6 +586,10 @@ static struct {
 	{ "sy3",	cvtest },
 	{ "sy4",	cvtest2 },
 	{ "sy5",	rwtest },
+#if OPT_SYNCHPROBS
+	{ "sp1",	whalemating },
+	{ "sp2",	stoplight },
+#endif
 
 	/* semaphore unit tests */
 	{ "semu1",	semu1 },

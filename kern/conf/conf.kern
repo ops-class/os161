@@ -438,3 +438,8 @@ file		test/semunit.c
 file		test/kmalloctest.c
 file		test/fstest.c
 optfile net	test/nettest.c
+
+defoption synchprobs
+optfile   synchprobs  synchprobs/whalemating.c
+optfile   synchprobs  synchprobs/stoplight.c
+optfile   synchprobs  test/synchprobs.c
