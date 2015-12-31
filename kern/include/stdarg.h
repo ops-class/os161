@@ -62,7 +62,7 @@ typedef __va_list va_list;
  * or split the definition of va_list into another header file, none
  * of which seems entirely desirable.
  */
-void vkprintf(const char *fmt, va_list ap) __PF(1,0);
+int vkprintf(const char *fmt, va_list ap) __PF(1,0);
 int vsnprintf(char *buf, size_t maxlen, const char *fmt, va_list ap) __PF(3,0);
 
 /*
