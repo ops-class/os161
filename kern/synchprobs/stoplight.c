@@ -85,7 +85,7 @@ void stoplight_cleanup() {
 }
 
 void
-turnright(unsigned long direction)
+turnright(uint32_t direction)
 {
 	(void)direction;
 	/*
@@ -94,7 +94,7 @@ turnright(unsigned long direction)
 	return;
 }
 void
-gostraight(unsigned long direction)
+gostraight(uint32_t direction)
 {
 	(void)direction;
 	/*
@@ -103,7 +103,7 @@ gostraight(unsigned long direction)
 	return;
 }
 void
-turnleft(unsigned long direction)
+turnleft(uint32_t direction)
 {
 	(void)direction;
 	/*

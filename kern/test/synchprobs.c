@@ -20,15 +20,22 @@
  * Shared initialization routines
  */
 
-static struct semaphore *testsem;
+static struct semaphore *startsem;
+static struct semaphore *endsem;
 
 static
 void
 inititems(void)
 {
-	if (testsem==NULL) {
-		testsem = sem_create("testsem", 0);
-		if (testsem == NULL) {
+	if (startsem==NULL) {
+		startsem = sem_create("startsem", 0);
+		if (startsem == NULL) {
+			panic("synchprobs: sem_create failed\n");
+		}
+	}
+	if (endsem==NULL) {
+		endsem = sem_create("endsem", 0);
+		if (endsem == NULL) {
 			panic("synchprobs: sem_create failed\n");
 		}
 	}
@@ -45,9 +52,9 @@ male_wrapper(void * unused1, unsigned long unused2) {
 	(void)unused2;
 
 	random_yielder(4);
-	P(testsem);	
+	P(startsem);	
 	male();
-	V(testsem);
+	V(endsem);
 
 	return;
 }
@@ -69,9 +76,9 @@ female_wrapper(void * unused1, unsigned long unused2) {
 	(void)unused2;
 
 	random_yielder(4);
-	P(testsem);	
+	P(startsem);	
 	female();
-	V(testsem);
+	V(endsem);
 
 	return;
 }
@@ -93,9 +100,9 @@ matchmaker_wrapper(void * unused1, unsigned long unused2) {
 	(void)unused2;
 	
 	random_yielder(4);
-	P(testsem);	
+	P(startsem);	
 	matchmaker();
-	V(testsem);
+	V(endsem);
 	
 	return;
 }
@@ -147,13 +154,13 @@ whalemating(int nargs, char **args) {
 	
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < NMATING; j++) {
-			V(testsem);
+			V(startsem);
 		}
 	}
 
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < NMATING; j++) {
-			P(testsem);
+			P(endsem);
 		}
 	}
 
@@ -173,9 +180,9 @@ turnright_wrapper(void *unused, unsigned long direction)
 	(void)unused;
 	
 	random_yielder(4);
-	P(testsem);
-	turnright(direction);	
-	V(testsem);
+	P(startsem);
+	turnright((uint32_t)direction);	
+	V(endsem);
 
 	return;
 }
@@ -186,9 +193,9 @@ gostraight_wrapper(void *unused, unsigned long direction)
 	(void)unused;
 	
 	random_yielder(4);
-	P(testsem);
-	gostraight(direction);	
-	V(testsem);
+	P(startsem);
+	gostraight((uint32_t)direction);	
+	V(endsem);
 
 	return;
 }
@@ -199,9 +206,9 @@ turnleft_wrapper(void *unused, unsigned long direction)
 	(void)unused;
 	
 	random_yielder(4);
-	P(testsem);
-	turnleft(direction);	
-	V(testsem);
+	P(startsem);
+	turnleft((uint32_t)direction);
+	V(endsem);
 
 	return;
 }
@@ -255,11 +262,11 @@ int stoplight(int nargs, char **args) {
 	}
 	
 	for (i = 0; i < NCARS; i++) {
-		V(testsem);
+		V(startsem);
 	}
 
 	for (i = 0; i < NCARS; i++) {
-		P(testsem);
+		P(endsem);
 	}
 
 	stoplight_cleanup();

@@ -19,9 +19,9 @@ void matchmaker(void);
  * stoplight.c.
  */
 
-void gostraight(unsigned long);
-void turnleft(unsigned long);
-void turnright(unsigned long);
+void gostraight(uint32_t);
+void turnleft(uint32_t);
+void turnright(uint32_t);
 void stoplight_init(void);
 void stoplight_cleanup(void);
 
