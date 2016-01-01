@@ -38,9 +38,9 @@
  *   |0 |
  * -     --
  *    01  1
- * 3  32  
+ * 3  32
  * --    --
- *   | 2| 
+ *   | 2|
  *
  * As way to think about it, assuming cars drive on the right: a car entering
  * the intersection from direction X will enter intersection quadrant X first.
