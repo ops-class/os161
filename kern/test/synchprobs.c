@@ -83,6 +83,8 @@ male_start(void) {
 }
 void
 male_end(void) {
+	random_yielder(PROBLEMS_MAX_YIELDER);
+	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s ending\n", curthread->t_name);
 }
 
@@ -108,12 +110,14 @@ female_wrapper(void * unused1, unsigned long unused2) {
 }
 void
 female_start(void) {
-	random_spinner(PROBLEMS_MAX_SPINNER);
 	random_yielder(PROBLEMS_MAX_YIELDER);
+	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s starting\n", curthread->t_name);
 }
 void
 female_end(void) {
+	random_yielder(PROBLEMS_MAX_YIELDER);
+	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s ending\n", curthread->t_name);
 }
 
@@ -145,6 +149,8 @@ matchmaker_start(void) {
 }
 void
 matchmaker_end(void) {
+	random_yielder(PROBLEMS_MAX_YIELDER);
+	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s ending\n", curthread->t_name);
 }
 
@@ -268,6 +274,8 @@ inQuadrant(int quadrant) {
 
 void
 leaveIntersection() {
+	random_spinner(PROBLEMS_MAX_SPINNER);
+	random_yielder(PROBLEMS_MAX_YIELDER);
 	tkprintf("%s left the intersection\n", curthread->t_name);
 }
 
