@@ -196,10 +196,7 @@ locktestthread(void *junk, unsigned long num)
 	int i;
 	(void)junk;
 
-	random_yielder(4);
-
 	for (i=0; i<NLOCKLOOPS; i++) {
-		random_yielder(4);
 		lock_acquire(testlock);
 		random_yielder(4);
 
@@ -285,9 +282,11 @@ cvtestthread(void *junk, unsigned long num)
 		lock_acquire(testlock);
 		while (testval1 != num) {
 			testval2 = 0;
+			random_yielder(4);
 			gettime(&ts1);
 			cv_wait(testcv, testlock);
 			gettime(&ts2);
+			random_yielder(4);
 
 			/* ts2 -= ts1 */
 			timespec_sub(&ts2, &ts1, &ts2);

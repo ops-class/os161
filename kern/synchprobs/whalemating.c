@@ -59,58 +59,31 @@ whalemating_cleanup() {
 }
 
 void
-male(void *p, unsigned long which)
+male()
 {
-	struct semaphore * whalematingMenuSemaphore = (struct semaphore *)p;
-	(void)which;
-
-	male_start();
 	/*
-	 * Implement this function.
+	 * Implement this function by calling male_start and male_end when
+	 * appropriate.
 	 */
-	male_end();
-
-	/*
-	 * This code allows the test to return to the menu cleanly.
-	 */
-	V(whalematingMenuSemaphore);
 	return;
 }
 
 void
-female(void *p, unsigned long which)
+female()
 {
-	struct semaphore * whalematingMenuSemaphore = (struct semaphore *)p;
-	(void)which;
-
-	female_start();
 	/*
-	 * Implement this function.
+	 * Implement this function by calling female_start and female_end when
+	 * appropriate.
 	 */
-	female_end();
-
-	/*
-	 * This code allows the test to return to the menu cleanly.
-	 */
-	V(whalematingMenuSemaphore);
 	return;
 }
 
 void
-matchmaker(void *p, unsigned long which)
+matchmaker()
 {
-	struct semaphore * whalematingMenuSemaphore = (struct semaphore *)p;
-	(void)which;
-
-	matchmaker_start();
 	/*
-	 * Implement this function.
+	 * Implement this function by calling matchmaker_start and matchmaker_end
+	 * when appropriate.
 	 */
-	matchmaker_end();
-
-	/*
-	 * This code allows the test to return to the menu cleanly.
-	 */
-	V(whalematingMenuSemaphore);
 	return;
 }

@@ -85,52 +85,29 @@ void stoplight_cleanup() {
 }
 
 void
-gostraight(void *p, unsigned long direction)
+turnright(unsigned long direction)
 {
-	struct semaphore * stoplightMenuSemaphore = (struct semaphore *)p;
 	(void)direction;
-	
 	/*
 	 * Implement this function.
 	 */
-
-	/*
-	 * This code allows the test to return to the menu cleanly.
-	 */
-	V(stoplightMenuSemaphore);
 	return;
 }
-
 void
-turnleft(void *p, unsigned long direction)
+gostraight(unsigned long direction)
 {
-	struct semaphore * stoplightMenuSemaphore = (struct semaphore *)p;
 	(void)direction;
-	
 	/*
 	 * Implement this function.
 	 */
-
-	/*
-	 * This code allows the test to return to the menu cleanly.
-	 */
-	V(stoplightMenuSemaphore);
 	return;
 }
-
 void
-turnright(void *p, unsigned long direction)
+turnleft(unsigned long direction)
 {
-	struct semaphore * stoplightMenuSemaphore = (struct semaphore *)p;
 	(void)direction;
-	
 	/*
 	 * Implement this function.
 	 */
-
-	/*
-	 * This code allows the test to return to the menu cleanly.
-	 */
-	V(stoplightMenuSemaphore);
 	return;
 }

@@ -17,74 +17,126 @@
 #define PROBLEMS_MAX_SPINNER 8192
 
 /*
+ * Shared initialization routines
+ */
+
+static struct semaphore *testsem;
+
+static
+void
+inititems(void)
+{
+	if (testsem==NULL) {
+		testsem = sem_create("testsem", 0);
+		if (testsem == NULL) {
+			panic("synchprobs: sem_create failed\n");
+		}
+	}
+}
+
+/*
  * Driver code for the whalemating problem.
  */
 
-inline void male_start(void) {
+static
+void
+male_wrapper(void * unused1, unsigned long unused2) {
+	(void)unused1;
+	(void)unused2;
+
+	random_yielder(4);
+	P(testsem);	
+	male();
+	V(testsem);
+
+	return;
+}
+void
+male_start(void) {
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s starting\n", curthread->t_name);
 }
-
-inline void male_end(void) {
+void
+male_end(void) {
 	tkprintf("%s ending\n", curthread->t_name);
 }
 
-inline void female_start(void) {
+static
+void
+female_wrapper(void * unused1, unsigned long unused2) {
+	(void)unused1;
+	(void)unused2;
+
+	random_yielder(4);
+	P(testsem);	
+	female();
+	V(testsem);
+
+	return;
+}
+void
+female_start(void) {
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	tkprintf("%s starting\n", curthread->t_name);
 }
-
-inline void female_end(void) {
+void
+female_end(void) {
 	tkprintf("%s ending\n", curthread->t_name);
 }
 
-inline void matchmaker_start(void) {
+static
+void
+matchmaker_wrapper(void * unused1, unsigned long unused2) {
+	(void)unused1;
+	(void)unused2;
+	
+	random_yielder(4);
+	P(testsem);	
+	matchmaker();
+	V(testsem);
+	
+	return;
+}
+void
+matchmaker_start(void) {
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s starting\n", curthread->t_name);
 }
-
-inline void matchmaker_end(void) {
+void
+matchmaker_end(void) {
 	tkprintf("%s ending\n", curthread->t_name);
 }
 
 #define NMATING 10
 
-struct semaphore * whalematingMenuSemaphore;
-
-int whalemating(int nargs, char **args) {
+int
+whalemating(int nargs, char **args) {
 	(void) nargs;
 	(void) args;
 
 	int i, j, err = 0;
 	char name[32];
-
-	whalematingMenuSemaphore = sem_create("Whalemating Driver Semaphore", 0);
-	if (whalematingMenuSemaphore == NULL ) {
-		panic("whalemating: sem_create failed.\n");
-	}
-
+	
+	inititems();
 	whalemating_init();
 
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < NMATING; j++) {
-
-			random_yielder(PROBLEMS_MAX_YIELDER);
-
 			switch (i) {
 				case 0:
 					snprintf(name, sizeof(name), "Male Whale Thread %d", (i * 3) + j);
-					err = thread_fork(name, NULL, male, whalematingMenuSemaphore, j);
+					err = thread_fork(name, NULL, male_wrapper, NULL, 0);
 					break;
 				case 1:
 					snprintf(name, sizeof(name), "Female Whale Thread %d", (i * 3) + j);
-					err = thread_fork(name, NULL, female, whalematingMenuSemaphore, j);
+					err = thread_fork(name, NULL, female_wrapper, NULL, 0);
 					break;
 				case 2:
 					snprintf(name, sizeof(name), "Matchmaker Whale Thread %d", (i * 3) + j);
-					err = thread_fork(name, NULL, matchmaker, whalematingMenuSemaphore, j);
+					err = thread_fork(name, NULL, matchmaker_wrapper, NULL, 0);
 					break;
 			}
 			if (err) {
@@ -92,14 +144,19 @@ int whalemating(int nargs, char **args) {
 			}
 		}
 	}
-
+	
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < NMATING; j++) {
-			P(whalematingMenuSemaphore);
+			V(testsem);
 		}
 	}
 
-	sem_destroy(whalematingMenuSemaphore);
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < NMATING; j++) {
+			P(testsem);
+		}
+	}
+
 	whalemating_cleanup();
 
 	return 0;
@@ -109,13 +166,55 @@ int whalemating(int nargs, char **args) {
  * Driver code for the stoplight problem.
  */
 
-inline void inQuadrant(int quadrant) {
+static
+void
+turnright_wrapper(void *unused, unsigned long direction)
+{
+	(void)unused;
+	
+	random_yielder(4);
+	P(testsem);
+	turnright(direction);	
+	V(testsem);
+
+	return;
+}
+static
+void
+gostraight_wrapper(void *unused, unsigned long direction)
+{
+	(void)unused;
+	
+	random_yielder(4);
+	P(testsem);
+	gostraight(direction);	
+	V(testsem);
+
+	return;
+}
+static
+void
+turnleft_wrapper(void *unused, unsigned long direction)
+{
+	(void)unused;
+	
+	random_yielder(4);
+	P(testsem);
+	turnleft(direction);	
+	V(testsem);
+
+	return;
+}
+
+void
+inQuadrant(int quadrant) {
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	tkprintf("%s in quadrant %d\n", curthread->t_name, quadrant);
 }
 
-inline void leaveIntersection() {
+void
+leaveIntersection() {
 	tkprintf("%s left the intersection\n", curthread->t_name);
 }
 
@@ -129,11 +228,7 @@ int stoplight(int nargs, char **args) {
 	int i, direction, turn, err = 0;
 	char name[32];
 
-	stoplightMenuSemaphore = sem_create("Stoplight Driver Semaphore", 0);
-	if (stoplightMenuSemaphore == NULL ) {
-		panic("stoplight: sem_create failed.\n");
-	}
-
+	inititems();
 	stoplight_init();
 
 	for (i = 0; i < NCARS; i++) {
@@ -144,29 +239,29 @@ int stoplight(int nargs, char **args) {
 		snprintf(name, sizeof(name), "Car Thread %d", i);
 
 		switch (turn) {
-
-			random_yielder(PROBLEMS_MAX_YIELDER);
-
 			case 0:
-			err = thread_fork(name, NULL, gostraight, stoplightMenuSemaphore, direction);
+			err = thread_fork(name, NULL, gostraight_wrapper, NULL, direction);
 			break;
 			case 1:
-			err = thread_fork(name, NULL, turnleft, stoplightMenuSemaphore, direction);
+			err = thread_fork(name, NULL, turnleft_wrapper, NULL, direction);
 			break;
 			case 2:
-			err = thread_fork(name, NULL, turnright, stoplightMenuSemaphore, direction);
+			err = thread_fork(name, NULL, turnright_wrapper, NULL, direction);
 			break;
 		}
 		if (err) {
 			panic("stoplight: thread_fork failed: (%s)\n", strerror(err));
 		}
 	}
-
+	
 	for (i = 0; i < NCARS; i++) {
-		P(stoplightMenuSemaphore);
+		V(testsem);
 	}
 
-	sem_destroy(stoplightMenuSemaphore);
+	for (i = 0; i < NCARS; i++) {
+		P(testsem);
+	}
+
 	stoplight_cleanup();
 
 	return 0;
