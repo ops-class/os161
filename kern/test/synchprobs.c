@@ -20,17 +20,27 @@
  * Shared initialization routines
  */
 
-static struct semaphore *startsem;
+static uint32_t startcount;
+static struct lock *startlock;
+static struct cv *startcv;
 static struct semaphore *endsem;
 
 static
 void
-inititems(void)
+inititems(uint32_t count)
 {
-	if (startsem==NULL) {
-		startsem = sem_create("startsem", 0);
-		if (startsem == NULL) {
-			panic("synchprobs: sem_create failed\n");
+	startcount = count;
+
+	if (startlock==NULL) {
+		startlock = lock_create("startlock");
+		if (startlock == NULL) {
+			panic("synchprobs: lock_create failed\n");
+		}
+	}
+	if (startcv==NULL) {
+		startcv = cv_create("startcv");
+		if (startcv == NULL) {
+			panic("synchprobs: cv_create failed\n");
 		}
 	}
 	if (endsem==NULL) {
@@ -52,7 +62,13 @@ male_wrapper(void * unused1, unsigned long unused2) {
 	(void)unused2;
 
 	random_yielder(4);
-	P(startsem);	
+	lock_acquire(startlock);
+	startcount--;
+	if (startcount == 0) {
+		cv_broadcast(startcv, startlock);
+	} else {
+		cv_wait(startcv, startlock);
+	}
 	male();
 	V(endsem);
 
@@ -76,7 +92,13 @@ female_wrapper(void * unused1, unsigned long unused2) {
 	(void)unused2;
 
 	random_yielder(4);
-	P(startsem);	
+	lock_acquire(startlock);
+	startcount--;
+	if (startcount == 0) {
+		cv_broadcast(startcv, startlock);
+	} else {
+		cv_wait(startcv, startlock);
+	}
 	female();
 	V(endsem);
 
@@ -100,7 +122,13 @@ matchmaker_wrapper(void * unused1, unsigned long unused2) {
 	(void)unused2;
 	
 	random_yielder(4);
-	P(startsem);	
+	lock_acquire(startlock);
+	startcount--;
+	if (startcount == 0) {
+		cv_broadcast(startcv, startlock);
+	} else {
+		cv_wait(startcv, startlock);
+	}
 	matchmaker();
 	V(endsem);
 	
@@ -127,7 +155,7 @@ whalemating(int nargs, char **args) {
 	int i, j, err = 0;
 	char name[32];
 	
-	inititems();
+	inititems(3 * NMATING);
 	whalemating_init();
 
 	for (i = 0; i < 3; i++) {
@@ -154,12 +182,6 @@ whalemating(int nargs, char **args) {
 	
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < NMATING; j++) {
-			V(startsem);
-		}
-	}
-
-	for (i = 0; i < 3; i++) {
-		for (j = 0; j < NMATING; j++) {
 			P(endsem);
 		}
 	}
@@ -180,7 +202,13 @@ turnright_wrapper(void *unused, unsigned long direction)
 	(void)unused;
 	
 	random_yielder(4);
-	P(startsem);
+	lock_acquire(startlock);
+	startcount--;
+	if (startcount == 0) {
+		cv_broadcast(startcv, startlock);
+	} else {
+		cv_wait(startcv, startlock);
+	}
 	turnright((uint32_t)direction);	
 	V(endsem);
 
@@ -193,7 +221,13 @@ gostraight_wrapper(void *unused, unsigned long direction)
 	(void)unused;
 	
 	random_yielder(4);
-	P(startsem);
+	lock_acquire(startlock);
+	startcount--;
+	if (startcount == 0) {
+		cv_broadcast(startcv, startlock);
+	} else {
+		cv_wait(startcv, startlock);
+	}
 	gostraight((uint32_t)direction);	
 	V(endsem);
 
@@ -206,7 +240,13 @@ turnleft_wrapper(void *unused, unsigned long direction)
 	(void)unused;
 	
 	random_yielder(4);
-	P(startsem);
+	lock_acquire(startlock);
+	startcount--;
+	if (startcount == 0) {
+		cv_broadcast(startcv, startlock);
+	} else {
+		cv_wait(startcv, startlock);
+	}
 	turnleft((uint32_t)direction);
 	V(endsem);
 
@@ -225,7 +265,7 @@ leaveIntersection() {
 	tkprintf("%s left the intersection\n", curthread->t_name);
 }
 
-#define NCARS 32
+#define NCARS 64
 
 struct semaphore * stoplightMenuSemaphore;
 
@@ -235,7 +275,7 @@ int stoplight(int nargs, char **args) {
 	int i, direction, turn, err = 0;
 	char name[32];
 
-	inititems();
+	inititems(NCARS);
 	stoplight_init();
 
 	for (i = 0; i < NCARS; i++) {
@@ -261,10 +301,6 @@ int stoplight(int nargs, char **args) {
 		}
 	}
 	
-	for (i = 0; i < NCARS; i++) {
-		V(startsem);
-	}
-
 	for (i = 0; i < NCARS; i++) {
 		P(endsem);
 	}
