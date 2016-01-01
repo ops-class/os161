@@ -35,9 +35,12 @@
  * quadrant and direction mappings for reference: (although the problem is, of
  * course, stable under rotation)
  *
- *   | 0 |
- * --     -- 0 1 3       1 3 2
- * --     -- | 2 | 
+ *   |0 |
+ * -     --
+ *    01  1
+ * 3  32  
+ * --    --
+ *   | 2| 
  *
  * As way to think about it, assuming cars drive on the right: a car entering
  * the intersection from direction X will enter intersection quadrant X first.
