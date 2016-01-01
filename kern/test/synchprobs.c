@@ -69,6 +69,7 @@ male_wrapper(void * unused1, unsigned long unused2) {
 	} else {
 		cv_wait(startcv, startlock);
 	}
+	lock_release(startlock);
 	male();
 	V(endsem);
 
@@ -99,6 +100,7 @@ female_wrapper(void * unused1, unsigned long unused2) {
 	} else {
 		cv_wait(startcv, startlock);
 	}
+	lock_release(startlock);
 	female();
 	V(endsem);
 
@@ -129,6 +131,7 @@ matchmaker_wrapper(void * unused1, unsigned long unused2) {
 	} else {
 		cv_wait(startcv, startlock);
 	}
+	lock_release(startlock);
 	matchmaker();
 	V(endsem);
 	
@@ -209,6 +212,7 @@ turnright_wrapper(void *unused, unsigned long direction)
 	} else {
 		cv_wait(startcv, startlock);
 	}
+	lock_release(startlock);
 	turnright((uint32_t)direction);	
 	V(endsem);
 
@@ -228,6 +232,7 @@ gostraight_wrapper(void *unused, unsigned long direction)
 	} else {
 		cv_wait(startcv, startlock);
 	}
+	lock_release(startlock);
 	gostraight((uint32_t)direction);	
 	V(endsem);
 
@@ -247,6 +252,7 @@ turnleft_wrapper(void *unused, unsigned long direction)
 	} else {
 		cv_wait(startcv, startlock);
 	}
+	lock_release(startlock);
 	turnleft((uint32_t)direction);
 	V(endsem);
 
