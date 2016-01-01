@@ -157,7 +157,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	printf("Seed: %d  Count: %d\n", seed, count);
+	tprintf("Seed: %d  Count: %d\n", seed, count);
 
 	srandom(seed);
 	trycalls(an, dofork, count);
