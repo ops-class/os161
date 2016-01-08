@@ -104,7 +104,9 @@ printsf(const char *fmt, ...)
 	int chars;
 	va_list ap;
 	
-	printf("%s: ", KERNEL_SECRET);	
+	if (strcmp(KERNEL_SECRET, "") != 0) {
+		printf("%s: ", KERNEL_SECRET);	
+	}
 	va_start(ap, fmt);
 	chars = vprintf(fmt, ap);
 	va_end(ap);
