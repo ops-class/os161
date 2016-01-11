@@ -45,6 +45,7 @@
 #include "opt-sfs.h"
 #include "opt-net.h"
 #include "opt-synchprobs.h"
+#include "opt-automationtest.h"
 
 /*
  * In-kernel menu and command dispatcher.
@@ -508,6 +509,29 @@ cmd_testmenu(int n, char **a)
 	return 0;
 }
 
+#if OPT_AUTOMATIONTEST
+static const char *automationmenu[] = {
+	"[dl]   Deadlock test (*)             ",
+	"[ll1]  Livelock test (1 thread)      ",
+	"[ll16] Livelock test (16 threads)     ",
+	NULL
+};
+
+static
+int
+cmd_automationmenu(int n, char **a)
+{
+	(void)n;
+	(void)a;
+
+	showmenu("OS/161 automation tests menu", automationmenu);
+	kprintf("    (*) These tests require locks.\n");
+	kprintf("\n");
+
+	return 0;
+}
+#endif
+
 static const char *mainmenu[] = {
 	"[?o] Operations menu                ",
 	"[?t] Tests menu                     ",
@@ -543,6 +567,9 @@ static struct {
 	{ "help",	cmd_mainmenu },
 	{ "?o",		cmd_opsmenu },
 	{ "?t",		cmd_testmenu },
+#if OPT_AUTOMATIONTEST
+	{ "?a",		cmd_automationmenu },
+#endif
 
 	/* operations */
 	{ "s",		cmd_shell },
@@ -622,6 +649,13 @@ static struct {
 	{ "fs4",	writestress2 },
 	{ "fs5",	longstress },
 	{ "fs6",	createstress },
+	
+#if OPT_AUTOMATIONTEST
+	/* automation tests */
+	{ "dl",	dltest },
+	{ "ll1",	ll1test },
+	{ "ll16",	ll16test },
+#endif
 
 	{ NULL, NULL }
 };

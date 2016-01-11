@@ -97,6 +97,24 @@ tprintf(const char *fmt, ...)
 	return chars;
 }
 
+/* printf variant that is loud during automated testing */
+int
+nprintf(const char *fmt, ...)
+{
+	int chars;
+	va_list ap;
+	
+	if (strcmp(KERNEL_SECRET, "") == 0) {
+		return 0;
+	}
+	
+	va_start(ap, fmt);
+	chars = vprintf(fmt, ap);
+	va_end(ap);
+
+	return chars;
+}
+
 /* printf variant that prepends the kernel secret */
 int
 printsf(const char *fmt, ...)

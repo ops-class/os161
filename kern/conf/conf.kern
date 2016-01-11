@@ -443,3 +443,6 @@ defoption synchprobs
 optfile   synchprobs  synchprobs/whalemating.c
 optfile   synchprobs  synchprobs/stoplight.c
 optfile   synchprobs  test/synchprobs.c
+
+defoption automationtest
+optfile automationtest	test/automationtest.c

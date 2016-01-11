@@ -159,6 +159,25 @@ tkprintf(const char *fmt, ...)
 
 	return chars;
 }
+/*
+ * kprintf variant that is quiet during non-automated testing
+ */
+int
+nkprintf(const char *fmt, ...)
+{
+	int chars;
+	va_list ap;
+	
+	if (strcmp(KERNEL_SECRET, "") == 0) {
+		return 0;
+	}
+	
+	va_start(ap, fmt);
+	chars = vkprintf(fmt, ap);
+	va_end(ap);
+
+	return chars;
+}
 
 /*
  * panic() is for fatal errors. It prints the printf arguments it's

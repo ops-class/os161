@@ -31,6 +31,7 @@
 #define _TEST_H_
 
 #include "opt-synchprobs.h"
+#include "opt-automationtest.h"
 
 /*
  * Declarations for test code and other miscellaneous high-level
@@ -125,6 +126,16 @@ void inQuadrant(int);
 void leaveIntersection(void);
 int stoplight(int, char **);
 
+#endif
+
+/*
+ * Automation tests for detecting kernel deadlocks and livelocks.
+ */
+
+#if OPT_AUTOMATIONTEST
+int dltest(int, char **);
+int ll1test(int, char **);
+int ll16test(int, char **);
 #endif
 
 #endif /* _TEST_H_ */

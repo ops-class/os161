@@ -200,9 +200,10 @@ void random_spinner(uint32_t);
 /*
  * Testing variants of kprintf. tprintf is silent during automated testing.
  * sprintf prefixes the kernel secret to kprintf messages during automated
- * testing.
+ * testing. nprintf is not silent during automated testing.
  */
 
 int tkprintf(const char *format, ...) __PF(1,2);
+int nkprintf(const char *format, ...) __PF(1,2);
 
 #endif /* _LIB_H_ */
