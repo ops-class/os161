@@ -44,10 +44,10 @@
  * internally.
  */
 struct semaphore {
-	char *sem_name;
+        char *sem_name;
 	struct wchan *sem_wchan;
 	struct spinlock sem_lock;
-	volatile unsigned sem_count;
+        volatile unsigned sem_count;
 };
 
 struct semaphore *sem_create(const char *name, unsigned initial_count);
@@ -56,7 +56,7 @@ void sem_destroy(struct semaphore *);
 /*
  * Operations (both atomic):
  *     P (proberen): decrement count. If the count is 0, block until
- *		     the count is 1 again before decrementing.
+ *                   the count is 1 again before decrementing.
  *     V (verhogen): increment count.
  */
 void P(struct semaphore *);
@@ -73,9 +73,9 @@ void V(struct semaphore *);
  * (should be) made internally.
  */
 struct lock {
-	char *lk_name;
-	// add what you need here
-	// (don't forget to mark things volatile as needed)
+        char *lk_name;
+        // add what you need here
+        // (don't forget to mark things volatile as needed)
 };
 
 struct lock *lock_create(const char *name);
@@ -84,11 +84,11 @@ void lock_destroy(struct lock *);
 /*
  * Operations:
  *    lock_acquire - Get the lock. Only one thread can hold the lock at the
- *		     same time.
+ *                   same time.
  *    lock_release - Free the lock. Only the thread holding the lock may do
- *		     this.
+ *                   this.
  *    lock_do_i_hold - Return true if the current thread holds the lock;
- *		     false otherwise.
+ *                   false otherwise.
  *
  * These operations must be atomic. You get to write them.
  */
@@ -112,9 +112,9 @@ bool lock_do_i_hold(struct lock *);
  */
 
 struct cv {
-	char *cv_name;
-	// add what you need here
-	// (don't forget to mark things volatile as needed)
+        char *cv_name;
+        // add what you need here
+        // (don't forget to mark things volatile as needed)
 };
 
 struct cv *cv_create(const char *name);
@@ -122,8 +122,8 @@ void cv_destroy(struct cv *);
 
 /*
  * Operations:
- *    cv_wait	   - Release the supplied lock, go to sleep, and, after
- *		     waking up again, re-acquire the lock.
+ *    cv_wait      - Release the supplied lock, go to sleep, and, after
+ *                   waking up again, re-acquire the lock.
  *    cv_signal    - Wake up one thread that's sleeping on this CV.
  *    cv_broadcast - Wake up all threads sleeping on this CV.
  *

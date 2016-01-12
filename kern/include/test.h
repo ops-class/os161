@@ -30,6 +30,9 @@
 #ifndef _TEST_H_
 #define _TEST_H_
 
+/* Get __PF() for declaring printf-like functions. */
+#include <cdefs.h>
+
 #include "opt-synchprobs.h"
 #include "opt-automationtest.h"
 
@@ -126,6 +129,30 @@ void inQuadrant(int);
 void leaveIntersection(void);
 int stoplight(int, char **);
 
+/*
+ * Synchronization problem primitives.
+ */
+
+/*
+ * whalemating.c.
+ */
+
+void whalemating_init(void);
+void whalemating_cleanup(void);
+void male(void);
+void female(void);
+void matchmaker(void);
+ 
+/*
+ * stoplight.c.
+ */
+
+void gostraight(uint32_t);
+void turnleft(uint32_t);
+void turnright(uint32_t);
+void stoplight_init(void);
+void stoplight_cleanup(void);
+
 #endif
 
 /*
@@ -137,5 +164,17 @@ int dltest(int, char **);
 int ll1test(int, char **);
 int ll16test(int, char **);
 #endif
+
+void random_yielder(uint32_t);
+void random_spinner(uint32_t);
+
+/*
+ * Testing variants of kprintf. tprintf is silent during automated testing.
+ * sprintf prefixes the kernel secret to kprintf messages during automated
+ * testing. nprintf is not silent during automated testing.
+ */
+
+int tkprintf(const char *format, ...) __PF(1,2);
+int nkprintf(const char *format, ...) __PF(1,2);
 
 #endif /* _TEST_H_ */

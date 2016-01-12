@@ -40,6 +40,7 @@
 #include <vfs.h>          // for vfs_sync()
 #include <lamebus/ltrace.h> // for ltrace_stop()
 #include <kern/secret.h>
+#include <test.h>
 
 
 /* Flags word for DEBUG() macro. */
@@ -93,9 +94,10 @@ console_send(void *junk, const char *data, size_t len)
 /*
  * kprintf and tprintf helper function.
  */
+static
 inline
 int
-vkprintf(const char *fmt, va_list ap)
+__kprintf(const char *fmt, va_list ap)
 {
 	int chars;
 	bool dolock;
@@ -134,7 +136,7 @@ kprintf(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	chars = vkprintf(fmt, ap);
+	chars = __kprintf(fmt, ap);
 	va_end(ap);
 
 	return chars;
@@ -154,7 +156,7 @@ tkprintf(const char *fmt, ...)
 	}
 	
 	va_start(ap, fmt);
-	chars = vkprintf(fmt, ap);
+	chars = __kprintf(fmt, ap);
 	va_end(ap);
 
 	return chars;
@@ -173,7 +175,7 @@ nkprintf(const char *fmt, ...)
 	}
 	
 	va_start(ap, fmt);
-	chars = vkprintf(fmt, ap);
+	chars = __kprintf(fmt, ap);
 	va_end(ap);
 
 	return chars;

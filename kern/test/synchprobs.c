@@ -11,7 +11,6 @@
 #include <test.h>
 #include <current.h>
 #include <synch.h>
-#include <synchprobs.h>
 
 #define PROBLEMS_MAX_YIELDER 16
 #define PROBLEMS_MAX_SPINNER 8192

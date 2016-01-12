@@ -68,7 +68,6 @@
 #include <thread.h>
 #include <test.h>
 #include <synch.h>
-#include <synchprobs.h>
 
 /*
  * Called by the driver during initialization.

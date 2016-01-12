@@ -194,16 +194,5 @@ void kprintf_bootstrap(void);
 #define DIVROUNDUP(a,b) (((a)+(b)-1)/(b))
 #define ROUNDUP(a,b)    (DIVROUNDUP(a,b)*b)
 
-void random_yielder(uint32_t);
-void random_spinner(uint32_t);
-
-/*
- * Testing variants of kprintf. tprintf is silent during automated testing.
- * sprintf prefixes the kernel secret to kprintf messages during automated
- * testing. nprintf is not silent during automated testing.
- */
-
-int tkprintf(const char *format, ...) __PF(1,2);
-int nkprintf(const char *format, ...) __PF(1,2);
 
 #endif /* _LIB_H_ */
