@@ -50,34 +50,34 @@ main(void)
 {
 	int i,j;
 
-	printf("Entering the huge program - I will stress test your VM\n");
+	tprintf("Entering the huge program - I will stress test your VM\n");
 
 	/* move number in so that sparse[i][0]=i */
 	for (i=0; i<NumPages; i++) {
 		sparse[i][0]=i;
 	}
 
-	printf("stage [1] done\n");
+	tprintf("stage [1] done\n");
 
 	/* increment each location 5 times */
 	for (j=0; j<5; j++) {
 		for (i=0; i<NumPages; i++) {
 			sparse[i][0]++;
 		}
-		printf("stage [2.%d] done\n", j);
+		tprintf("stage [2.%d] done\n", j);
 	}
 
-	printf("stage [2] done\n");
+	tprintf("stage [2] done\n");
 
 	/* check if the numbers are sane */
 	for (i=NumPages-1; i>=0; i--) {
 		if (sparse[i][0]!=i+5) {
-			printf("BAD NEWS!!! - your VM mechanism has a bug!\n");
+			tprintf("BAD NEWS!!! - your VM mechanism has a bug!\n");
 			exit(1);
 		}
 	}
 
-	printf("You passed!\n");
+	tprintf("You passed!\n");
 
 	return 0;
 }

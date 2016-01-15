@@ -245,7 +245,7 @@ main(int argc, char *argv[])
 	}
 	else if (argc == 3) {
 		if (!strcmp(argv[1], "1") || !strcmp(argv[1], "0")) {
-			printf("%s\n", argv[2]);
+			tprintf("%s\n", argv[2]);
 		}
 		else {
 			number_init(&n1, argv[1]);

@@ -49,7 +49,7 @@ reboot_badflags(void)
 {
 	int rv;
 
-	printf("(This should not kill the system...)\n");
+	tprintf("(This should not kill the system...)\n");
 	report_begin("reboot with invalid flags");
 	rv = reboot(15353);
 	report_check(rv, errno, EINVAL);

@@ -64,12 +64,12 @@ main(int argc, char **argv)
 		stride = atoi(argv[1]);
 	}
 	if (stride <= 0 || argc > 2) {
-		printf("Usage: ctest [stridesize]\n");
-		printf("   stridesize should not be a multiple of 2.\n");
+		tprintf("Usage: ctest [stridesize]\n");
+		tprintf("   stridesize should not be a multiple of 2.\n");
 		return 1;
 	}
 
-	printf("Starting ctest: stride %d\n", stride);
+	tprintf("Starting ctest: stride %d\n", stride);
 
 	/*
 	 * Generate a huge linked list, with each entry pointing to
@@ -96,6 +96,6 @@ main(int argc, char **argv)
 		e = e->e;
 	}
 
-	printf("\nDone!\n");
+	tprintf("\nDone!\n");
 	return 0;
 }

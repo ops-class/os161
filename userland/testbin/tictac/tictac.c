@@ -92,7 +92,7 @@ main(void)
 			win = do_move(player);
 			print_board();
 			if (win) {
-				printf("Player %d, you WON!\n\n", player);
+				tprintf("Player %d, you WON!\n\n", player);
 				break;		/* out of for loop */
 			}
 		}
@@ -101,7 +101,7 @@ main(void)
 		 * tie game.
 		 */
 		if (!win)
-			printf("Tie Game!\n\n");
+			tprintf("Tie Game!\n\n");
 		if (!ask_yesno("Do you wish to play again?"))
 			break;			/* out of while loop */
 	}
@@ -121,9 +121,9 @@ main(void)
 void
 print_instructions(void)
 {
-	printf("Welcome to tic-tac-toe!\n");
-	printf("Player 1 always plays X and player 2 always play O\n");
-	printf("Good luck!\n\n\n");
+	tprintf("Welcome to tic-tac-toe!\n");
+	tprintf("Player 1 always plays X and player 2 always play O\n");
+	tprintf("Good luck!\n\n\n");
 }
 
 void
@@ -142,22 +142,22 @@ print_board(void)
 	int i, j;
 
 	/* Print labels across the top */
-	printf("\n    0  1  2\n");
+	tprintf("\n    0  1  2\n");
 
 	for (i = 0; i < DIM; i++) {
 		/* Print row labels */
-		printf(" %d ", i);
+		tprintf(" %d ", i);
 		for (j = 0; j < DIM; j++) {
 			switch (board[i][j]) {
-				case EMPTY: printf("   "); break;
-				case X_MARKER: printf(" X "); break;
-				case O_MARKER: printf(" O "); break;
-				default: printf("???"); break;
+				case EMPTY: tprintf("   "); break;
+				case X_MARKER: tprintf(" X "); break;
+				case O_MARKER: tprintf(" O "); break;
+				default: tprintf("???"); break;
 			}
 		}
-		printf("\n");
+		tprintf("\n");
 	}
-	printf("\n");
+	tprintf("\n");
 }
 
 /*
@@ -181,7 +181,7 @@ ask_yesno(const char *msg)
 	char answer[MAXSTRING];
 
 	while (TRUE) {
-		printf("%s [yes/no] ", msg);
+		tprintf("%s [yes/no] ", msg);
 		if (read_string(answer, MAXSTRING) < 0)
 			return(FALSE);
 		if (Strcmp(answer, "yes"))
@@ -189,7 +189,7 @@ ask_yesno(const char *msg)
 		else if (Strcmp(answer, "no"))
 			return(FALSE);
 		else
-			printf("Please answer either yes or no\n");
+			tprintf("Please answer either yes or no\n");
 	}
 }
 
@@ -216,32 +216,32 @@ do_move(int player)
 	char answer[MAXSTRING];
 	char cx;
 
-	printf("Player %d (%c), your move\n", player,
+	tprintf("Player %d (%c), your move\n", player,
 	       player == X_PLAYER ? 'X' : 'O');
 
 	while (TRUE) {
-		printf("Which row [0-%d]: ", DIM-1);
+		tprintf("Which row [0-%d]: ", DIM-1);
 		if (read_string(answer, MAXSTRING) < 0)
 			return(FALSE);
 		cx = answer[0];
 		x = cx - '0';
 		if (x < 0 || x >= DIM) {
-			printf("Invalid row; must be >= 0 and < %d\n", DIM-1);
+			tprintf("Invalid row; must be >= 0 and < %d\n", DIM-1);
 			continue;
 		}
-		printf("Which column [0-%d]: ", DIM-1);
+		tprintf("Which column [0-%d]: ", DIM-1);
 		if (read_string(answer, MAXSTRING) < 0)
 			return(FALSE);
 		cx = answer[0];
 		y = cx - '0';
 		if (y < 0 || y >= DIM) {
-			printf("Invalid column; must be >= 0 and < %d\n",
+			tprintf("Invalid column; must be >= 0 and < %d\n",
 				DIM-1);
 			continue;
 		}
 
 		if (board[x][y] != EMPTY) {
-			printf("That location is occupied; please try again\n");
+			tprintf("That location is occupied; please try again\n");
 			print_board();
 		} else
 			break;

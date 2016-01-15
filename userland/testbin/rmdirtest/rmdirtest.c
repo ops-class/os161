@@ -116,13 +116,13 @@ static
 void
 test1(void)
 {
-	printf("Making %s\n", testdir);
+	tprintf("Making %s\n", testdir);
 	startup();
 
-	printf("Removing %s while in it\n", testdir);
+	tprintf("Removing %s while in it\n", testdir);
 	killdir();
 
-	printf("Leaving the test directory\n");
+	tprintf("Leaving the test directory\n");
 	finish();
 }
 
@@ -136,7 +136,7 @@ test2(void)
 {
 	int fd;
 
-	printf("Now trying with the directory open...\n");
+	tprintf("Now trying with the directory open...\n");
 	startup();
 	fd = open(".", O_RDONLY);
 	if (fd<0) {
@@ -162,7 +162,7 @@ test3(void)
 	char buf[PATH_MAX];
 	int fd;
 
-	printf("Checking if . exists after rmdir\n");
+	tprintf("Checking if . exists after rmdir\n");
 	startup();
 	killdir();
 
@@ -230,7 +230,7 @@ test4(void)
 	char buf[4096];
 	int fd;
 
-	printf("Checking if creating files works after rmdir...\n");
+	tprintf("Checking if creating files works after rmdir...\n");
 	startup();
 	killdir();
 
@@ -272,7 +272,7 @@ static
 void
 test5(void)
 {
-	printf("Checking if creating subdirs works after rmdir...\n");
+	tprintf("Checking if creating subdirs works after rmdir...\n");
 	startup();
 	killdir();
 
@@ -315,7 +315,7 @@ test6(void)
 	char buf[PATH_MAX];
 	int fd, len;
 
-	printf("Now trying to list the directory...\n");
+	tprintf("Now trying to list the directory...\n");
 	startup();
 	fd = open(".", O_RDONLY);
 	if (fd<0) {
@@ -399,6 +399,6 @@ main(void)
 	test6();
 	test7();
 
-	printf("Whew... survived.\n");
+	tprintf("Whew... survived.\n");
 	return 0;
 }

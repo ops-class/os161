@@ -66,14 +66,14 @@ main(int argc, char **argv)
 
 	// 23 Mar 2012 : GWA : Test that open works.
 
-	printf("Opening %s\n", filename);
+	tprintf("Opening %s\n", filename);
 
 	fh = open(filename, O_RDWR|O_CREAT|O_TRUNC);
 	if (fh < 0) {
 		err(1, "create failed");
 	}
 	
-	printf("Writing %d bytes.\n", BUFFER_SIZE * BUFFER_COUNT);
+	tprintf("Writing %d bytes.\n", BUFFER_SIZE * BUFFER_COUNT);
 
   // 23 Mar 2012 : GWA : Do the even-numbered writes. Test read() and
   // lseek(SEEK_END).
@@ -127,7 +127,7 @@ main(int argc, char **argv)
 	// 23 Mar 2012 : GWA : Read the test data back and make sure what we wrote
 	// ended up where we wrote it. Tests read() and lseek(SEEK_SET).
 	
-	printf("Verifying write.\n");
+	tprintf("Verifying write.\n");
 
 	for (i = BUFFER_COUNT - 1; i >= 0; i--) {
     target = i * sizeof(writebuf);
@@ -148,7 +148,7 @@ main(int argc, char **argv)
 
 	// 23 Mar 2012 : GWA : Close the file.
 	
-	printf("Closing %s\n", filename);
+	tprintf("Closing %s\n", filename);
 	close(fh);
 	
 	// 23 Mar 2012 : GWA : Make sure the file is actually closed.
@@ -160,7 +160,7 @@ main(int argc, char **argv)
 		
 	// 23 Mar 2012 : GWA : FIXME : Spin until exit() works.
 	
-	printf("Spinning in case exit() doesn't work.\n");
+	tprintf("Spinning in case exit() doesn't work.\n");
 	while (1) {};
 
 	return 0;

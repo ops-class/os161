@@ -181,16 +181,16 @@ cat(void)
 int
 main(void)
 {
-	printf("Creating %s...\n", INFILE);
+	tprintf("Creating %s...\n", INFILE);
 	mkfile();
 
-	printf("Running cat < %s > %s\n", INFILE, OUTFILE);
+	tprintf("Running cat < %s > %s\n", INFILE, OUTFILE);
 	cat();
 
-	printf("Checking %s...\n", OUTFILE);
+	tprintf("Checking %s...\n", OUTFILE);
 	chkfile();
 
-	printf("Passed.\n");
+	tprintf("Passed.\n");
 	(void)remove(INFILE);
 	(void)remove(OUTFILE);
 	return 0;

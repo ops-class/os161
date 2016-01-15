@@ -88,7 +88,7 @@ struct matrix {
 ////////////////////////////////////////////////////////////
 
 /*
- * Use this instead of just calling printf so we know each printout
+ * Use this instead of just calling tprintf so we know each printout
  * is atomic; this prevents the lines from getting intermingled.
  */
 static
@@ -329,8 +329,8 @@ makeprocs(bool dowait)
 		semcreate("2", &s2);
 	}
 
-	printf("Job size approximately %lu bytes\n", (unsigned long) JOBSIZE);
-	printf("Forking %d jobs; total load %luk\n", NJOBS,
+	tprintf("Job size approximately %lu bytes\n", (unsigned long) JOBSIZE);
+	tprintf("Forking %d jobs; total load %luk\n", NJOBS,
 	       (unsigned long) (NJOBS * JOBSIZE)/1024);
 
 	for (i=0; i<NJOBS; i++) {
@@ -378,10 +378,10 @@ makeprocs(bool dowait)
 	}
 
 	if (failcount>0) {
-		printf("%d subprocesses failed\n", failcount);
+		tprintf("%d subprocesses failed\n", failcount);
 		exit(1);
 	}
-	printf("Test complete\n");
+	tprintf("Test complete\n");
 
 	semclose(&s1);
 	semclose(&s2);
@@ -404,7 +404,7 @@ main(int argc, char *argv[])
 		dowait = true;
 	}
 	else {
-		printf("Usage: parallelvm [-w]\n");
+		tprintf("Usage: parallelvm [-w]\n");
 		return 1;
 	}
 	makeprocs(dowait);

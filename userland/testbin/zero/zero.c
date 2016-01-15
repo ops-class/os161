@@ -112,7 +112,7 @@ check_sbrk(void)
 	base = sbrk(SBRK_SIZE);
 	if (base == (void *)-1) {
 		if (errno == ENOSYS) {
-			printf("I guess you haven't implemented sbrk yet.\n");
+			tprintf("I guess you haven't implemented sbrk yet.\n");
 			return;
 		}
 		err(1, "sbrk");
@@ -133,13 +133,13 @@ check_sbrk(void)
 int
 main(void)
 {
-	printf("zero: phase 1: checking .bss\n");
+	tprintf("zero: phase 1: checking .bss\n");
 	check_data();
 	check_bss();
 
-	printf("zero: phase 2: checking sbrk()\n");
+	tprintf("zero: phase 2: checking sbrk()\n");
 	check_sbrk();
 
-	printf("zero: passed\n");
+	tprintf("zero: passed\n");
 	return 0;
 }

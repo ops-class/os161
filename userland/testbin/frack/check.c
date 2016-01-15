@@ -2148,7 +2148,7 @@ doindent(unsigned depth)
 	unsigned i;
 
 	for (i=0; i<depth; i++) {
-		printf("   ");
+		tprintf("   ");
 	}
 }
 
@@ -2174,17 +2174,17 @@ printdiffs(unsigned indent, struct fsobject *obja, struct fsobject *objb)
 		     entb = entb->next) {
 			if (enta->name == entb->name) {
 				doindent(indent);
-				printf("%s", name_get(enta->name));
+				tprintf("%s", name_get(enta->name));
 				if (enta->obj->isdir &&
 				    !entb->obj->isdir) {
-					printf(": expected dir, found file;");
-					printf(" %u names missing.\n",
+					tprintf(": expected dir, found file;");
+					tprintf(" %u names missing.\n",
 					       count_subtree(enta->obj) - 1);
 				}
 				else if (!enta->obj->isdir &&
 					 entb->obj->isdir) {
-					printf(": expected file, found dir;");
-					printf(" %u extra names.\n",
+					tprintf(": expected file, found dir;");
+					tprintf(" %u extra names.\n",
 					       count_subtree(entb->obj) - 1);
 				}
 				else if (!enta->obj->isdir &&
@@ -2194,18 +2194,18 @@ printdiffs(unsigned indent, struct fsobject *obja, struct fsobject *objb)
 					alen = enta->obj->obj_file.len;
 					blen = entb->obj->obj_file.len;
 					if (alen == blen) {
-						printf("\t\t%lld bytes (ok)\n",
+						tprintf("\t\t%lld bytes (ok)\n",
 						       alen);
 					}
 					else {
-						printf(": found %lld bytes, "
+						tprintf(": found %lld bytes, "
 						       "expected %lld "
 						       "bytes.\n",
 						       blen, alen);
 					}
 				}
 				else {
-					printf("/\n");
+					tprintf("/\n");
 					printdiffs(indent + 1,
 						   enta->obj, entb->obj);
 				}
@@ -2215,13 +2215,13 @@ printdiffs(unsigned indent, struct fsobject *obja, struct fsobject *objb)
 		}
 		if (!found) {
 			doindent(indent);
-			printf("%s: missing ", name_get(enta->name));
+			tprintf("%s: missing ", name_get(enta->name));
 			if (enta->obj->isdir) {
-				printf("subtree with %u names.\n",
+				tprintf("subtree with %u names.\n",
 				       count_subtree(enta->obj) - 1);
 			}
 			else {
-				printf("file\n");
+				tprintf("file\n");
 			}
 		}
 	}
@@ -2238,13 +2238,13 @@ printdiffs(unsigned indent, struct fsobject *obja, struct fsobject *objb)
 		}
 		if (!found) {
 			doindent(indent);
-			printf("%s: extra ", name_get(entb->name));
+			tprintf("%s: extra ", name_get(entb->name));
 			if (entb->obj->isdir) {
-				printf("subtree with %u names.\n",
+				tprintf("subtree with %u names.\n",
 				       count_subtree(entb->obj) - 1);
 			}
 			else {
-				printf("file\n");
+				tprintf("file\n");
 			}
 		}
 	}
@@ -2326,7 +2326,7 @@ checkfilezeros(int fd, const char *namestr, off_t start, off_t end)
 	unsigned poison = 0, trash = 0;
 	off_t origstart = start;
 
-	printf("   %lld - %lld (expecting zeros)\n", start, end);
+	tprintf("   %lld - %lld (expecting zeros)\n", start, end);
 
 	if (lseek(fd, start, SEEK_SET) == -1) {
 		err(1, "%s: lseek to %lld", namestr, start);
@@ -2356,19 +2356,19 @@ checkfilezeros(int fd, const char *namestr, off_t start, off_t end)
 		start += ret;
 	}
 	if (poison > 0 || trash > 0) {
-		printf("ERROR: File %s: expected zeros from %lld to %lld; "
+		tprintf("ERROR: File %s: expected zeros from %lld to %lld; "
 		       "found",
 		       namestr, origstart, end);
 		if (poison > 0) {
-			printf(" %u poison bytes", poison);
+			tprintf(" %u poison bytes", poison);
 			if (trash > 0) {
-				printf(" and");
+				tprintf(" and");
 			}
 		}
 		if (trash > 0) {
-			printf(" %u trash bytes", trash);
+			tprintf(" %u trash bytes", trash);
 		}
-		printf("\n");
+		tprintf("\n");
 	}
 }
 
@@ -2440,7 +2440,7 @@ checkfiledata(int fd, const char *namestr, unsigned code, unsigned seq,
 		checkend = regionend;
 	}
 
-	printf("   %lld - %lld\n", checkstart, checkend);
+	tprintf("   %lld - %lld\n", checkstart, checkend);
 
 	readfiledata(fd, namestr,
 		     regionstart, checkstart, checkend, regionend);
@@ -2695,7 +2695,7 @@ checkonefilecontents(const char *namestr, struct fsobject *file,
 			return;
 		}
 		assert(change->type == FC_WRITE);
-		printf("ERROR: File %s is zero length but was expected to "
+		tprintf("ERROR: File %s is zero length but was expected to "
 		       "contain at least %lld bytes at offset %lld!\n",
 		       namestr, change->fc_write.pos, change->fc_write.len);
 		close(fd);
@@ -2704,7 +2704,7 @@ checkonefilecontents(const char *namestr, struct fsobject *file,
 
 	/* XXX: this check is wrong too. */
 	if (change->type == FC_CREAT) {
-		printf("ERROR: File %s was never written to but has "
+		tprintf("ERROR: File %s was never written to but has "
 		       "length %lld\n",
 		       namestr, file->obj_file.len);
 		close(fd);
@@ -2741,12 +2741,12 @@ checkonefilecontents(const char *namestr, struct fsobject *file,
 	 */
 	while (!change_is_present(fd, namestr, file->obj_file.len, change)) {
 		if (change->version < okversion) {
-			printf("File %s: change for version %u is missing\n",
+			tprintf("File %s: change for version %u is missing\n",
 			       namestr, change->version);
 		}
 		change = backup_for_file(change->prev,file->obj_file.identity);
 		if (change == NULL) {
-			printf("File %s: no matching version found\n",
+			tprintf("File %s: no matching version found\n",
 			       namestr);
 			close(fd);
 			return;
@@ -2781,18 +2781,18 @@ checkallfilecontents(struct fsobject *dir, struct fschange *change)
 	for (de = dir->obj_dir.entries; de != NULL; de = de->next) {
 		namestr = name_get(de->name);
 		if (de->obj->isdir) {
-			printf(" >>> Entering %s\n", namestr);
+			tprintf(" >>> Entering %s\n", namestr);
 			if (chdir(namestr)) {
 				err(1, "%s: chdir", namestr);
 			}
 			checkallfilecontents(de->obj, change);
-			printf(" <<< Leaving %s\n", namestr);
+			tprintf(" <<< Leaving %s\n", namestr);
 			if (chdir("..")) {
 				err(1, "..: chdir");
 			}
 		}
 		else {
-			printf("%s...\n", namestr);
+			tprintf("%s...\n", namestr);
 			checkonefilecontents(namestr, de->obj, change);
 		}
 	}
@@ -2813,7 +2813,7 @@ checkfs(void)
 	/*
 	 * We just built the model; talk about it.
 	 */
-	printf("Established %u versions across %u directories and %u files\n",
+	tprintf("Established %u versions across %u directories and %u files\n",
 	       changes->version + 1, nextdirnum, nextfilenum);
 
 	/*
@@ -2821,7 +2821,7 @@ checkfs(void)
 	 * FOUND holding the found volume state.
 	 */
 	inspectfs();
-	printf("Found %u subdirs and %u files on the volume\n",
+	tprintf("Found %u subdirs and %u files on the volume\n",
 	       found_subdirs, found_files);
 
 	/*
@@ -2856,7 +2856,7 @@ checkfs(void)
 			best = change;
 			bestscore = score;
 		}
-		//printf("version %u score %u\n", change->version, score);
+		//tprintf("version %u score %u\n", change->version, score);
 		change = change->next;
 	}
 	assert(best != NULL);
@@ -2874,9 +2874,9 @@ checkfs(void)
 		 * differences. XXX: this results in not checking file
 		 * data...
 		 */
-		printf("FAILURE: Directory tree does not match on any "
+		tprintf("FAILURE: Directory tree does not match on any "
 		       "version.\n");
-		printf("Best version is %u; describing differences:\n",
+		tprintf("Best version is %u; describing differences:\n",
 		       best->version);
 		printdiffs(1, state, found);
 		return;
@@ -2886,9 +2886,9 @@ checkfs(void)
 	 * Ok, we did get an exact match. Print it.
 	 */
 
-	printf("Directory tree matched in version %u.\n", best->version);
+	tprintf("Directory tree matched in version %u.\n", best->version);
 	if (best->partial) {
-		printf("WARNING: this is a version from a partially committed "
+		tprintf("WARNING: this is a version from a partially committed "
 		       "operation.\n");
 	}
 
@@ -2905,7 +2905,7 @@ checkfs(void)
 
 	/* now check the file contents */
 
-	printf("Checking file contents...\n");
+	tprintf("Checking file contents...\n");
 	checkallfilecontents(state, best);
-	printf("Done.\n");
+	tprintf("Done.\n");
 }

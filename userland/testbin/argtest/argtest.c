@@ -43,14 +43,14 @@ main(int argc, char *argv[])
 	const char *tmp;
 	int i;
 
-	printf("argc: %d\n", argc);
+	tprintf("argc: %d\n", argc);
 
 	for (i=0; i<=argc; i++) {
 		tmp = argv[i];
 		if (tmp==NULL) {
 			tmp = "[NULL]";
 		}
-		printf("argv[%d]: %s\n", i, tmp);
+		tprintf("argv[%d]: %s\n", i, tmp);
 	}
 
 	return 0;

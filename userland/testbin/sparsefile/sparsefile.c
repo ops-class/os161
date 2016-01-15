@@ -63,7 +63,7 @@ main(int argc, char *argv[])
 		err(1, "Sparse files of length zero are not meaningful");
 	}
 
-	printf("Creating a sparse file of size %d\n", size);
+	tprintf("Creating a sparse file of size %d\n", size);
 
 	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC);
 	if (fd < 0) {
