@@ -442,8 +442,8 @@ file		test/lib.c
 optfile net	test/nettest.c
 
 defoption synchprobs
-optfile   synchprobs  test/whalemating.c
-optfile   synchprobs  test/stoplight.c
+optfile   synchprobs  synchprobs/whalemating.c
+optfile   synchprobs  synchprobs/stoplight.c
 optfile   synchprobs  test/synchprobs.c
 
 defoption automationtest

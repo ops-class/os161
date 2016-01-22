@@ -142,11 +142,12 @@ semtest(int nargs, char **args)
 	(void)args;
 
 	inititems();
-	test_status = SUCCESS;
+	test_status = FAIL;
 	tkprintf("Starting semaphore test...\n");
 	tkprintf("If this hangs, it's broken: ");
 	P(testsem);
 	P(testsem);
+	test_status = SUCCESS;
 	tkprintf("ok\n");
 
 	for (i=0; i<NTHREADS; i++) {
