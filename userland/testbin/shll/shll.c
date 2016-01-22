@@ -131,7 +131,7 @@ readstatus(int status, struct exitinfo *ei)
 		ei->coredump = 0;
 	}
 	else {
-		printf("Invalid status code %d", status);
+		tprintf("Invalid status code %d", status);
 		ei->val = status;
 		ei->signaled = 0;
 		ei->stopped = 0;
@@ -149,16 +149,16 @@ void
 printstatus(const struct exitinfo *ei, int printexitzero)
 {
 	if (ei->signaled && ei->coredump) {
-		printf("Signal %d (core dumped)\n", ei->val);
+		tprintf("Signal %d (core dumped)\n", ei->val);
 	}
 	else if (ei->signaled) {
-		printf("Signal %d\n", ei->val);
+		tprintf("Signal %d\n", ei->val);
 	}
 	else if (ei->stopped) {
-		printf("Stopped on signal %d\n", ei->val);
+		tprintf("Stopped on signal %d\n", ei->val);
 	}
 	else if (printexitzero || ei->val != 0) {
-		printf("Exit %d\n", ei->val);
+		tprintf("Exit %d\n", ei->val);
 	}
 }
 
@@ -177,7 +177,7 @@ dowait(pid_t pid)
 		warn("pid %d", pid);
 	}
 	else {
-		printf("pid %d: ", pid);
+		tprintf("pid %d: ", pid);
 		readstatus(status, &ei);
 		printstatus(&ei, 1);
 	}
@@ -201,7 +201,7 @@ dowaitpoll(pid_t pid)
 		warn("pid %d", pid);
 	}
 	else if (foundpid != 0) {
-		printf("pid %d: ", pid);
+		tprintf("pid %d: ", pid);
 		readstatus(status, &ei);
 		printstatus(&ei, 1);
 		return 1;
@@ -262,7 +262,7 @@ cmd_wait(int ac, char *av[], struct exitinfo *ei)
 		exitinfo_exit(ei, 0);
 		return;
 	}
-	printf("Usage: wait [pid]\n");
+	tprintf("Usage: wait [pid]\n");
 	exitinfo_exit(ei, 1);
 }
 
@@ -284,7 +284,7 @@ cmd_chdir(int ac, char *av[], struct exitinfo *ei)
 		exitinfo_exit(ei, 0);
 		return;
 	}
-	printf("Usage: chdir dir\n");
+	tprintf("Usage: chdir dir\n");
 	exitinfo_exit(ei, 1);
 }
 
@@ -306,7 +306,7 @@ cmd_exit(int ac, char *av[], struct exitinfo *ei)
 		code = atoi(av[1]);
 	}
 	else {
-		printf("Usage: exit [code]\n");
+		tprintf("Usage: exit [code]\n");
 		exitinfo_exit(ei, 1);
 		return;
 	}
@@ -352,7 +352,7 @@ docommand(char *buf, struct exitinfo *ei)
 	nargs = 0;
 	for (s = strtok(buf, " \t\r\n"); s; s = strtok(NULL, " \t\r\n")) {
 		if (nargs >= NARG_MAX) {
-			printf("%s: Too many arguments "
+			tprintf("%s: Too many arguments "
 			       "(exceeds system limit)\n",
 			       args[0]);
 			exitinfo_exit(ei, 1);
@@ -380,7 +380,7 @@ docommand(char *buf, struct exitinfo *ei)
 	if (nargs > 0 && !strcmp(args[nargs-1], "&")) {
 		/* background */
 		if (!can_bg()) {
-			printf("%s: Too many background jobs; wait for "
+			tprintf("%s: Too many background jobs; wait for "
 			       "some to finish before starting more\n",
 			       args[0]);
 			exitinfo_exit(ei, 1);
@@ -422,7 +422,7 @@ docommand(char *buf, struct exitinfo *ei)
 	if (bg) {
 		/* background this command */
 		remember_bg(pid);
-		printf("[%d] %s ... &\n", pid, args[0]);
+		tprintf("[%d] %s ... &\n", pid, args[0]);
 		exitinfo_exit(ei, 0);
 		return;
 	}
@@ -537,8 +537,8 @@ static
 void
 usage(void)
 {
-	printf("Usage: shll [-p percent]\n");
-	printf("   -p   percent of characters to drop (default 5)\n");
+	tprintf("Usage: shll [-p percent]\n");
+	tprintf("   -p   percent of characters to drop (default 5)\n");
 	exit(1);
 }
 

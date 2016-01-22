@@ -223,10 +223,10 @@ dotest(void)
 		dowait(pids[i]);
 	}
 	if (failures > 0) {
-		printf("%u failures.\n", failures);
+		tprintf("%u failures.\n", failures);
 	}
 	else {
-		printf("Done.\n");
+		tprintf("Done.\n");
 	}
 }
 

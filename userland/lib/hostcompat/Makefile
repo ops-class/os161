@@ -22,6 +22,11 @@ TOP=../../..
 LIB=hostcompat
 SRCS=err.c ntohll.c time.c hostcompat.c
 
+# printf
+COMMON=$(TOP)/common/libc
+SRCS+=\
+	$(COMMON)/printf/tprintf.c
+
 HOST_CFLAGS+=$(COMPAT_CFLAGS)
 
 MKDIRS=$(INSTALLTOP)/hostinclude

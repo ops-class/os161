@@ -175,12 +175,12 @@ main(void)
 {
 	char *start, *end;
 
-	printf("Welcome to the palindrome tester!\n");
-	printf("I will take a large palindrome and test it.\n");
-	printf("Here it is:\n");
-	printf("%s\n", palindrome);
+	tprintf("Welcome to the palindrome tester!\n");
+	tprintf("I will take a large palindrome and test it.\n");
+	tprintf("Here it is:\n");
+	tprintf("%s\n", palindrome);
 
-	printf("Testing...");
+	tprintf("Testing...");
 	/* skip to end */
 	end = palindrome+strlen(palindrome);
 	end--;
@@ -188,11 +188,11 @@ main(void)
 	for (start = palindrome; start <= end; start++, end--) {
 		putchar('.');
 		if (*start != *end) {
-			printf("NOT a palindrome\n");
+			tprintf("NOT a palindrome\n");
 			return 0;
 		}
 	}
 
-	printf("IS a palindrome\n");
+	tprintf("IS a palindrome\n");
 	return 0;
 }

@@ -292,7 +292,7 @@ runop(int op)
 	/* intentionally don't check if op is in bounds :) */
 	opindex = op-'a';
 
-	printf("Running: [%c] %s\n", ops[opindex].ch, ops[opindex].name);
+	tprintf("Running: [%c] %s\n", ops[opindex].ch, ops[opindex].name);
 
 	if (forking) {
 		pid = fork();
@@ -307,25 +307,25 @@ runop(int op)
 			}
 			ok = 0;
 			if (WIFSIGNALED(status)) {
-				printf("Signal %d\n", WTERMSIG(status));
+				tprintf("Signal %d\n", WTERMSIG(status));
 				if (WTERMSIG(status) == ops[opindex].sig) {
 					ok = 1;
 				}
 			}
 			else {
-				printf("Exit %d\n", WEXITSTATUS(status));
+				tprintf("Exit %d\n", WEXITSTATUS(status));
 				if (WEXITSTATUS(status) == MAGIC) {
 					ok = 1;
 				}
 			}
 			if (ok) {
-				printf("Ok.\n");
+				tprintf("Ok.\n");
 			}
 			else {
-				printf("FAILED: expected signal %d\n",
+				tprintf("FAILED: expected signal %d\n",
 				       ops[opindex].sig);
 			}
-			printf("\n");
+			tprintf("\n");
 			return;
 		}
 	}
@@ -351,14 +351,14 @@ ask(void)
 	while (1) {
 
 		for (i=0; ops[i].name; i++) {
-			printf("[%c] %s\n", ops[i].ch, ops[i].name);
+			tprintf("[%c] %s\n", ops[i].ch, ops[i].name);
 		}
-		printf("[-] Disable forking\n");
-		printf("[+] Enable forking (default)\n");
-		printf("[*] Run everything\n");
-		printf("[!] Quit\n");
+		tprintf("[-] Disable forking\n");
+		tprintf("[+] Enable forking (default)\n");
+		tprintf("[*] Run everything\n");
+		tprintf("[!] Quit\n");
 
-		printf("Choose: ");
+		tprintf("Choose: ");
 		op = getchar();
 
 		if (op == '!') {

@@ -198,20 +198,20 @@ menu(void)
 {
 	int i;
 	for (i=0; ops[i].name; i++) {
-		printf("[%c] %-24s", ops[i].ch, ops[i].name);
+		tprintf("[%c] %-24s", ops[i].ch, ops[i].name);
 		if (i%2==1) {
-			printf("\n");
+			tprintf("\n");
 		}
 	}
 	if (i%2==1) {
-		printf("\n");
+		tprintf("\n");
 	}
-	printf("[1] %-24s", "asst1");
-	printf("[2] %-24s\n", "asst2");
-	printf("[3] %-24s", "asst3");
-	printf("[4] %-24s\n", "asst4");
-	printf("[*] %-24s", "all");
-	printf("[!] %-24s\n", "quit");
+	tprintf("[1] %-24s", "asst1");
+	tprintf("[2] %-24s\n", "asst2");
+	tprintf("[3] %-24s", "asst3");
+	tprintf("[4] %-24s\n", "asst4");
+	tprintf("[*] %-24s", "all");
+	tprintf("[!] %-24s\n", "quit");
 }
 
 static
@@ -231,7 +231,7 @@ runit(int op)
 
 	if (op=='*') {
 		for (i=0; ops[i].name; i++) {
-			printf("[%s]\n", ops[i].name);
+			tprintf("[%s]\n", ops[i].name);
 			ops[i].f();
 		}
 		return;
@@ -241,7 +241,7 @@ runit(int op)
 		k = op-'0';
 		for (i=0; ops[i].name; i++) {
 			if (ops[i].asst <= k) {
-				printf("[%s]\n", ops[i].name);
+				tprintf("[%s]\n", ops[i].name);
 				ops[i].f();
 			}
 		}
@@ -249,7 +249,7 @@ runit(int op)
 	}
 
 	if (op < LOWEST || op > HIGHEST) {
-		printf("Invalid request %c\n", op);
+		tprintf("Invalid request %c\n", op);
 		return;
 	}
 
@@ -261,12 +261,12 @@ main(int argc, char **argv)
 {
 	int op, i, j;
 
-	printf("[%c-%c, 1-4, *, ?=menu, !=quit]\n", LOWEST, HIGHEST);
+	tprintf("[%c-%c, 1-4, *, ?=menu, !=quit]\n", LOWEST, HIGHEST);
 
 	if (argc > 1) {
 		for (i=1; i<argc; i++) {
 			for (j=0; argv[i][j]; j++) {
-				printf("Choose: %c\n",
+				tprintf("Choose: %c\n",
 				       argv[i][j]);
 				runit(argv[i][j]);
 			}
@@ -275,12 +275,12 @@ main(int argc, char **argv)
 	else {
 		menu();
 		while (1) {
-			printf("Choose: ");
+			tprintf("Choose: ");
 			op = getchar();
 			if (op==EOF) {
 				break;
 			}
-			printf("%c\n", op);
+			tprintf("%c\n", op);
 			runit(op);
 		}
 	}

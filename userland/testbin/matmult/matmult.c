@@ -79,12 +79,12 @@ main(void)
     for (i = 0; i < Dim; i++)
 	    r += C[i][i];
 
-    printf("matmult finished.\n");
-    printf("answer is: %d (should be %d)\n", r, RIGHT);
+    tprintf("matmult finished.\n");
+    tprintf("answer is: %d (should be %d)\n", r, RIGHT);
     if (r != RIGHT) {
-	    printf("FAILED\n");
+	    tprintf("FAILED\n");
 	    return 1;
     }
-    printf("Passed.\n");
+    tprintf("Passed.\n");
     return 0;
 }

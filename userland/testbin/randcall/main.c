@@ -113,10 +113,10 @@ static
 void
 usage(void)
 {
-	printf("Usage: randcall [-f] [-c count] [-r seed] 2|3|4|all\n");
-	printf("   -f   suppress forking\n");
-	printf("   -c   set iteration count (default 100)\n");
-	printf("   -r   set pseudorandom seed (default 0)\n");
+	tprintf("Usage: randcall [-f] [-c count] [-r seed] 2|3|4|all\n");
+	tprintf("   -f   suppress forking\n");
+	tprintf("   -c   set iteration count (default 100)\n");
+	tprintf("   -r   set pseudorandom seed (default 0)\n");
 	exit(1);
 }
 
