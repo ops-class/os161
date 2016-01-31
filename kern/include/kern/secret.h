@@ -44,7 +44,7 @@
  * allows normally compilation and operation.
  */
 
-#define SECRET_TESTING
-#define SECRET 1755184289
+#undef SECRET_TESTING
+#define SECRET 0
 
 #endif /* _SECRET_H_ */
