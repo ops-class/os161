@@ -44,6 +44,7 @@
  * allows normally compilation and operation.
  */
 
-#define KERNEL_SECRET ""
+#define SECRET_TESTING
+#define SECRET 1755184289
 
 #endif /* _SECRET_H_ */
