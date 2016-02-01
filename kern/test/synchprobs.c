@@ -171,18 +171,19 @@ whalemating(int nargs, char **args) {
 
 	for (i = 0; i < 3; i++) {
 		for (j = 0; j < NMATING; j++) {
+			int index = (i * NMATING) + j;
 			switch (i) {
 				case 0:
-					snprintf(name, sizeof(name), "Male Whale Thread %d", (i * 3) + j);
-					err = thread_fork(name, NULL, male_wrapper, NULL, j);
+					snprintf(name, sizeof(name), "Male Whale Thread %d", index);
+					err = thread_fork(name, NULL, male_wrapper, NULL, index);
 					break;
 				case 1:
-					snprintf(name, sizeof(name), "Female Whale Thread %d", (i * 3) + j);
-					err = thread_fork(name, NULL, female_wrapper, NULL, j);
+					snprintf(name, sizeof(name), "Female Whale Thread %d", index);
+					err = thread_fork(name, NULL, female_wrapper, NULL, index);
 					break;
 				case 2:
-					snprintf(name, sizeof(name), "Matchmaker Whale Thread %d", (i * 3) + j);
-					err = thread_fork(name, NULL, matchmaker_wrapper, NULL, j);
+					snprintf(name, sizeof(name), "Matchmaker Whale Thread %d", index);
+					err = thread_fork(name, NULL, matchmaker_wrapper, NULL, index);
 					break;
 			}
 			if (err) {
