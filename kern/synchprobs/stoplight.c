@@ -87,27 +87,30 @@ void stoplight_cleanup() {
 }
 
 void
-turnright(uint32_t direction)
+turnright(uint32_t direction, uint32_t index)
 {
 	(void)direction;
+	(void)index;
 	/*
 	 * Implement this function.
 	 */
 	return;
 }
 void
-gostraight(uint32_t direction)
+gostraight(uint32_t direction, uint32_t index)
 {
 	(void)direction;
+	(void)index;
 	/*
 	 * Implement this function.
 	 */
 	return;
 }
 void
-turnleft(uint32_t direction)
+turnleft(uint32_t direction, uint32_t index)
 {
 	(void)direction;
+	(void)index;
 	/*
 	 * Implement this function.
 	 */

@@ -117,16 +117,16 @@ void kmain(char *bootstring);
  * Synchronization driver primitives.
  */
 
-void male_start(void);
-void male_end(void);
-void female_start(void);
-void female_end(void);
-void matchmaker_start(void);
-void matchmaker_end(void);
+void male_start(uint32_t);
+void male_end(uint32_t);
+void female_start(uint32_t);
+void female_end(uint32_t);
+void matchmaker_start(uint32_t);
+void matchmaker_end(uint32_t);
 int whalemating(int, char **);
 
-void inQuadrant(int);
-void leaveIntersection(void);
+void inQuadrant(int, uint32_t);
+void leaveIntersection(uint32_t);
 int stoplight(int, char **);
 
 /*
@@ -139,17 +139,17 @@ int stoplight(int, char **);
 
 void whalemating_init(void);
 void whalemating_cleanup(void);
-void male(void);
-void female(void);
-void matchmaker(void);
+void male(uint32_t);
+void female(uint32_t);
+void matchmaker(uint32_t);
  
 /*
  * stoplight.c.
  */
 
-void gostraight(uint32_t);
-void turnleft(uint32_t);
-void turnright(uint32_t);
+void gostraight(uint32_t, uint32_t);
+void turnleft(uint32_t, uint32_t);
+void turnright(uint32_t, uint32_t);
 void stoplight_init(void);
 void stoplight_cleanup(void);
 

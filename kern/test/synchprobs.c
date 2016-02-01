@@ -56,9 +56,8 @@ inititems(uint32_t count)
 
 static
 void
-male_wrapper(void * unused1, unsigned long unused2) {
+male_wrapper(void * unused1, unsigned long index) {
 	(void)unused1;
-	(void)unused2;
 
 	random_yielder(4);
 	lock_acquire(startlock);
@@ -69,19 +68,21 @@ male_wrapper(void * unused1, unsigned long unused2) {
 		cv_wait(startcv, startlock);
 	}
 	lock_release(startlock);
-	male();
+	male((uint32_t)index);
 	V(endsem);
 
 	return;
 }
 void
-male_start(void) {
+male_start(uint32_t index) {
+	(void)index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s starting\n", curthread->t_name);
 }
 void
-male_end(void) {
+male_end(uint32_t index) {
+	(void)index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s ending\n", curthread->t_name);
@@ -89,9 +90,8 @@ male_end(void) {
 
 static
 void
-female_wrapper(void * unused1, unsigned long unused2) {
+female_wrapper(void * unused1, unsigned long index) {
 	(void)unused1;
-	(void)unused2;
 
 	random_yielder(4);
 	lock_acquire(startlock);
@@ -102,19 +102,21 @@ female_wrapper(void * unused1, unsigned long unused2) {
 		cv_wait(startcv, startlock);
 	}
 	lock_release(startlock);
-	female();
+	female((uint32_t)index);
 	V(endsem);
 
 	return;
 }
 void
-female_start(void) {
+female_start(uint32_t index) {
+	(void) index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s starting\n", curthread->t_name);
 }
 void
-female_end(void) {
+female_end(uint32_t index) {
+	(void) index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s ending\n", curthread->t_name);
@@ -122,9 +124,8 @@ female_end(void) {
 
 static
 void
-matchmaker_wrapper(void * unused1, unsigned long unused2) {
+matchmaker_wrapper(void * unused1, unsigned long index) {
 	(void)unused1;
-	(void)unused2;
 	
 	random_yielder(4);
 	lock_acquire(startlock);
@@ -135,19 +136,21 @@ matchmaker_wrapper(void * unused1, unsigned long unused2) {
 		cv_wait(startcv, startlock);
 	}
 	lock_release(startlock);
-	matchmaker();
+	matchmaker((uint32_t)index);
 	V(endsem);
 	
 	return;
 }
 void
-matchmaker_start(void) {
+matchmaker_start(uint32_t index) {
+	(void)index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s starting\n", curthread->t_name);
 }
 void
-matchmaker_end(void) {
+matchmaker_end(uint32_t index) {
+	(void)index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s ending\n", curthread->t_name);
@@ -171,15 +174,15 @@ whalemating(int nargs, char **args) {
 			switch (i) {
 				case 0:
 					snprintf(name, sizeof(name), "Male Whale Thread %d", (i * 3) + j);
-					err = thread_fork(name, NULL, male_wrapper, NULL, 0);
+					err = thread_fork(name, NULL, male_wrapper, NULL, j);
 					break;
 				case 1:
 					snprintf(name, sizeof(name), "Female Whale Thread %d", (i * 3) + j);
-					err = thread_fork(name, NULL, female_wrapper, NULL, 0);
+					err = thread_fork(name, NULL, female_wrapper, NULL, j);
 					break;
 				case 2:
 					snprintf(name, sizeof(name), "Matchmaker Whale Thread %d", (i * 3) + j);
-					err = thread_fork(name, NULL, matchmaker_wrapper, NULL, 0);
+					err = thread_fork(name, NULL, matchmaker_wrapper, NULL, j);
 					break;
 			}
 			if (err) {
@@ -205,10 +208,8 @@ whalemating(int nargs, char **args) {
 
 static
 void
-turnright_wrapper(void *unused, unsigned long direction)
+turnright_wrapper(void *index, unsigned long direction)
 {
-	(void)unused;
-	
 	random_yielder(4);
 	lock_acquire(startlock);
 	startcount--;
@@ -218,17 +219,15 @@ turnright_wrapper(void *unused, unsigned long direction)
 		cv_wait(startcv, startlock);
 	}
 	lock_release(startlock);
-	turnright((uint32_t)direction);	
+	turnright((uint32_t)direction, (uint32_t)index);
 	V(endsem);
 
 	return;
 }
 static
 void
-gostraight_wrapper(void *unused, unsigned long direction)
+gostraight_wrapper(void *index, unsigned long direction)
 {
-	(void)unused;
-	
 	random_yielder(4);
 	lock_acquire(startlock);
 	startcount--;
@@ -238,17 +237,15 @@ gostraight_wrapper(void *unused, unsigned long direction)
 		cv_wait(startcv, startlock);
 	}
 	lock_release(startlock);
-	gostraight((uint32_t)direction);	
+	gostraight((uint32_t)direction, (uint32_t)index);
 	V(endsem);
 
 	return;
 }
 static
 void
-turnleft_wrapper(void *unused, unsigned long direction)
+turnleft_wrapper(void *index, unsigned long direction)
 {
-	(void)unused;
-	
 	random_yielder(4);
 	lock_acquire(startlock);
 	startcount--;
@@ -258,21 +255,25 @@ turnleft_wrapper(void *unused, unsigned long direction)
 		cv_wait(startcv, startlock);
 	}
 	lock_release(startlock);
-	turnleft((uint32_t)direction);
+	turnleft((uint32_t)direction, (uint32_t)index);
 	V(endsem);
 
 	return;
 }
 
 void
-inQuadrant(int quadrant) {
+inQuadrant(int quadrant, uint32_t index) {
+	(void)index;
+
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s in quadrant %d\n", curthread->t_name, quadrant);
 }
 
 void
-leaveIntersection() {
+leaveIntersection(uint32_t index) {
+	(void)index;
+
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
 	tkprintf("%s left the intersection\n", curthread->t_name);
@@ -300,13 +301,13 @@ int stoplight(int nargs, char **args) {
 
 		switch (turn) {
 			case 0:
-			err = thread_fork(name, NULL, gostraight_wrapper, NULL, direction);
+			err = thread_fork(name, NULL, gostraight_wrapper, (void *)i, direction);
 			break;
 			case 1:
-			err = thread_fork(name, NULL, turnleft_wrapper, NULL, direction);
+			err = thread_fork(name, NULL, turnleft_wrapper, (void *)i, direction);
 			break;
 			case 2:
-			err = thread_fork(name, NULL, turnright_wrapper, NULL, direction);
+			err = thread_fork(name, NULL, turnright_wrapper, (void *)i, direction);
 			break;
 		}
 		if (err) {

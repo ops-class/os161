@@ -58,8 +58,9 @@ whalemating_cleanup() {
 }
 
 void
-male()
+male(uint32_t index)
 {
+	(void)index;
 	/*
 	 * Implement this function by calling male_start and male_end when
 	 * appropriate.
@@ -68,8 +69,9 @@ male()
 }
 
 void
-female()
+female(uint32_t index)
 {
+	(void)index;
 	/*
 	 * Implement this function by calling female_start and female_end when
 	 * appropriate.
@@ -78,8 +80,9 @@ female()
 }
 
 void
-matchmaker()
+matchmaker(uint32_t index)
 {
+	(void)index;
 	/*
 	 * Implement this function by calling matchmaker_start and matchmaker_end
 	 * when appropriate.
