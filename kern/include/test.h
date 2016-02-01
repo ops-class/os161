@@ -32,6 +32,7 @@
 
 /* Get __PF() for declaring printf-like functions. */
 #include <cdefs.h>
+#include <kern/secret.h>
 
 #include "opt-synchprobs.h"
 #include "opt-automationtest.h"
@@ -94,6 +95,9 @@ int writestress2(int, char **);
 int longstress(int, char **);
 int createstress(int, char **);
 int printfile(int, char **);
+
+/* HMAC/hash tests */
+int hmacu1(int, char**);
 
 /* other tests */
 int kmalloctest(int, char **);
@@ -165,16 +169,26 @@ int ll1test(int, char **);
 int ll16test(int, char **);
 #endif
 
+#define SUCCESS 0
+#define FAIL 1
+
+void success(bool, uint32_t, const char *);
+
 void random_yielder(uint32_t);
 void random_spinner(uint32_t);
 
 /*
- * Testing variants of kprintf. tprintf is silent during automated testing.
- * sprintf prefixes the kernel secret to kprintf messages during automated
- * testing. nprintf is not silent during automated testing.
+ * kprintf variants that do not (or only) print during automated testing.
  */
 
-int tkprintf(const char *format, ...) __PF(1,2);
-int nkprintf(const char *format, ...) __PF(1,2);
+#ifdef SECRET_TESTING
+#define kprintf_t(...) kprintf(__VA_ARGS__)
+#define kprintf_n(...) silent(__VA_ARGS__)
+#else
+#define kprintf_t(...) silent(__VA_ARGS__)
+#define kprintf_n(...) kprintf(__VA_ARGS__)
+#endif
+
+static inline void silent(const char * fmt, ...) { (void)fmt; };
 
 #endif /* _TEST_H_ */

@@ -40,9 +40,6 @@
 #include <kern/secret.h>
 #include <spinlock.h>
 
-#define SUCCESS 0
-#define FAIL 1
-
 #define NSEMLOOPS     63
 #define NLOCKLOOPS    120
 #define NCVLOOPS      5
@@ -94,15 +91,6 @@ inititems(void)
 	spinlock_init(&status_lock);
 }
 
-static
-void
-success(bool status, const char *msg) {
-	if (status == SUCCESS) {
-		kprintf("%s%s: SUCCESS\n", KERNEL_SECRET, msg);
-	} else {
-		kprintf("%s%s: FAIL\n", KERNEL_SECRET, msg);
-	}
-}
 
 static
 void
@@ -117,10 +105,10 @@ semtestthread(void *junk, unsigned long num)
 	random_yielder(4);
 	P(testsem);
 	semtest_current = num;
-	tkprintf("Thread %2lu: ", num);
+	kprintf_n("Thread %2lu: ", num);
 
 	for (i=0; i<NSEMLOOPS; i++) {
-		tkprintf("%c", (int)num+64);
+		kprintf_n("%c", (int)num+64);
 		random_yielder(4);
 		if (semtest_current != num) {
 			spinlock_acquire(&status_lock);
@@ -129,7 +117,7 @@ semtestthread(void *junk, unsigned long num)
 		}
 	}
 
-	tkprintf("\n");
+	kprintf_n("\n");
 	V(donesem);
 }
 
@@ -143,12 +131,12 @@ semtest(int nargs, char **args)
 
 	inititems();
 	test_status = FAIL;
-	tkprintf("Starting semaphore test...\n");
-	tkprintf("If this hangs, it's broken: ");
+	kprintf_n("Starting semaphore test...\n");
+	kprintf_n("If this hangs, it's broken: ");
 	P(testsem);
 	P(testsem);
 	test_status = SUCCESS;
-	tkprintf("ok\n");
+	kprintf_n("ok\n");
 
 	for (i=0; i<NTHREADS; i++) {
 		result = thread_fork("semtest", NULL, semtestthread, NULL, i);
@@ -167,8 +155,8 @@ semtest(int nargs, char **args)
 	V(testsem);
 	V(testsem);
 	
-	tkprintf("Semaphore test done.\n");
-	success(test_status, "semtest");
+	kprintf_n("Semaphore test done.\n");
+	success(test_status, SECRET, "sy1");
 
 	return 0;
 }
@@ -177,8 +165,8 @@ static
 void
 fail(unsigned long num, const char *msg)
 {
-	tkprintf("thread %lu: Mismatch on %s\n", num, msg);
-	tkprintf("Test failed\n");
+	kprintf_n("thread %lu: Mismatch on %s\n", num, msg);
+	kprintf_n("Test failed\n");
 
 	lock_release(testlock);
 
@@ -251,7 +239,7 @@ locktest(int nargs, char **args)
 
 	inititems();
 	test_status = SUCCESS;
-	tkprintf("Starting lock test...\n");
+	kprintf_n("Starting lock test...\n");
 
 	for (i=0; i<NTHREADS; i++) {
 		result = thread_fork("synchtest", NULL, locktestthread, NULL, i);
@@ -263,8 +251,8 @@ locktest(int nargs, char **args)
 		P(donesem);
 	}
 	
-	tkprintf("Lock test done.\n");
-	success(test_status, "locktest");
+	kprintf_n("Lock test done.\n");
+	success(test_status, SECRET, "sy2");
 
 	return 0;
 }
@@ -294,8 +282,8 @@ cvtestthread(void *junk, unsigned long num)
 
 			/* Require at least 2000 cpu cycles (we're 25mhz) */
 			if (ts2.tv_sec == 0 && ts2.tv_nsec < 40*2000) {
-				tkprintf("cv_wait took only %u ns\n", ts2.tv_nsec);
-				tkprintf("That's too fast... you must be " "busy-looping\n");
+				kprintf_n("cv_wait took only %u ns\n", ts2.tv_nsec);
+				kprintf_n("That's too fast... you must be " "busy-looping\n");
 				spinlock_acquire(&status_lock);
 				test_status = FAIL;
 				spinlock_release(&status_lock);
@@ -323,7 +311,7 @@ cvtestthread(void *junk, unsigned long num)
 		}
 		spinlock_release(&status_lock);
 
-		tkprintf("Thread %lu\n", testval2);
+		kprintf_n("Thread %lu\n", testval2);
 		testval1 = (testval1 + NTHREADS - 1) % NTHREADS;
 		lock_release(testlock);
 	}
@@ -339,8 +327,8 @@ cvtest(int nargs, char **args)
 	(void)args;
 
 	inititems();
-	tkprintf("Starting CV test...\n");
-	tkprintf("Threads should print out in reverse order.\n");
+	kprintf_n("Starting CV test...\n");
+	kprintf_n("Threads should print out in reverse order.\n");
 
 	testval1 = NTHREADS-1;
 
@@ -354,8 +342,8 @@ cvtest(int nargs, char **args)
 		P(donesem);
 	}
 	
-	tkprintf("CV test done\n");
-	success(test_status, "cvtest");
+	kprintf_n("CV test done\n");
+	success(test_status, SECRET, "sy3");
 
 	return 0;
 }
@@ -401,7 +389,7 @@ sleepthread(void *junk1, unsigned long junk2)
 			random_yielder(4);
 			lock_release(testlocks[i]);
 		}
-		tkprintf("sleepthread: %u\n", j);
+		kprintf_n("sleepthread: %u\n", j);
 	}
 	V(exitsem);
 }
@@ -434,7 +422,7 @@ wakethread(void *junk1, unsigned long junk2)
 			random_yielder(4);
 			lock_release(testlocks[i]);
 		}
-		tkprintf("wakethread: %u\n", j);
+		kprintf_n("wakethread: %u\n", j);
 	}
 	V(exitsem);
 }
@@ -458,7 +446,7 @@ cvtest2(int nargs, char **args)
 	gatesem = sem_create("gatesem", 0);
 	exitsem = sem_create("exitsem", 0);
 
-	tkprintf("cvtest2...\n");
+	kprintf_n("cvtest2...\n");
 
 	result = thread_fork("cvtest2", NULL, sleepthread, NULL, 0);
 	if (result) {
@@ -482,8 +470,8 @@ cvtest2(int nargs, char **args)
 		testcvs[i] = NULL;
 	}
 
-	tkprintf("cvtest2 done\n");
-	success(test_status, "cvtest2");
+	kprintf_n("cvtest2 done\n");
+	success(test_status, SECRET, "sy4");
 
 	return 0;
 }
@@ -497,8 +485,8 @@ int rwtest(int nargs, char **args) {
 	(void) nargs;
 	(void) args;
 	
-	tkprintf("rwtest unimplemented\n");
-	success(FAIL, "rwtest");
+	kprintf_n("rwtest unimplemented\n");
+	success(FAIL, SECRET, "sy5");
 
 	return 0;
 }

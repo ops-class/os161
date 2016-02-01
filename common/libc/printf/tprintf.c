@@ -16,7 +16,7 @@ tprintf(const char *fmt, ...)
 	int chars;
 	va_list ap;
 	
-	if (strcmp(KERNEL_SECRET, "") != 0) {
+	if (SECRET != 0) {
 		return 0;
 	}
 	
@@ -34,7 +34,7 @@ nprintf(const char *fmt, ...)
 	int chars;
 	va_list ap;
 	
-	if (strcmp(KERNEL_SECRET, "") == 0) {
+	if (SECRET == 0) {
 		return 0;
 	}
 	
@@ -52,8 +52,8 @@ printsf(const char *fmt, ...)
 	int chars;
 	va_list ap;
 	
-	if (strcmp(KERNEL_SECRET, "") != 0) {
-		printf("%s: ", KERNEL_SECRET);	
+	if (SECRET != 0) {
+		printf("%llu: ", (unsigned long long)SECRET);
 	}
 	va_start(ap, fmt);
 	chars = vprintf(fmt, ap);

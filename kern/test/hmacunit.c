@@ -1,12 +1,5 @@
 /*
- * NO NOT MODIFY THIS FILE
- *
- * All the contents of this file are overwritten during automated
- * testing. Please consider this before changing anything in this file.
- */
-
-/*
- * Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009
+ * Copyright (c) 2015
  *	The President and Fellows of Harvard College.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -34,17 +27,73 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _SECRET_H_
-#define _SECRET_H_
+#include <types.h>
+#include <lib.h>
+#include <spinlock.h>
+#include <synch.h>
+#include <thread.h>
+#include <current.h>
+#include <clock.h>
+#include <test.h>
+#include <kern/secure.h>
 
 /*
- * During automated testing all instances of KERNEL_SECRET in trusted tests
- * are rewritten to a random value to ensure that the kernel is actually
- * running the appropriate tests. So this value is never actually used, but
- * allows normally compilation and operation.
+ * Unit tests for hmac/sha256 hashing.
  */
 
-#undef SECRET_TESTING
-#define SECRET 0
+////////////////////////////////////////////////////////////
+// support code
 
-#endif /* _SECRET_H_ */
+static
+void
+ok(void)
+{
+	kprintf("Test passed.\n");
+}
+
+/*
+ * Unit test 1
+ *
+ * Test some known msg/key/hashes to make sure we produce the
+ * right results.
+ */
+static const char *plaintext1[] = {
+	"The quick brown fox jumps over the lazy dog",
+	"The only people for me are the mad ones",
+	"I don't exactly know what I mean by that, but I mean it.",
+};
+
+static const char *keys1[] = {
+	"xqWmgzbvGuLIeeKOrwMA",
+	"ZxuvolLXL7C68pDjsclX",
+	"PYeuVzKuB03awYDgJotS",
+};
+
+static const char *hashes1[] = {
+	"251ab1da03c94435daf44898fcd11606669e222270e4ac90d04a18a9df8fdfd6",
+	"75bbf48c53ccba08c244447ef7eff2e0a02f23acfdac6502282ec431823fb393",
+	"6d7d2b5eabcda504f26de7547185483b19f9953a6eaeec6c364bb45e20b28598",
+};
+
+#define N_TESTS_1 3
+
+int
+hmacu1(int nargs, char **args)
+{
+	char *hash;
+	int res;
+
+	(void)nargs; (void)args;
+	int i;
+	for (i = 0; i < N_TESTS_1; i++)
+	{
+		res = hmac(plaintext1[i], strlen(plaintext1[i]), keys1[i], strlen(keys1[i]), &hash);
+		KASSERT(!res);
+		KASSERT(strcmp(hash, hashes1[i]) == 0);
+		kfree(hash);
+	}
+
+	ok();
+	/* clean up */
+	return 0;
+}

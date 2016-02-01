@@ -491,6 +491,7 @@ static const char *testmenu[] = {
 	"[fs4] FS write stress 2             ",
 	"[fs5] FS long stress                ",
 	"[fs6] FS create stress              ",
+	"[hm1] HMAC unit test                ",
 	NULL
 };
 
@@ -649,6 +650,9 @@ static struct {
 	{ "fs4",	writestress2 },
 	{ "fs5",	longstress },
 	{ "fs6",	createstress },
+
+	/* HMAC unit tests */
+	{ "hm1",	hmacu1 },
 	
 #if OPT_AUTOMATIONTEST
 	/* automation tests */

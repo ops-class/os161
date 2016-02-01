@@ -78,14 +78,14 @@ male_start(uint32_t index) {
 	(void)index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	tkprintf("%s starting\n", curthread->t_name);
+	kprintf_n("%s starting\n", curthread->t_name);
 }
 void
 male_end(uint32_t index) {
 	(void)index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	tkprintf("%s ending\n", curthread->t_name);
+	kprintf_n("%s ending\n", curthread->t_name);
 }
 
 static
@@ -112,14 +112,14 @@ female_start(uint32_t index) {
 	(void) index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	tkprintf("%s starting\n", curthread->t_name);
+	kprintf_n("%s starting\n", curthread->t_name);
 }
 void
 female_end(uint32_t index) {
 	(void) index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	tkprintf("%s ending\n", curthread->t_name);
+	kprintf_n("%s ending\n", curthread->t_name);
 }
 
 static
@@ -146,14 +146,14 @@ matchmaker_start(uint32_t index) {
 	(void)index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	tkprintf("%s starting\n", curthread->t_name);
+	kprintf_n("%s starting\n", curthread->t_name);
 }
 void
 matchmaker_end(uint32_t index) {
 	(void)index;
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	tkprintf("%s ending\n", curthread->t_name);
+	kprintf_n("%s ending\n", curthread->t_name);
 }
 
 #define NMATING 10
@@ -267,7 +267,7 @@ inQuadrant(int quadrant, uint32_t index) {
 
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	tkprintf("%s in quadrant %d\n", curthread->t_name, quadrant);
+	kprintf_n("%s in quadrant %d\n", curthread->t_name, quadrant);
 }
 
 void
@@ -276,7 +276,7 @@ leaveIntersection(uint32_t index) {
 
 	random_yielder(PROBLEMS_MAX_YIELDER);
 	random_spinner(PROBLEMS_MAX_SPINNER);
-	tkprintf("%s left the intersection\n", curthread->t_name);
+	kprintf_n("%s left the intersection\n", curthread->t_name);
 }
 
 #define NCARS 64
