@@ -96,6 +96,9 @@ int longstress(int, char **);
 int createstress(int, char **);
 int printfile(int, char **);
 
+/* HMAC/hash tests */
+int hmacu1(int, char**);
+
 /* other tests */
 int kmalloctest(int, char **);
 int kmallocstress(int, char **);

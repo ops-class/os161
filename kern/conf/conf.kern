@@ -309,6 +309,14 @@ file      ../common/libc/string/strlen.c
 file      ../common/libc/string/strrchr.c
 file      ../common/libc/string/strtok_r.c
 
+#
+# Security functions that we've added to the C library and
+# use for secure output.
+#
+
+file      ../common/libc/secure/secure.c
+file      ../common/libc/secure/sha256.c
+
 ########################################
 #                                      #
 #       Core kernel source files       #
@@ -435,6 +443,7 @@ file		test/threadtest.c
 file		test/tt3.c
 file		test/synchtest.c
 file		test/semunit.c
+file		test/hmacunit.c
 file		test/kmalloctest.c
 file		test/fstest.c
 file		test/lib.c
