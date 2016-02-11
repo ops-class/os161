@@ -228,26 +228,6 @@ locktestthread(void *junk, unsigned long num)
 	V(donesem);
 }
 
-static
-void
-locktestthread2(void *junk, unsigned long num)
-{
-	int i;
-	(void)junk;
-	(void)num;
-	for (i=0; i<NLOCKLOOPS; i++) {
-		lock_acquire(testlock);
-
-		if (!lock_do_i_hold(testlock)) {
-			test_status = FAIL;
-		}
-		random_yielder(4);
-
-		lock_release(testlock);
-	}
-	V(donesem);
-}
-
 
 int
 locktest(int nargs, char **args)
@@ -273,35 +253,6 @@ locktest(int nargs, char **args)
 	
 	kprintf_n("Lock test done.\n");
 	success(test_status, SECRET, "sy2");
-
-	return 0;
-}
-
-int
-locktest2(int nargs, char **args)
-{
-	int i, result;
-
-	(void)nargs;
-	(void)args;
-
-	inititems();
-	test_status = SUCCESS;
-	kprintf_n("Starting lock test 2...\n");
-
-	for (i=0; i<NTHREADS; i++) {
-		result = thread_fork("synchtest", NULL, locktestthread2, NULL, i);
-		if (result) {
-			panic("locktest: thread_fork failed: %s\n", strerror(result));
-		}
-	}
-	for (i=0; i<NTHREADS; i++) {
-		P(donesem);
-	}
-
-	kprintf_n("Lock test 2 done.\n");
-	success(test_status, SECRET, "sy2");
-	lock_release(testlock);
 
 	return 0;
 }
