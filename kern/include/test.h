@@ -174,7 +174,9 @@ int ll16test(int, char **);
 #define SUCCESS 0
 #define FAIL 1
 
-void success(bool, uint32_t, const char *);
+int success(bool, const char *, const char *);
+
+int ksecprintf(const char *secret, const char *msg, const char *name);
 
 void random_yielder(uint32_t);
 void random_spinner(uint32_t);
