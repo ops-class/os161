@@ -378,6 +378,18 @@ cmd_kheapstats(int nargs, char **args)
 
 static
 int
+cmd_kheapused(int nargs, char **args)
+{
+	(void)nargs;
+	(void)args;
+
+	kheap_printused();
+
+	return 0;
+}
+
+static
+int
 cmd_kheapgeneration(int nargs, char **args)
 {
 	(void)nargs;
@@ -541,6 +553,7 @@ static const char *mainmenu[] = {
 	"[?o] Operations menu                ",
 	"[?t] Tests menu                     ",
 	"[kh] Kernel heap stats              ",
+	"[khu] Kernel heap usage             ",
 	"[khgen] Next kernel heap generation ",
 	"[khdump] Dump kernel heap           ",
 	"[q] Quit and shut down              ",
@@ -593,6 +606,7 @@ static struct {
 
 	/* stats */
 	{ "kh",         cmd_kheapstats },
+	{ "khu",        cmd_kheapused },
 	{ "khgen",      cmd_kheapgeneration },
 	{ "khdump",     cmd_kheapdump },
 
