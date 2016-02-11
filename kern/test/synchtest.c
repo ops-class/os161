@@ -107,6 +107,7 @@ semtest(int nargs, char **args)
 	
 	kprintf_n("Starting sem1...\n");
 	for (i=0; i<CREATELOOPS; i++) {
+		kprintf_t(".");
 		testsem = sem_create("testsem", 2);
 		if (testsem == NULL) {
 			panic("sem1: sem_create failed\n");
@@ -121,16 +122,16 @@ semtest(int nargs, char **args)
 		}
 	}
 	spinlock_init(&status_lock);
-	test_status = FAIL;
+	test_status = SUCCESS;
 
 	kprintf_n("If this hangs, it's broken: ");
 	P(testsem);
 	P(testsem);
 	kprintf_n("OK\n");
 	kprintf_t(".");
-	test_status = SUCCESS;
 
 	for (i=0; i<NTHREADS; i++) {
+		kprintf_t(".");
 		result = thread_fork("semtest", NULL, semtestthread, NULL, i);
 		if (result) {
 			panic("sem1: thread_fork failed: %s\n",
@@ -138,6 +139,7 @@ semtest(int nargs, char **args)
 		}
 	}
 	for (i=0; i<NTHREADS; i++) {
+		kprintf_t(".");
 		V(testsem);
 		P(donesem);
 	}
@@ -240,6 +242,7 @@ locktest(int nargs, char **args)
 	
 	kprintf_n("Starting lt1...\n");
 	for (i=0; i<CREATELOOPS; i++) {
+		kprintf_t(".");
 		testlock = lock_create("testlock");
 		if (testlock == NULL) {
 			panic("lt1: lock_create failed\n");
@@ -257,12 +260,14 @@ locktest(int nargs, char **args)
 	test_status = SUCCESS;
 
 	for (i=0; i<NTHREADS; i++) {
+		kprintf_t(".");
 		result = thread_fork("synchtest", NULL, locktestthread, NULL, i);
 		if (result) {
 			panic("lt1: thread_fork failed: %s\n", strerror(result));
 		}
 	}
 	for (i=0; i<NTHREADS; i++) {
+		kprintf_t(".");
 		P(donesem);
 	}
 	
@@ -413,6 +418,7 @@ cvtest(int nargs, char **args)
 	
 	kprintf_n("Starting cvt1...\n");
 	for (i=0; i<CREATELOOPS; i++) {
+		kprintf_t(".");
 		testlock = lock_create("testlock");
 		if (testlock == NULL) {
 			panic("lockt1: lock_create failed\n");
@@ -436,12 +442,14 @@ cvtest(int nargs, char **args)
 
 	testval1 = NTHREADS-1;
 	for (i=0; i<NTHREADS; i++) {
+		kprintf_t(".");
 		result = thread_fork("cvt1", NULL, cvtestthread, NULL, (long unsigned) i);
 		if (result) {
 			panic("cvt1: thread_fork failed: %s\n", strerror(result));
 		}
 	}
 	for (i=0; i<NTHREADS; i++) {
+		kprintf_t(".");
 		P(donesem);
 	}
 	
@@ -550,6 +558,7 @@ cvtest2(int nargs, char **args)
 
 	kprintf_n("Starting cvt2...\n");
 	for (i=0; i<CREATELOOPS; i++) {
+		kprintf_t(".");
 		gatesem = sem_create("gatesem", 0);
 		if (gatesem == NULL) {
 			panic("cvt2: sem_create failed\n");
@@ -564,6 +573,7 @@ cvtest2(int nargs, char **args)
 		}
 	}
 	for (i=0; i<NCVS; i++) {
+		kprintf_t(".");
 		testlocks[i] = lock_create("cvtest2 lock");
 		testcvs[i] = cv_create("cvtest2 cv");
 	}
@@ -585,6 +595,7 @@ cvtest2(int nargs, char **args)
 	sem_destroy(gatesem);
 	exitsem = gatesem = NULL;
 	for (i=0; i<NCVS; i++) {
+		kprintf_t(".");
 		lock_destroy(testlocks[i]);
 		cv_destroy(testcvs[i]);
 		testlocks[i] = NULL;
