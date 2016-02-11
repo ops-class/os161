@@ -1,3 +1,8 @@
+/*
+ * All the contents of this file are overwritten during automated
+ * testing. Please consider this before changing anything in this file.
+ */
+
 #include <types.h>
 #include <lib.h>
 #include <clock.h>

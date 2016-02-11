@@ -29,6 +29,9 @@
 
 /*
  * Synchronization test code.
+ *
+ * All the contents of this file are overwritten during automated
+ * testing. Please consider this before changing anything in this file.
  */
 
 #include <types.h>
@@ -117,6 +120,7 @@ semtest(int nargs, char **args)
 			sem_destroy(donesem);
 		}
 	}
+	spinlock_init(&status_lock);
 	test_status = FAIL;
 
 	kprintf_n("If this hangs, it's broken: ");
@@ -249,6 +253,7 @@ locktest(int nargs, char **args)
 			sem_destroy(donesem);
 		}
 	}
+	spinlock_init(&status_lock);
 	test_status = SUCCESS;
 
 	for (i=0; i<NTHREADS; i++) {
@@ -426,6 +431,7 @@ cvtest(int nargs, char **args)
 			sem_destroy(donesem);
 		}
 	}
+	spinlock_init(&status_lock);
 	test_status = SUCCESS;
 
 	testval1 = NTHREADS-1;
@@ -561,6 +567,7 @@ cvtest2(int nargs, char **args)
 		testlocks[i] = lock_create("cvtest2 lock");
 		testcvs[i] = cv_create("cvtest2 cv");
 	}
+	spinlock_init(&status_lock);
 	test_status = SUCCESS;
 
 	result = thread_fork("cvt2", NULL, sleepthread, NULL, 0);
