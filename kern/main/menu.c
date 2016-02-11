@@ -481,6 +481,8 @@ static const char *testmenu[] = {
 	"[lt3]  Lock test 3 (panics)  (1)    ",
 	"[cvt1] CV test 1             (1)    ",
 	"[cvt2] CV test 2             (1)    ",
+	"[cvt3] CV test 3 (panics)    (1)    ",
+	"[cvt4] CV test 4 (panics)    (1)    ",
 	"[rwt1] RW lock test          (1)    ",
 #if OPT_SYNCHPROBS
 	"[sp1] Whalemating test       (1)    ",
@@ -617,6 +619,8 @@ static struct {
 	{ "lt3",	locktest3 },
 	{ "cvt1",	cvtest },
 	{ "cvt2",	cvtest2 },
+	{ "cvt3",	cvtest3 },
+	{ "cvt4",	cvtest4 },
 	{ "rwt1",	rwtest },
 #if OPT_SYNCHPROBS
 	{ "sp1",	whalemating },

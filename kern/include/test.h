@@ -63,6 +63,8 @@ int locktest2(int, char **);
 int locktest3(int, char **);
 int cvtest(int, char **);
 int cvtest2(int, char **);
+int cvtest3(int, char **);
+int cvtest4(int, char **);
 int rwtest(int, char **);
 
 /* semaphore unit tests */

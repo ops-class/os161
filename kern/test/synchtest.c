@@ -80,6 +80,7 @@ semtestthread(void *junk, unsigned long num)
 
 	kprintf_n("Thread %2lu: ", num);
 	for (i=0; i<NSEMLOOPS; i++) {
+		kprintf_t(".");
 		kprintf_n("%2lu", num);
 		random_yielder(4);
 		if (semtest_current != num) {
@@ -122,6 +123,7 @@ semtest(int nargs, char **args)
 	P(testsem);
 	P(testsem);
 	kprintf_n("OK\n");
+	kprintf_t(".");
 	test_status = SUCCESS;
 
 	for (i=0; i<NTHREADS; i++) {
@@ -139,7 +141,8 @@ semtest(int nargs, char **args)
 	sem_destroy(testsem);
 	sem_destroy(donesem);
 	testsem = donesem = NULL;
-	
+
+	kprintf_t("\n");
 	success(test_status, SECRET, "sem1");
 
 	return 0;
@@ -154,6 +157,7 @@ locktestthread(void *junk, unsigned long num)
 	int i;
 
 	for (i=0; i<NLOCKLOOPS; i++) {
+		kprintf_t(".");
 		lock_acquire(testlock);
 		random_yielder(4);
 
@@ -202,6 +206,7 @@ locktestthread(void *junk, unsigned long num)
 	/* Check for solutions that don't track ownership properly */
 
 	for (i=0; i<NLOCKLOOPS; i++) {
+		kprintf_t(".");
 		if (lock_do_i_hold(testlock)) {
 			goto fail2;
 		}
@@ -261,6 +266,7 @@ locktest(int nargs, char **args)
 	testlock = NULL;
 	donesem = NULL;
 
+	kprintf_t("\n");
 	success(test_status, SECRET, "lt1");
 
 	return 0;
@@ -284,11 +290,15 @@ locktest2(int nargs, char **args) {
 			lock_destroy(testlock);
 		}
 	}
-
-	success(SUCCESS, SECRET, "lt2");
+	
+	ksecprintf(SECRET, "Should panic...", "lt2");
 	lock_release(testlock);
+	
 	/* Should not get here on success. */
+	
 	success(FAIL, SECRET, "lt2");
+
+	lock_destroy(testlock);
 	testlock = NULL;
 
 	return 0;
@@ -302,7 +312,7 @@ locktest3(int nargs, char **args) {
 	int i;
 	
 	kprintf_n("Starting lt3...\n");
-	kprintf_n("(This test panics on success!){\n");
+	kprintf_n("(This test panics on success!)\n");
 	for (i=0; i<CREATELOOPS; i++) {
 		testlock = lock_create("testlock");
 		if (testlock == NULL) {
@@ -313,11 +323,14 @@ locktest3(int nargs, char **args) {
 		}
 	}
 
-	success(SUCCESS, SECRET, "lt3");
+	ksecprintf(SECRET, "Should panic...", "lt3");
 	lock_acquire(testlock);
 	lock_destroy(testlock);
+	
 	/* Should not get here on success. */
+	
 	success(FAIL, SECRET, "lt3");
+
 	testlock = NULL;
 
 	return 0;
@@ -334,6 +347,7 @@ cvtestthread(void *junk, unsigned long num)
 	struct timespec ts1, ts2;
 
 	for (i=0; i<NCVLOOPS; i++) {
+		kprintf_t(".");
 		lock_acquire(testlock);
 		while (testval1 != num) {
 			testval2 = 0;
@@ -432,6 +446,7 @@ cvtest(int nargs, char **args)
 	testcv = NULL;
 	donesem = NULL;
 	
+	kprintf_t("\n");
 	success(test_status, SECRET, "cvt1");
 
 	return 0;
@@ -466,6 +481,7 @@ sleepthread(void *junk1, unsigned long junk2)
 	random_yielder(4);
 
 	for (j=0; j<NLOOPS; j++) {
+		kprintf_t(".");
 		for (i=0; i<NCVS; i++) {
 			lock_acquire(testlocks[i]);
 			random_yielder(4);
@@ -495,6 +511,7 @@ wakethread(void *junk1, unsigned long junk2)
 	random_yielder(4);
 
 	for (j=0; j<NLOOPS; j++) {
+		kprintf_t(".");
 		for (i=0; i<NCVS; i++) {
 			random_yielder(4);
 			P(gatesem);
@@ -567,18 +584,86 @@ cvtest2(int nargs, char **args)
 		testcvs[i] = NULL;
 	}
 
+	kprintf_t("\n");
 	success(test_status, SECRET, "cvt2");
 
 	return 0;
 }
 
-
-int rwtest(int nargs, char **args) {
+int
+cvtest3(int nargs, char **args) {
 	(void)nargs;
 	(void)args;
 
-	kprintf_n("rwt1 unimplemented\n");
-	success(FAIL, SECRET, "rwt1");
+	int i;
+	
+	kprintf_n("Starting cvt3...\n");
+	kprintf_n("(This test panics on success!)\n");
+	for (i=0; i<CREATELOOPS; i++) {
+		testlock = lock_create("testlock");
+		if (testlock == NULL) {
+			panic("lockt1: lock_create failed\n");
+		}
+		testcv = cv_create("testcv");
+		if (testcv == NULL) {
+			panic("cvt1: cv_create failed\n");
+		}
+		if (i != CREATELOOPS - 1) {
+			lock_destroy(testlock);
+			cv_destroy(testcv);
+		}
+	}
+
+	ksecprintf(SECRET, "Should panic...", "cvt3");
+	cv_wait(testcv, testlock);
+
+	/* Should not get here on success. */
+
+	success(FAIL, SECRET, "cvt3");
+
+	lock_destroy(testlock);
+	cv_destroy(testcv);
+	testcv = NULL;
+	testlock = NULL;
+
+	return 0;
+}
+
+int
+cvtest4(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
+
+	int i;
+	
+	kprintf_n("Starting cvt4...\n");
+	kprintf_n("(This test panics on success!)\n");
+	for (i=0; i<CREATELOOPS; i++) {
+		testlock = lock_create("testlock");
+		if (testlock == NULL) {
+			panic("lockt1: lock_create failed\n");
+		}
+		testcv = cv_create("testcv");
+		if (testcv == NULL) {
+			panic("cvt1: cv_create failed\n");
+		}
+		if (i != CREATELOOPS - 1) {
+			lock_destroy(testlock);
+			cv_destroy(testcv);
+		}
+	}
+
+	ksecprintf(SECRET, "Should panic...", "cvt4");
+	cv_broadcast(testcv, testlock);
+	
+	/* Should not get here on success. */
+	
+	success(FAIL, SECRET, "cvt4");
+
+	lock_destroy(testlock);
+	cv_destroy(testcv);
+	testcv = NULL;
+	testlock = NULL;
 
 	return 0;
 }
