@@ -378,6 +378,18 @@ cmd_kheapstats(int nargs, char **args)
 
 static
 int
+cmd_kheapused(int nargs, char **args)
+{
+	(void)nargs;
+	(void)args;
+
+	kheap_printused();
+
+	return 0;
+}
+
+static
+int
 cmd_kheapgeneration(int nargs, char **args)
 {
 	(void)nargs;
@@ -475,14 +487,18 @@ static const char *testmenu[] = {
 #if OPT_NET
 	"[net] Network test                  ",
 #endif
-	"[sy1] Semaphore test                ",
-	"[sy2] Lock test             (1)     ",
-	"[sy3] CV test               (1)     ",
-	"[sy4] CV test #2            (1)     ",
-	"[sy5] RW lock test          (1)     ",
+	"[sem1] Semaphore test               ",
+	"[lt1]  Lock test 1           (1)    ",
+	"[lt2]  Lock test 2 (panics)  (1)    ",
+	"[lt3]  Lock test 3 (panics)  (1)    ",
+	"[cvt1] CV test 1             (1)    ",
+	"[cvt2] CV test 2             (1)    ",
+	"[cvt3] CV test 3 (panics)    (1)    ",
+	"[cvt4] CV test 4 (panics)    (1)    ",
+	"[rwt1] RW lock test          (1)    ",
 #if OPT_SYNCHPROBS
-	"[sp1] Whalemating test      (1)     ",
-	"[sp2] Stoplight test        (1)     ",
+	"[sp1] Whalemating test       (1)    ",
+	"[sp2] Stoplight test         (1)    ",
 #endif
 	"[semu1-22] Semaphore unit tests     ",
 	"[fs1] Filesystem test               ",
@@ -537,6 +553,7 @@ static const char *mainmenu[] = {
 	"[?o] Operations menu                ",
 	"[?t] Tests menu                     ",
 	"[kh] Kernel heap stats              ",
+	"[khu] Kernel heap usage             ",
 	"[khgen] Next kernel heap generation ",
 	"[khdump] Dump kernel heap           ",
 	"[q] Quit and shut down              ",
@@ -589,6 +606,7 @@ static struct {
 
 	/* stats */
 	{ "kh",         cmd_kheapstats },
+	{ "khu",        cmd_kheapused },
 	{ "khgen",      cmd_kheapgeneration },
 	{ "khdump",     cmd_kheapdump },
 
@@ -607,13 +625,17 @@ static struct {
 	{ "tt1",	threadtest },
 	{ "tt2",	threadtest2 },
 	{ "tt3",	threadtest3 },
-	{ "sy1",	semtest },
 
 	/* synchronization assignment tests */
-	{ "sy2",	locktest },
-	{ "sy3",	cvtest },
-	{ "sy4",	cvtest2 },
-	{ "sy5",	rwtest },
+	{ "sem1",	semtest },
+	{ "lt1",	locktest },
+	{ "lt2",	locktest2 },
+	{ "lt3",	locktest3 },
+	{ "cvt1",	cvtest },
+	{ "cvt2",	cvtest2 },
+	{ "cvt3",	cvtest3 },
+	{ "cvt4",	cvtest4 },
+	{ "rwt1",	rwtest },
 #if OPT_SYNCHPROBS
 	{ "sp1",	whalemating },
 	{ "sp2",	stoplight },

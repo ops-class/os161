@@ -442,6 +442,7 @@ file		test/threadlisttest.c
 file		test/threadtest.c
 file		test/tt3.c
 file		test/synchtest.c
+file		test/rwtest.c
 file		test/semunit.c
 file		test/hmacunit.c
 file		test/kmalloctest.c

@@ -45,6 +45,6 @@
  */
 
 #undef SECRET_TESTING
-#define SECRET 0
+#define SECRET "SECRET"
 
 #endif /* _SECRET_H_ */

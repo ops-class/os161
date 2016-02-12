@@ -31,6 +31,8 @@
 #include <lib.h>
 #include <spinlock.h>
 #include <vm.h>
+#include <kern/secret.h>
+#include <test.h>
 
 /*
  * Kernel malloc.
@@ -743,8 +745,8 @@ kheap_dumpall(void)
  * Print the allocated/freed map of a single kernel heap page.
  */
 static
-void
-subpage_stats(struct pageref *pr)
+unsigned long
+subpage_stats(struct pageref *pr, bool quiet)
 {
 	vaddr_t prpage, fla;
 	struct freelist *fl;
@@ -780,18 +782,21 @@ subpage_stats(struct pageref *pr)
 		}
 	}
 
-	kprintf("at 0x%08lx: size %-4lu  %u/%u free\n",
-		(unsigned long)prpage, (unsigned long) sizes[blktype],
-		(unsigned) pr->nfree, n);
-	kprintf("   ");
-	for (i=0; i<n; i++) {
-		int val = (freemap[i/32] & (1<<(i%32)))!=0;
-		kprintf("%c", val ? '.' : '*');
-		if (i%64==63 && i<n-1) {
-			kprintf("\n   ");
+	if (!quiet) {
+		kprintf("at 0x%08lx: size %-4lu  %u/%u free\n",
+				(unsigned long)prpage, (unsigned long) sizes[blktype],
+				(unsigned) pr->nfree, n);
+		kprintf("   ");
+		for (i=0; i<n; i++) {
+			int val = (freemap[i/32] & (1<<(i%32)))!=0;
+			kprintf("%c", val ? '.' : '*');
+			if (i%64==63 && i<n-1) {
+				kprintf("\n   ");
+			}
 		}
+		kprintf("\n");
 	}
-	kprintf("\n");
+	return ((unsigned long)sizes[blktype] * (n - (unsigned) pr->nfree));
 }
 
 /*
@@ -808,10 +813,32 @@ kheap_printstats(void)
 	kprintf("Subpage allocator status:\n");
 
 	for (pr = allbase; pr != NULL; pr = pr->next_all) {
-		subpage_stats(pr);
+		subpage_stats(pr, false);
 	}
 
 	spinlock_release(&kmalloc_spinlock);
+}
+
+/*
+ * Print number of used heap bytes.
+ */
+void
+kheap_printused(void)
+{
+	struct pageref *pr;
+	unsigned long total = 0;
+	/* print the whole thing with interrupts off */
+	spinlock_acquire(&kmalloc_spinlock);
+
+	for (pr = allbase; pr != NULL; pr = pr->next_all) {
+		total += subpage_stats(pr, true);
+	}
+
+	spinlock_release(&kmalloc_spinlock);
+
+	char total_string[32];
+	snprintf(total_string, sizeof(total_string), "%lu", total);
+	ksecprintf(SECRET, total_string, "khu");
 }
 
 ////////////////////////////////////////
