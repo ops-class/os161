@@ -30,4 +30,4 @@ options sfs			# Always use the file system
 #options netfs			# You might write this as a project.
 
 options dumbvm			# Chewing gum and baling wire.
-#options synchprobs # Uncomment to enable ASST1 synchronization problems
+options synchprobs # Uncomment to enable ASST1 synchronization problems

@@ -32,16 +32,25 @@ struct spinlock status_lock;
 static bool test_status = FAIL;
 const char *test_message;
 
+static
+bool
+failif(bool condition, const char *message) {
+	if (condition) {
+		spinlock_acquire(&status_lock);
+		test_status = FAIL;
+		test_message = message;
+		spinlock_release(&status_lock);
+	}
+	return condition;
+}
+
 /*
  * Helper function to initialize the thread pool.
  */
 static
 void
 initialize_thread(volatile void* threads[], uint32_t index) {
-	if (threads[index] != NULL) {
-		test_status = FAIL;
-		test_message = "failed: incorrect thread type";
-	}
+	failif((threads[index] != NULL), "failed: incorrect thread type");
 	threads[index] = curthread->t_stack;
 }
 
@@ -51,10 +60,7 @@ initialize_thread(volatile void* threads[], uint32_t index) {
 static
 void
 check_thread(volatile void* threads[], uint32_t index) {
-	if (threads[index] != curthread->t_stack) {
-		test_status = FAIL;
-		test_message = "failed: incorrect thread type";
-	}
+	failif((threads[index] != curthread->t_stack), "failed: incorrect thread type");
 }
 
 /*
@@ -87,10 +93,7 @@ static struct semaphore *matcher_sem;
 static
 void
 check_role(uint32_t index, int role) {
-	if (whale_roles[index] != role) {
-		test_status = FAIL;
-		test_message = "failed: incorrect role";
-	}
+	failif((whale_roles[index] != role), "failed: incorrect role");
 }
 
 static
@@ -232,12 +235,8 @@ matchmaker_end(uint32_t index) {
 
 static
 void
-check_zero(int count, const char *name) {
-	(void)name;
-	if (count != 0) {
-		test_status = FAIL;
-		test_message = "failed: not all threads completed";
-	}
+check_zero(int count) {
+	failif((count != 0), "failed: not all threads completed");
 }
 
 int
@@ -321,9 +320,7 @@ whalemating(int nargs, char **args) {
 		}
 		lock_release(testlock);
 	}
-	if (loop_status == FAIL) {
-		test_status = FAIL;
-		test_message = "failed: uncoordinated matchmaking is occurring";
+	if (failif((loop_status == FAIL), "failed: uncoordinated matchmaking is occurring")) {
 		goto done;
 	}
 	
@@ -368,9 +365,7 @@ whalemating(int nargs, char **args) {
 		}
 		lock_release(testlock);
 	}
-	if (loop_status == FAIL) {
-		test_status = FAIL;
-		test_message = "failed: uncoordinating matchmaking is occurring";
+	if (failif((loop_status == FAIL), "failed: uncoordinated matchmaking is occurring")) {
 		goto done;
 	}
 	
@@ -392,12 +387,12 @@ whalemating(int nargs, char **args) {
 
 	whalemating_cleanup();
 
-	check_zero(male_start_count - NMATING, "male");
-	check_zero(female_start_count - NMATING, "female");
-	check_zero(matchmaker_start_count - NMATING, "matchmaker");
-	check_zero(male_start_count - male_end_count, "male");
-	check_zero(female_start_count - female_end_count, "female");
-	check_zero(matchmaker_start_count - matchmaker_end_count, "matchmaker");
+	check_zero(male_start_count - NMATING);
+	check_zero(female_start_count - NMATING);
+	check_zero(matchmaker_start_count - NMATING);
+	check_zero(male_start_count - male_end_count);
+	check_zero(female_start_count - female_end_count);
+	check_zero(matchmaker_start_count - matchmaker_end_count);
 
 	if (match_count == NMATING) {
 		for (i = 0; i < NMATING; i++) {
@@ -405,18 +400,10 @@ whalemating(int nargs, char **args) {
 			j = i * 3;
 			int male = match_status[j];
 			int female = match_status[j + 1];
-			if (male == 0 || female == 0) {
-				spinlock_acquire(&status_lock);
-				test_status = FAIL;
-				test_message = "failed: not all males were matched";
-				spinlock_release(&status_lock);
-			}
+			failif((male == 0 || female == 0), "failed: not all males were matched");
 		}
 	} else {
-		spinlock_acquire(&status_lock);
-		test_status = FAIL;
-		test_message = "failed: not all males were matched";
-		spinlock_release(&status_lock);
+		failif(true, "failed: not all males were matched");
 	}
 
 done:
@@ -474,10 +461,7 @@ void
 check_intersection() {
 	int n = 0;
 	for (int i = 0; i < NUM_QUADRANTS; i++) {
-		if (quadrant_array[i] > 1) {
-			test_message = "failed: collision";
-			test_status = FAIL;
-		}
+		failif((quadrant_array[i] > 1), "failed: collision");
 		n += quadrant_array[i];
 	}
 	max_car_count = n > max_car_count ? n : max_car_count;
@@ -569,39 +553,26 @@ inQuadrant(int quadrant, uint32_t index) {
 	int target_quadrant = car_directions[index];
 	switch (car_turn_times[index]) {
 		case 0:
-		if (pre_quadrant != UNKNOWN_CAR) {
-			test_message = "failed: invalid turn";
-			test_status = FAIL;
-		}
-		break;
+			failif((pre_quadrant != UNKNOWN_CAR), "failed: invalid turn");
+			break;
 		case 1:
-		if (pre_quadrant != target_quadrant) {
-			test_message = "failed: invalid turn";
-			test_status = FAIL;
-		}
-		target_quadrant = (target_quadrant + NUM_QUADRANTS - 1) % NUM_QUADRANTS;
-		break;
+			failif((pre_quadrant != target_quadrant), "failed: invalid turn");
+			target_quadrant = (target_quadrant + NUM_QUADRANTS - 1) % NUM_QUADRANTS;
+			break;
 		case 2:
-		target_quadrant = (target_quadrant + NUM_QUADRANTS - 1) % NUM_QUADRANTS;
-		if (pre_quadrant != target_quadrant) {
-			test_message = "failed: invalid turn";
-			test_status = FAIL;
-		}
-		target_quadrant = (target_quadrant + NUM_QUADRANTS - 1) % NUM_QUADRANTS;
-		break;
+			target_quadrant = (target_quadrant + NUM_QUADRANTS - 1) % NUM_QUADRANTS;
+			failif((pre_quadrant != target_quadrant), "failed: invalid turn");
+			target_quadrant = (target_quadrant + NUM_QUADRANTS - 1) % NUM_QUADRANTS;
+			break;
 		default:
-		test_status = FAIL;
-		break;
+			failif(true, "failed: invalid turn");
+			break;
 	}
-	if (quadrant != target_quadrant) {
-		test_status = FAIL;
-	}
+	failif((quadrant != target_quadrant), "failed: invalid turn");
 	car_turn_times[index]++;
+	
+	failif((quadrant_array[quadrant] > 0), "failed: collision");
 
-	if (quadrant_array[quadrant] > 0) {
-		test_message = "failed: collision";
-		test_status = FAIL;
-	}
 	quadrant_array[quadrant]++;
 	car_locations[index] = quadrant;
 	all_quadrant++;
@@ -619,26 +590,17 @@ leaveIntersection(uint32_t index) {
 
 	switch (car_turns[index]) {
 		case GO_STRAIGHT:
-		if (car_turn_times[index] != 2) {
-			test_message = "failed: incorrect turn";
-			test_status = FAIL;
-		}
-		break;
+			failif((car_turn_times[index] != 2), "failed: incorrect turn");
+			break;
 		case TURN_LEFT:
-		if (car_turn_times[index] != 3) {
-			test_message = "failed: incorrect turn";
-			test_status = FAIL;
-		}
-		break;
+			failif((car_turn_times[index] != 3), "failed: incorrect turn");
+			break;
 		case TURN_RIGHT:
-		if (car_turn_times[index] != 1) {
-			test_message = "failed: incorrect turn";
-			test_status = FAIL;
-		}
-		break;
+			failif((car_turn_times[index] != 1), "failed: incorrect turn");
+			break;
 		default:
-		test_status = FAIL;
-		break;
+			failif(true, "failed: incorrect turn");
+			break;
 	}
 
 	car_locations[index] = PASSED_CAR;
@@ -722,18 +684,10 @@ int stoplight(int nargs, char **args) {
 	for (i = 0; i < NCARS; i++) {
 		passed += car_locations[i] == PASSED_CAR ? 1 : 0;
 	}
-	if (test_status == SUCCESS) {
-		if (passed != NCARS) {
-			test_message = "failed: not enough cars";
-			test_status = FAIL;
-		} else if (all_quadrant != required_quadrant) {
-			test_message = "failed: didn't do the right turns";
-			test_status = FAIL;
-		} else if (max_car_count <= 1) {
-			test_message = "failed: no concurrency achieved";
-			test_status = FAIL;
-		}
-	}
+	if ((test_status == SUCCESS) &&
+			(!failif((passed != NCARS), "failed: not enough cars")) &&
+			(!(failif((all_quadrant != required_quadrant), "failed: didn't do the right turns"))) &&
+			(!(failif((max_car_count <= 1), "failed: no concurrency achieved")))) {};
 
 	lock_destroy(testlock);
 	cv_destroy(startcv);

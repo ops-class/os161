@@ -66,6 +66,17 @@ static bool test_status = FAIL;
 static unsigned long semtest_current;
 
 static
+bool
+failif(bool condition) {
+	if (condition) {
+		spinlock_acquire(&status_lock);
+		test_status = FAIL;
+		spinlock_release(&status_lock);
+	}
+	return condition;
+}
+
+static
 void
 semtestthread(void *junk, unsigned long num)
 {
@@ -86,11 +97,7 @@ semtestthread(void *junk, unsigned long num)
 		kprintf_t(".");
 		kprintf_n("%2lu", num);
 		random_yielder(4);
-		if (semtest_current != num) {
-			spinlock_acquire(&status_lock);
-			test_status = FAIL;
-			spinlock_release(&status_lock);
-		}
+		failif((semtest_current != num));
 	}
 	kprintf_n("\n");
 
@@ -224,9 +231,7 @@ locktestthread(void *junk, unsigned long num)
 fail:
 	lock_release(testlock);
 fail2:
-	spinlock_acquire(&status_lock);
-	test_status = FAIL;
-	spinlock_release(&status_lock);
+	failif(true);
 	V(donesem);
 	return;
 }
@@ -373,10 +378,8 @@ cvtestthread(void *junk, unsigned long num)
 			/* Require at least 2000 cpu cycles (we're 25mhz) */
 			if (ts2.tv_sec == 0 && ts2.tv_nsec < 40*2000) {
 				kprintf_n("cv_wait took only %u ns\n", ts2.tv_nsec);
-				kprintf_n("That's too fast... you must be " "busy-looping\n");
-				spinlock_acquire(&status_lock);
-				test_status = FAIL;
-				spinlock_release(&status_lock);
+				kprintf_n("That's too fast... you must be busy-looping\n");
+				failif(true);
 				V(donesem);
 				thread_exit();
 			}
@@ -394,12 +397,7 @@ cvtestthread(void *junk, unsigned long num)
 		random_yielder(4);
 		cv_broadcast(testcv, testlock);
 		random_yielder(4);
-		
-		spinlock_acquire(&status_lock);
-		if (testval1 != testval2) {
-			test_status = FAIL;
-		}
-		spinlock_release(&status_lock);
+		failif((testval1 != testval2));	
 
 		kprintf_n("Thread %lu\n", testval2);
 		testval1 = (testval1 + NTHREADS - 1) % NTHREADS;
@@ -532,12 +530,8 @@ wakethread(void *junk1, unsigned long junk2)
 			random_yielder(4);
 			lock_acquire(testlocks[i]);
 			random_yielder(4);
-			spinlock_acquire(&status_lock);
 			testval4--;
-			if (testval4 != 0) {
-				test_status = FAIL;
-			}
-			spinlock_release(&status_lock);
+			failif((testval4 != 0));
 			cv_signal(testcvs[i], testlocks[i]);
 			random_yielder(4);
 			lock_release(testlocks[i]);
