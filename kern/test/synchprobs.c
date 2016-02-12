@@ -685,7 +685,7 @@ int stoplight(int nargs, char **args) {
 		passed += car_locations[i] == PASSED_CAR ? 1 : 0;
 	}
 	if ((test_status == SUCCESS) &&
-			(!failif((passed != NCARS), "failed: not enough cars")) &&
+			(!(failif((passed != NCARS), "failed: not enough cars"))) &&
 			(!(failif((all_quadrant != required_quadrant), "failed: didn't do the right turns"))) &&
 			(!(failif((max_car_count <= 1), "failed: no concurrency achieved")))) {};
 
