@@ -15,8 +15,8 @@ tprintf(const char *fmt, ...)
 {
 	int chars;
 	va_list ap;
-	
-	if (SECRET != 0) {
+
+	if (strcmp(SECRET, "") != 0) {
 		return 0;
 	}
 	
@@ -33,8 +33,8 @@ nprintf(const char *fmt, ...)
 {
 	int chars;
 	va_list ap;
-	
-	if (SECRET == 0) {
+
+	if (strcmp(SECRET, "") == 0) {
 		return 0;
 	}
 	
@@ -51,9 +51,9 @@ printsf(const char *fmt, ...)
 {
 	int chars;
 	va_list ap;
-	
-	if (SECRET != 0) {
-		printf("%llu: ", (unsigned long long)SECRET);
+
+	if (strcmp(SECRET, "") != 0) {
+		printf("%s: ", SECRET);
 	}
 	va_start(ap, fmt);
 	chars = vprintf(fmt, ap);
