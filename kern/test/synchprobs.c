@@ -278,7 +278,7 @@ whalemating(int nargs, char **args) {
 	test_message = "";
 
 	whalemating_init();
-	
+
 	/* Start males and females only. */
 	for (i = 0; i < 2; i++) {
 		for (j = 0; j < NMATING; j++) {
@@ -302,12 +302,12 @@ whalemating(int nargs, char **args) {
 		}
 	}
 	
-	/* Wait for males and females to start. */	
+	/* Wait for males and females to start. */
 	for (i = 0; i < NMATING * 2; i++) {
 		kprintf_t(".");
 		P(startsem);
 	}
-	
+
 	/* Make sure nothing is happening... */
 	loop_status = SUCCESS;
 	for (i = 0; i < CHECK_TIMES && loop_status == SUCCESS; i++) {
@@ -323,7 +323,7 @@ whalemating(int nargs, char **args) {
 	if (failif((loop_status == FAIL), "failed: uncoordinated matchmaking is occurring")) {
 		goto done;
 	}
-	
+
 	/* Create the matchmakers */
 	for (j = 0; j < NMATING; j++) {
 		kprintf_t(".");
@@ -336,11 +336,11 @@ whalemating(int nargs, char **args) {
 		}
 		total_count++;
 	}
-	
+
 	/*
 	 * Release a random number of matchmakers and wait for them and their
 	 * matches to finish.
-	 */ 
+	 */
 	int pivot = (random() % (NMATING - 2)) + 1;
 	for (i = 0; i < pivot; i++) {
 		kprintf_t(".");
@@ -351,8 +351,8 @@ whalemating(int nargs, char **args) {
 		P(endsem);
 		total_count--;
 	}
-	
-	/* Make sure nothing else is happening... */	
+
+	/* Make sure nothing else is happening... */
 	loop_status = SUCCESS;
 	for (i = 0; i < CHECK_TIMES && loop_status == SUCCESS; i++) {
 		kprintf_t(".");
@@ -368,7 +368,7 @@ whalemating(int nargs, char **args) {
 	if (failif((loop_status == FAIL), "failed: uncoordinated matchmaking is occurring")) {
 		goto done;
 	}
-	
+
 	/*
 	 * Release the rest of the matchmakers and wait for everyone to finish.
 	 */
@@ -415,7 +415,7 @@ done:
 	sem_destroy(startsem);
 	sem_destroy(endsem);
 	sem_destroy(matcher_sem);
-	
+
 	kprintf_t("\n");
 	if (test_status != SUCCESS) {
 		ksecprintf(SECRET, test_message, "sp1");
@@ -570,7 +570,7 @@ inQuadrant(int quadrant, uint32_t index) {
 	}
 	failif((quadrant != target_quadrant), "failed: invalid turn");
 	car_turn_times[index]++;
-	
+
 	failif((quadrant_array[quadrant] > 0), "failed: collision");
 
 	quadrant_array[quadrant]++;

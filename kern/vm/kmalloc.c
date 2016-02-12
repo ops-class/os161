@@ -781,8 +781,8 @@ subpage_stats(struct pageref *pr, bool quiet)
 			freemap[index/32] |= (1<<(index%32));
 		}
 	}
-	
-	if (!quiet) {	
+
+	if (!quiet) {
 		kprintf("at 0x%08lx: size %-4lu  %u/%u free\n",
 				(unsigned long)prpage, (unsigned long) sizes[blktype],
 				(unsigned) pr->nfree, n);
@@ -811,7 +811,7 @@ kheap_printstats(void)
 	spinlock_acquire(&kmalloc_spinlock);
 
 	kprintf("Subpage allocator status:\n");
-	
+
 	for (pr = allbase; pr != NULL; pr = pr->next_all) {
 		subpage_stats(pr, false);
 	}
@@ -820,7 +820,7 @@ kheap_printstats(void)
 }
 
 /*
- * Print the whole heap.
+ * Print number of used heap bytes.
  */
 void
 kheap_printused(void)
@@ -829,13 +829,13 @@ kheap_printused(void)
 	unsigned long total = 0;
 	/* print the whole thing with interrupts off */
 	spinlock_acquire(&kmalloc_spinlock);
-	
+
 	for (pr = allbase; pr != NULL; pr = pr->next_all) {
 		total += subpage_stats(pr, true);
 	}
 
 	spinlock_release(&kmalloc_spinlock);
-	
+
 	char total_string[32];
 	snprintf(total_string, sizeof(total_string), "%lu", total);
 	ksecprintf(SECRET, total_string, "khu");

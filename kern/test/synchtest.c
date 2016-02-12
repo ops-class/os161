@@ -83,7 +83,7 @@ semtestthread(void *junk, unsigned long num)
 	(void)junk;
 
 	int i;
-	
+
 	random_yielder(4);
 
 	/*
@@ -111,7 +111,7 @@ semtest(int nargs, char **args)
 	(void)args;
 
 	int i, result;
-	
+
 	kprintf_n("Starting sem1...\n");
 	for (i=0; i<CREATELOOPS; i++) {
 		kprintf_t(".");
@@ -207,7 +207,7 @@ locktestthread(void *junk, unsigned long num)
 			goto fail;
 		}
 		random_yielder(4);
-		
+
 		if (!(lock_do_i_hold(testlock))) {
 			goto fail;
 		}
@@ -215,7 +215,7 @@ locktestthread(void *junk, unsigned long num)
 
 		lock_release(testlock);
 	}
-	
+
 	/* Check for solutions that don't track ownership properly */
 
 	for (i=0; i<NLOCKLOOPS; i++) {
@@ -244,7 +244,7 @@ locktest(int nargs, char **args)
 	(void)args;
 
 	int i, result;
-	
+
 	kprintf_n("Starting lt1...\n");
 	for (i=0; i<CREATELOOPS; i++) {
 		kprintf_t(".");
@@ -275,7 +275,7 @@ locktest(int nargs, char **args)
 		kprintf_t(".");
 		P(donesem);
 	}
-	
+
 	lock_destroy(testlock);
 	sem_destroy(donesem);
 	testlock = NULL;
@@ -293,7 +293,7 @@ locktest2(int nargs, char **args) {
 	(void)args;
 
 	int i;
-	
+
 	kprintf_n("Starting lt2...\n");
 	kprintf_n("(This test panics on success!)\n");
 	for (i=0; i<CREATELOOPS; i++) {
@@ -305,12 +305,12 @@ locktest2(int nargs, char **args) {
 			lock_destroy(testlock);
 		}
 	}
-	
+
 	ksecprintf(SECRET, "Should panic...", "lt2");
 	lock_release(testlock);
-	
+
 	/* Should not get here on success. */
-	
+
 	success(FAIL, SECRET, "lt2");
 
 	lock_destroy(testlock);
@@ -323,9 +323,9 @@ int
 locktest3(int nargs, char **args) {
 	(void)nargs;
 	(void)args;
-	
+
 	int i;
-	
+
 	kprintf_n("Starting lt3...\n");
 	kprintf_n("(This test panics on success!)\n");
 	for (i=0; i<CREATELOOPS; i++) {
@@ -341,9 +341,9 @@ locktest3(int nargs, char **args) {
 	ksecprintf(SECRET, "Should panic...", "lt3");
 	lock_acquire(testlock);
 	lock_destroy(testlock);
-	
+
 	/* Should not get here on success. */
-	
+
 	success(FAIL, SECRET, "lt3");
 
 	testlock = NULL;
@@ -397,7 +397,7 @@ cvtestthread(void *junk, unsigned long num)
 		random_yielder(4);
 		cv_broadcast(testcv, testlock);
 		random_yielder(4);
-		failif((testval1 != testval2));	
+		failif((testval1 != testval2));
 
 		kprintf_n("Thread %lu\n", testval2);
 		testval1 = (testval1 + NTHREADS - 1) % NTHREADS;
@@ -411,9 +411,9 @@ cvtest(int nargs, char **args)
 {
 	(void)nargs;
 	(void)args;
-	
+
 	int i, result;
-	
+
 	kprintf_n("Starting cvt1...\n");
 	for (i=0; i<CREATELOOPS; i++) {
 		kprintf_t(".");
@@ -450,14 +450,14 @@ cvtest(int nargs, char **args)
 		kprintf_t(".");
 		P(donesem);
 	}
-	
+
 	lock_destroy(testlock);
 	cv_destroy(testcv);
 	sem_destroy(donesem);
 	testlock = NULL;
 	testcv = NULL;
 	donesem = NULL;
-	
+
 	kprintf_t("\n");
 	success(test_status, SECRET, "cvt1");
 
@@ -667,9 +667,9 @@ cvtest4(int nargs, char **args) {
 
 	ksecprintf(SECRET, "Should panic...", "cvt4");
 	cv_broadcast(testcv, testlock);
-	
+
 	/* Should not get here on success. */
-	
+
 	success(FAIL, SECRET, "cvt4");
 
 	lock_destroy(testlock);
