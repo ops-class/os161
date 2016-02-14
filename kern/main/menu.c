@@ -489,12 +489,12 @@ static const char *testmenu[] = {
 #endif
 	"[sem1] Semaphore test               ",
 	"[lt1]  Lock test 1           (1)    ",
-	"[lt2]  Lock test 2 (panics)  (1)    ",
-	"[lt3]  Lock test 3 (panics)  (1)    ",
+	"[lt2]  Lock test 2 (*)       (1)    ",
+	"[lt3]  Lock test 3 (*)       (1)    ",
 	"[cvt1] CV test 1             (1)    ",
 	"[cvt2] CV test 2             (1)    ",
-	"[cvt3] CV test 3 (panics)    (1)    ",
-	"[cvt4] CV test 4 (panics)    (1)    ",
+	"[cvt3] CV test 3 (*)         (1)    ",
+	"[cvt4] CV test 4 (*)         (1)    ",
 	"[rwt1] RW lock test          (1)    ",
 #if OPT_SYNCHPROBS
 	"[sp1] Whalemating test       (1)    ",
@@ -521,6 +521,7 @@ cmd_testmenu(int n, char **a)
 	showmenu("OS/161 tests menu", testmenu);
 	kprintf("    (1) These tests will fail until you finish the "
 		"synch assignment.\n");
+	kprintf("    (*) These tests will panic on success.\n");
 	kprintf("\n");
 
 	return 0;
@@ -675,7 +676,7 @@ static struct {
 
 	/* HMAC unit tests */
 	{ "hm1",	hmacu1 },
-	
+
 #if OPT_AUTOMATIONTEST
 	/* automation tests */
 	{ "dl",	dltest },
