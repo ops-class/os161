@@ -21,3 +21,33 @@ int rwtest(int nargs, char **args) {
 
 	return 0;
 }
+
+int rwtest2(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
+
+	kprintf_n("rwt2 unimplemented\n");
+	success(FAIL, SECRET, "rwt2");
+
+	return 0;
+}
+
+int rwtest3(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
+
+	kprintf_n("rwt3 unimplemented\n");
+	success(FAIL, SECRET, "rwt3");
+
+	return 0;
+}
+
+int rwtest4(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
+
+	kprintf_n("rwt4 unimplemented\n");
+	success(FAIL, SECRET, "rwt4");
+
+	return 0;
+}

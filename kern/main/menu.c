@@ -489,13 +489,16 @@ static const char *testmenu[] = {
 #endif
 	"[sem1] Semaphore test               ",
 	"[lt1]  Lock test 1           (1)    ",
-	"[lt2]  Lock test 2 (*)       (1)    ",
-	"[lt3]  Lock test 3 (*)       (1)    ",
+	"[lt2]  Lock test 2           (1*)   ",
+	"[lt3]  Lock test 3           (1*)   ",
 	"[cvt1] CV test 1             (1)    ",
 	"[cvt2] CV test 2             (1)    ",
-	"[cvt3] CV test 3 (*)         (1)    ",
-	"[cvt4] CV test 4 (*)         (1)    ",
-	"[rwt1] RW lock test          (1)    ",
+	"[cvt3] CV test 3             (1*)   ",
+	"[cvt4] CV test 4             (1*)   ",
+	"[rwt1] RW lock test          (1?)   ",
+	"[rwt2] RW lock test 2        (1?)   ",
+	"[rwt3] RW lock test 3        (1?)   ",
+	"[rwt4] RW lock test 4        (1?)   ",
 #if OPT_SYNCHPROBS
 	"[sp1] Whalemating test       (1)    ",
 	"[sp2] Stoplight test         (1)    ",
@@ -522,6 +525,7 @@ cmd_testmenu(int n, char **a)
 	kprintf("    (1) These tests will fail until you finish the "
 		"synch assignment.\n");
 	kprintf("    (*) These tests will panic on success.\n");
+	kprintf("    (?) These tests are left to you to implement.\n");
 	kprintf("\n");
 
 	return 0;
@@ -637,6 +641,9 @@ static struct {
 	{ "cvt3",	cvtest3 },
 	{ "cvt4",	cvtest4 },
 	{ "rwt1",	rwtest },
+	{ "rwt2",	rwtest2 },
+	{ "rwt3",	rwtest3 },
+	{ "rwt4",	rwtest4 },
 #if OPT_SYNCHPROBS
 	{ "sp1",	whalemating },
 	{ "sp2",	stoplight },
