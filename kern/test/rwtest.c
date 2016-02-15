@@ -12,6 +12,10 @@
 #include <kern/secret.h>
 #include <spinlock.h>
 
+/*
+ * Use these stubs to test your reader-writer locks.
+ */
+
 int rwtest(int nargs, char **args) {
 	(void)nargs;
 	(void)args;
@@ -48,6 +52,16 @@ int rwtest4(int nargs, char **args) {
 
 	kprintf_n("rwt4 unimplemented\n");
 	success(FAIL, SECRET, "rwt4");
+
+	return 0;
+}
+
+int rwtest5(int nargs, char **args) {
+	(void)nargs;
+	(void)args;
+
+	kprintf_n("rwt5 unimplemented\n");
+	success(FAIL, SECRET, "rwt5");
 
 	return 0;
 }
