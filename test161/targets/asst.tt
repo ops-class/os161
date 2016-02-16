@@ -1,0 +1,35 @@
+---
+name: asst1
+version: 1
+points: 50
+type: asst
+kconfig: ASST1
+tests:
+  - id: sync/lt1.t
+    points: 8
+  - id: sync/lt2.t
+    points: 1
+  - id: sync/lt3.t
+    points: 1
+  - id: sync/cvt1.t
+    points: 4
+  - id: sync/cvt2.t
+    points: 4
+  - id: sync/cvt3.t
+    points: 1
+  - id: sync/cvt4.t
+    points: 1
+  - id: sync/rwt1.t
+    points: 5
+  - id: sync/rwt2.t
+    points: 2
+  - id: sync/rwt3.t
+    points: 1
+  - id: sync/rwt4.t
+    points: 1
+  - id: sync/rwt5.t
+    points: 1
+  - id: syncprobs/sp1.t
+    points: 10
+  - id: syncprobs/sp2.t
+    points: 10

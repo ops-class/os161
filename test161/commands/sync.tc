@@ -1,0 +1,38 @@
+---
+templates:
+  - name: sem1
+  - name: lt1
+  - name: lt2
+    panics: yes
+    output:
+      - text: "lt2: Should panic..."
+  - name: lt3
+    panics: yes
+    output:
+      - text: "lt3: Should panic..."
+  - name: cvt1
+  - name: cvt2
+  - name: cvt3
+    panics: yes
+    output:
+      - text: "cvt3: Should panic..."
+  - name: cvt4
+    panics: yes
+    output:
+      - text: "cvt4: Should panic..."
+  - name: rwt1
+  - name: rwt2
+  - name: rwt3
+    panics: yes
+    output:
+      - text: "rwt3: Should panic..."
+  - name: rwt4
+    panics: yes
+    output:
+      - text: "rwt4: Should panic..."
+  - name: rwt5
+    panics: yes
+    output:
+      - text: "rwt5: Should panic..."
+  - name: sp1
+  - name: sp2
