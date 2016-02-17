@@ -411,8 +411,6 @@ cpu_hatch(unsigned software_number)
 	spl0();
 	cpu_identify(buf, sizeof(buf));
 
-	kprintf("cpu%u: %s\n", software_number, buf);
-
 	V(cpu_startup_sem);
 	thread_exit();
 }
@@ -436,6 +434,7 @@ thread_start_cpus(void)
 		P(cpu_startup_sem);
 	}
 	sem_destroy(cpu_startup_sem);
+	kprintf("%d cpus online\n", i + 1);
 	cpu_startup_sem = NULL;
 }
 
@@ -1165,7 +1164,6 @@ interprocessor_interrupt(void)
 				curcpu->c_number);
 		}
 		spinlock_release(&curcpu->c_runqueue_lock);
-		kprintf("cpu%d: offline.\n", curcpu->c_number);
 		cpu_halt();
 	}
 	if (bits & (1U << IPI_UNIDLE)) {
