@@ -434,7 +434,11 @@ thread_start_cpus(void)
 		P(cpu_startup_sem);
 	}
 	sem_destroy(cpu_startup_sem);
-	kprintf("%d cpus online\n", i + 1);
+	if (i == 0) {
+		kprintf("1 CPU online\n");
+	} else {
+		kprintf("%d CPUs online\n", i + 1);
+	}
 	cpu_startup_sem = NULL;
 }
 
