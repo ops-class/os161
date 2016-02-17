@@ -1,6 +1,6 @@
 ---
 name: "Stoplight Test"
-tags: [syncprobs]
+tags: [synchprobs]
 depends: [boot, semaphores, locks, cvs]
 ---
 sp2

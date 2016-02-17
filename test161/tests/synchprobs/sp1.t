@@ -1,6 +1,6 @@
 ---
 name: "Whalemating Test"
-tags: [syncprobs]
+tags: [synchprobs]
 depends: [boot, semaphores, locks]
 ---
 sp1
