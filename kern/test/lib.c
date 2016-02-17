@@ -35,18 +35,26 @@ ksecprintf(const char * secret, const char * msg, const char * name)
 int
 ksecprintf(const char * secret, const char * msg, const char * name)
 {
-	char *hash;
-	char *salt;
+	char *hash, *salt, *fullmsg;
 	int res;
+	size_t len;
 
-	res = hmac_salted(msg, strlen(msg), secret, strlen(secret), &hash, &salt);
-	if (res)
-		return -res;
+	hash = salt = fullmsg = NULL;
+
+	// test161 expects "name: msg"
+	len = strlen(name) + strlen(msg) + 3;	// +3 for " :" and null terminator
+	fullmsg = (char *)kmalloc(len);
+	KASSERT(fullmsg != NULL);
+	snprintf(fullmsg, len, "%s: %s", name, msg);
+
+	res = hmac_salted(fullmsg, len-1, secret, strlen(secret), &hash, &salt);
+	KASSERT(res == 0);
 
 	res = kprintf("(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
 
 	kfree(hash);
 	kfree(salt);
+	kfree(fullmsg);
 
 	return res;
 }
