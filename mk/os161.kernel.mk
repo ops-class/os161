@@ -164,8 +164,8 @@ clean:
 	rm -f *.o *.a tags $(KERNEL)
 	rm -rf includelinks
 	@ABSTOP=$$(readlink -f $(TOP))
-	unlink $(OSTREE)/.src
-	unlink $(TOP)/.root
+	rm -f $(OSTREE)/.src
+	rm -f $(TOP)/.root
 
 distclean cleandir: clean
 	rm -f .depend
