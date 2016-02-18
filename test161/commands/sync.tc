@@ -19,6 +19,7 @@ templates:
     panics: yes
     output:
       - text: "cvt4: Should panic..."
+  - name: cvt5
   - name: rwt1
   - name: rwt2
   - name: rwt3
