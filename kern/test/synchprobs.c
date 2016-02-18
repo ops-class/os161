@@ -80,6 +80,8 @@ static volatile int female_end_count;
 static volatile int matchmaker_start_count;
 static volatile int matchmaker_end_count;
 static volatile int match_count;
+static volatile int concurrent_matchmakers;
+static volatile int max_concurrent_matchmakers;
 
 static volatile void* whale_threads[3 * NMATING];
 static volatile int whale_roles[3 * NMATING];
@@ -203,6 +205,10 @@ matchmaker_start(uint32_t index) {
 	check_thread(whale_threads, index);
 	check_role(index, MATCHMAKER);
 	matchmaker_start_count++;
+	concurrent_matchmakers++;
+	if (concurrent_matchmakers > max_concurrent_matchmakers) {
+		max_concurrent_matchmakers = concurrent_matchmakers;
+	}
 	kprintf_n("%s starting\n", curthread->t_name);
 	kprintf_t(".");
 	lock_release(testlock);
@@ -216,9 +222,9 @@ matchmaker_end(uint32_t index) {
 	lock_acquire(testlock);
 	check_thread(whale_threads, index);
 	check_role(index, MATCHMAKER);
-
 	match_count++;
 	matchmaker_end_count++;
+	concurrent_matchmakers--;
 	kprintf_n("%s ending\n", curthread->t_name);
 	kprintf_t(".");
 	lock_release(testlock);
@@ -244,6 +250,8 @@ whalemating(int nargs, char **args) {
 	matchmaker_start_count = 0;
 	matchmaker_end_count = 0;
 	match_count = 0;
+	concurrent_matchmakers = 0;
+	max_concurrent_matchmakers = 0;
 
 	kprintf_n("Starting sp1...\n");
 	kprintf_n("If this tests hangs, your solution is incorrect.\n");
@@ -288,7 +296,7 @@ whalemating(int nargs, char **args) {
 			}
 			total_count += 1;
 			if (err) {
-				panic("whalemating: thread_fork failed: (%s)\n", strerror(err));
+				panic("sp1: thread_fork failed: (%s)\n", strerror(err));
 			}
 		}
 	}
@@ -323,7 +331,7 @@ whalemating(int nargs, char **args) {
 		snprintf(name, sizeof(name), "Matchmaker Whale Thread %d", index);
 		err = thread_fork(name, NULL, matchmaker_wrapper, NULL, index);
 		if (err) {
-			panic("whalemating: thread_fork failed: (%s)\n", strerror(err));
+			panic("sp1: thread_fork failed: (%s)\n", strerror(err));
 		}
 		total_count++;
 	}
@@ -375,6 +383,8 @@ whalemating(int nargs, char **args) {
 			total_count--;
 		}
 	}
+
+	failif((max_concurrent_matchmakers == 1), "failed: no matchmaker concurrency");
 
 	whalemating_cleanup();
 
@@ -645,7 +655,7 @@ int stoplight(int nargs, char **args) {
 			break;
 		}
 		if (err) {
-			panic("stoplight: thread_fork failed: (%s)\n", strerror(err));
+			panic("sp2: thread_fork failed: (%s)\n", strerror(err));
 		}
 	}
 
