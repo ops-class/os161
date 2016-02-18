@@ -13,10 +13,12 @@ tests:
   - id: synch/cvt1.t
     points: 4
   - id: synch/cvt2.t
-    points: 4
+    points: 3
   - id: synch/cvt3.t
     points: 1
   - id: synch/cvt4.t
+    points: 1
+  - id: synch/cvt5.t
     points: 1
   - id: synch/rwt1.t
     points: 5
