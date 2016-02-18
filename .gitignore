@@ -2,6 +2,7 @@
 /.settings
 /.project
 /.cproject
+/.root
 /kern/compile/
 /defs.mk
 build
