@@ -27,12 +27,28 @@
 static const unsigned char ipad[SHA256_BLOCK_SIZE] = { [0 ... SHA256_BLOCK_SIZE-1] = 0x36 };
 static const unsigned char opad[SHA256_BLOCK_SIZE] = { [0 ... SHA256_BLOCK_SIZE-1] = 0x5c };
 
+// Hack for not having a userspace malloc until ASST3. We 'allocate' these statuc buffers.
+// This works because the process single-threaded.
+#define NUM_BUFFERS 4
+#define BUFFER_LEN 1024
+
+static char temp_buffers[NUM_BUFFERS][BUFFER_LEN];
+static int buf_num = 0;
+
 static void * _alloc(size_t size)
 {
 #ifdef _KERNEL
+	// Compiler
+	(void)temp_buffers;
+	(void)buf_num;
+
 	return kmalloc(size);
 #else
-	return malloc(size);
+	(void)size;
+	void *ptr = temp_buffers[buf_num];
+	buf_num++;
+	buf_num = buf_num % NUM_BUFFERS;
+	return ptr;
 #endif
 }
 
@@ -41,7 +57,7 @@ static void _free(void *ptr)
 #ifdef _KERNEL
 	kfree(ptr);
 #else
-	free(ptr);
+	(void)ptr;
 #endif
 }
 

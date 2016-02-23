@@ -13,11 +13,6 @@ SRCS+=\
 	$(COMMON)/printf/snprintf.c \
 	$(COMMON)/printf/tprintf.c
 
-# secure
-SRCS+=\
-	$(COMMON)/secure/secure.c \
-	$(COMMON)/secure/sha256.c \
-
 # stdio
 SRCS+=\
 	stdio/__puts.c \

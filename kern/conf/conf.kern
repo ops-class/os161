@@ -310,12 +310,12 @@ file      ../common/libc/string/strrchr.c
 file      ../common/libc/string/strtok_r.c
 
 #
-# Security functions that we've added to the C library and
-# use for secure output.
+# libtest161 shared code and security functions
 #
 
-file      ../common/libc/secure/secure.c
-file      ../common/libc/secure/sha256.c
+file      ../common/libtest161/test161.c
+file      ../common/libtest161/secure.c
+file      ../common/libtest161/sha256.c
 
 ########################################
 #                                      #

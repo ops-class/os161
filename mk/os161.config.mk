@@ -470,7 +470,7 @@ MORECFLAGS+=-I$(INSTALLTOP)/include
 LDFLAGS+=-nostdlib -L$(INSTALLTOP)/lib $(INSTALLTOP)/lib/crt0.o
 MORELIBS+=-lc
 LIBDEPS+=$(INSTALLTOP)/lib/crt0.o $(INSTALLTOP)/lib/libc.a
-
+LIBS+=-ltest161
 ############################################################
 
 # end.

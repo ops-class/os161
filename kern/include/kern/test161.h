@@ -1,11 +1,4 @@
 /*
- * NO NOT MODIFY THIS FILE
- *
- * All the contents of this file are overwritten during automated
- * testing. Please consider this before changing anything in this file.
- */
-
-/*
  * Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009
  *	The President and Fellows of Harvard College.
  *
@@ -34,17 +27,15 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _SECRET_H_
-#define _SECRET_H_
+#ifndef _KERN_TEST161_H_
+#define _KERN_TEST161_H_
 
-/*
- * During automated testing all instances of KERNEL_SECRET in trusted tests
- * are rewritten to a random value to ensure that the kernel is actually
- * running the appropriate tests. So this value is never actually used, but
- * allows normally compilation and operation.
- */
+#define TEST161_SUCCESS 0
+#define TEST161_FAIL 1
 
-#define SECRET_TESTING
-#define SECRET "SECRET"
+#include <kern/secret.h>
 
-#endif /* _SECRET_H_ */
+int success(int, const char *, const char *);
+int secprintf(const char *secret, const char *msg, const char *name);
+
+#endif /* _KERN_TEST161_H_ */

@@ -9,14 +9,14 @@
 #include <test.h>
 #include <current.h>
 #include <synch.h>
-#include <kern/secret.h>
+#include <kern/test161.h>
 #include <spinlock.h>
 
 #define PROBLEMS_MAX_YIELDER 16
 #define PROBLEMS_MAX_SPINNER 8192
 
-#define SUCCESS 0
-#define FAIL 1
+#define TEST161_SUCCESS 0
+#define TEST161_FAIL 1
 
 /*
  * Shared initialization routines
@@ -29,7 +29,7 @@ static struct semaphore *startsem;
 static struct semaphore *endsem;
 
 struct spinlock status_lock;
-static bool test_status = FAIL;
+static bool test_status = TEST161_FAIL;
 const char *test_message;
 
 static
@@ -37,7 +37,7 @@ bool
 failif(bool condition, const char *message) {
 	if (condition) {
 		spinlock_acquire(&status_lock);
-		test_status = FAIL;
+		test_status = TEST161_FAIL;
 		test_message = message;
 		spinlock_release(&status_lock);
 	}
@@ -273,7 +273,7 @@ whalemating(int nargs, char **args) {
 		panic("sp1: sem_create failed\n");
 	}
 	spinlock_init(&status_lock);
-	test_status = SUCCESS;
+	test_status = TEST161_SUCCESS;
 	test_message = "";
 
 	whalemating_init();
@@ -308,18 +308,18 @@ whalemating(int nargs, char **args) {
 	}
 
 	/* Make sure nothing is happening... */
-	loop_status = SUCCESS;
-	for (i = 0; i < CHECK_TIMES && loop_status == SUCCESS; i++) {
+	loop_status = TEST161_SUCCESS;
+	for (i = 0; i < CHECK_TIMES && loop_status == TEST161_SUCCESS; i++) {
 		kprintf_t(".");
 		random_spinner(PROBLEMS_MAX_SPINNER);
 		lock_acquire(testlock);
 		if ((male_start_count != NMATING) || (female_start_count != NMATING) ||
 				(matchmaker_start_count + male_end_count + female_end_count + matchmaker_end_count != 0)) {
-			loop_status = FAIL;
+			loop_status = TEST161_FAIL;
 		}
 		lock_release(testlock);
 	}
-	if (failif((loop_status == FAIL), "failed: uncoordinated matchmaking is occurring")) {
+	if (failif((loop_status == TEST161_FAIL), "failed: uncoordinated matchmaking is occurring")) {
 		goto done;
 	}
 
@@ -352,19 +352,19 @@ whalemating(int nargs, char **args) {
 	}
 
 	/* Make sure nothing else is happening... */
-	loop_status = SUCCESS;
-	for (i = 0; i < CHECK_TIMES && loop_status == SUCCESS; i++) {
+	loop_status = TEST161_SUCCESS;
+	for (i = 0; i < CHECK_TIMES && loop_status == TEST161_SUCCESS; i++) {
 		kprintf_t(".");
 		random_spinner(PROBLEMS_MAX_SPINNER);
 		lock_acquire(testlock);
 		if ((male_start_count != NMATING) || (female_start_count != NMATING) ||
 				(matchmaker_start_count != pivot) || (male_end_count != pivot) ||
 				(female_end_count != pivot) || (matchmaker_end_count != pivot)) {
-			loop_status = FAIL;
+			loop_status = TEST161_FAIL;
 		}
 		lock_release(testlock);
 	}
-	if (failif((loop_status == FAIL), "failed: uncoordinated matchmaking is occurring")) {
+	if (failif((loop_status == TEST161_FAIL), "failed: uncoordinated matchmaking is occurring")) {
 		goto done;
 	}
 
@@ -399,8 +399,8 @@ done:
 	sem_destroy(matcher_sem);
 
 	kprintf_t("\n");
-	if (test_status != SUCCESS) {
-		ksecprintf(SECRET, test_message, "sp1");
+	if (test_status != TEST161_SUCCESS) {
+		secprintf(SECRET, test_message, "sp1");
 	}
 	success(test_status, SECRET, "sp1");
 
@@ -628,7 +628,7 @@ int stoplight(int nargs, char **args) {
 		panic("sp2: sem_create failed\n");
 	}
 	spinlock_init(&status_lock);
-	test_status = SUCCESS;
+	test_status = TEST161_SUCCESS;
 
 	stoplight_init();
 
@@ -669,7 +669,7 @@ int stoplight(int nargs, char **args) {
 	for (i = 0; i < NCARS; i++) {
 		passed += car_locations[i] == PASSED_CAR ? 1 : 0;
 	}
-	if ((test_status == SUCCESS) &&
+	if ((test_status == TEST161_SUCCESS) &&
 			(!(failif((passed != NCARS), "failed: not enough cars"))) &&
 			(!(failif((all_quadrant != required_quadrant), "failed: didn't do the right turns"))) &&
 			(!(failif((max_car_count <= 1), "failed: no concurrency achieved")))) {};
@@ -679,8 +679,8 @@ int stoplight(int nargs, char **args) {
 	sem_destroy(endsem);
 
 	kprintf_t("\n");
-	if (test_status != SUCCESS) {
-		ksecprintf(SECRET, test_message, "sp2");
+	if (test_status != TEST161_SUCCESS) {
+		secprintf(SECRET, test_message, "sp2");
 	}
 	success(test_status, SECRET, "sp2");
 

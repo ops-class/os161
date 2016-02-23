@@ -31,7 +31,7 @@
 #include <lib.h>
 #include <spinlock.h>
 #include <vm.h>
-#include <kern/secret.h>
+#include <kern/test161.h>
 #include <test.h>
 
 /*
@@ -838,7 +838,7 @@ kheap_printused(void)
 
 	char total_string[32];
 	snprintf(total_string, sizeof(total_string), "%lu", total);
-	ksecprintf(SECRET, total_string, "khu");
+	secprintf(SECRET, total_string, "khu");
 }
 
 ////////////////////////////////////////
