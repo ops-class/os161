@@ -10,13 +10,17 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <errno.h>
+#include <unistd.h>
 #include <test161/test161.h>
 #include <test161/secure.h>
 #endif
 
 // Hack for allocating userspace memory without malloc.
-static char temp_buffer[4096];
+#define BUFFER_SIZE 4096
+static char temp_buffer[BUFFER_SIZE];
+static char write_buffer[BUFFER_SIZE];
 
 static inline void * _alloc(size_t size)
 {
@@ -54,6 +58,22 @@ success(int status, const char * secret, const char * name) {
 	}
 }
 
+#ifndef _KERNEL
+
+// Borrowed from parallelvm.  We need atomic console writes so our
+// output doesn't get intermingled since test161 works with lines.
+static
+int
+say(const char *fmt, ...)
+{
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(write_buffer, BUFFER_SIZE, fmt, ap);
+	va_end(ap);
+	return write(STDOUT_FILENO, write_buffer, strlen(write_buffer));
+}
+#endif
+
 #ifndef SECRET_TESTING
 
 int
@@ -64,7 +84,7 @@ secprintf(const char * secret, const char * msg, const char * name)
 #ifdef _KERNEL
 	return kprintf("%s: %s\n", name, msg);
 #else
-	return printf("%s: %s\n", name, msg);
+	return say("%s: %s\n", name, msg);
 #endif
 }
 
@@ -94,7 +114,7 @@ secprintf(const char * secret, const char * msg, const char * name)
 #ifdef _KERNEL
 	res = kprintf("(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
 #else
-	res = printf("(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
+	res = say("(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
 #endif
 
 	_free(hash);
