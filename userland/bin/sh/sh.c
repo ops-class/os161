@@ -534,7 +534,7 @@ interactive(void)
 	struct exitinfo ei;
 
 	while (1) {
-		printsf("OS/161$ ");
+		printf("OS/161$ ");
 		getcmd(buf, sizeof(buf));
 		docommand(buf, &ei);
 		printstatus(&ei, 0);
