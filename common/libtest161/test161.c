@@ -19,13 +19,15 @@
 
 // Hack for allocating userspace memory without malloc.
 #define BUFFER_SIZE 4096
+
+#ifndef _KERNEL
 static char temp_buffer[BUFFER_SIZE];
 static char write_buffer[BUFFER_SIZE];
+#endif
 
 static inline void * _alloc(size_t size)
 {
 #ifdef _KERNEL
-	(void)temp_buffer;
 	return kmalloc(size);
 #else
 	(void)size;

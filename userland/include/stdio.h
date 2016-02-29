@@ -60,7 +60,6 @@ int vsnprintf(char *buf, size_t len, const char *fmt, __va_list ap);
 
 int tprintf(const char *fmt, ...);
 int nprintf(const char *fmt, ...);
-int printsf(const char *fmt, ...);
 
 /* Print the argument string and then a newline. Returns 0 or -1 on error. */
 int puts(const char *);

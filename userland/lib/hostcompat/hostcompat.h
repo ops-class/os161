@@ -39,8 +39,6 @@ time_t __time(time_t *secs, unsigned long *nsecs);
 
 int tprintf(const char *fmt, ...);
 int nprintf(const char *fmt, ...);
-int printsf(const char *fmt, ...);
-
 
 #ifdef DECLARE_NTOHLL
 uint64_t ntohll(uint64_t);
