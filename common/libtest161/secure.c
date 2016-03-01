@@ -40,6 +40,8 @@ static int buf_num = 0;
 
 #ifndef _KERNEL
 static int did_random = 0;
+#define NSEC_PER_MSEC 1000000ULL
+#define MSEC_PER_SEC 1000ULL
 #endif
 
 static void * _alloc(size_t size)
@@ -143,9 +145,14 @@ static void make_salt(char *salt_str)
 #ifndef _KERNEL
 	if (!did_random) {
 		did_random = 1;
-		time_t t;
-		time(&t);
-		srandom(t);
+		time_t sec;
+		unsigned long ns;
+		unsigned long long ms;
+
+		__time(&sec, &ns);
+		ms = (unsigned long long)sec * MSEC_PER_SEC;
+		ms += (ns / NSEC_PER_MSEC);
+		srandom((unsigned long)ms);
 	}
 #endif
 
