@@ -53,7 +53,7 @@ main(int argc, char **argv)
 	(void) argc;
 	(void) argv;
 
-	secprintf(SECRET, "Able was i ere i saw elbA\n", "/testbin/consoletest");
+	secprintf(SECRET, "Able was i ere i saw elbA", "/testbin/consoletest");
 
 	// Guru: Since exit() may not yet be implemented, just trigger a
 	// failure that the grading scripts expect to see.
