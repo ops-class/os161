@@ -5,72 +5,69 @@ type: asst
 kconfig: ASST2
 userland: true
 tests:
-# FS tests
-  - id: asst2/fs/consoletest.t
+# Make sure the console works
+  - id: syscalls/consoletest.t
     points: 2
-  - id: asst2/fs/opentest.t
+# File system system calls (48 points)
+  - id: syscalls/opentest.t
     points: 5
-  - id: asst2/fs/closetest.t
+  - id: syscalls/closetest.t
     points: 3
-  - id: asst2/fs/readwritetest.t
+  - id: syscalls/readwritetest.t
     points: 10
-  - id: asst2/fs/fileonlytest.t
+  - id: syscalls/fileonlytest.t
     points: 15
-  - id: asst2/fs/redirect.t
+  - id: syscalls/redirect.t
     points: 10
-  - id: asst2/fs/sparsefile.t
+  - id: syscalls/sparsefile.t
     points: 5
-
-# Process tests
-  - id: asst2/process/forktest.t
+# Process system call tests (50 points)
+  - id: syscalls/forktest.t
     points: 15
-  - id: asst2/process/shell.t
+  - id: syscalls/shell.t
     points: 10
-  - id: asst2/process/argtest.t
+  - id: syscalls/argtest.t
     points: 5
-  - id: asst2/process/bigexec.t
+  - id: syscalls/bigexec.t
     points: 10
-  - id: asst2/process/factorial.t
+  - id: syscalls/factorial.t
     points: 5
-  - id: asst2/process/add.t
+  - id: syscalls/add.t
     points: 5
-
-# All tests below this point are stability tests
-
-# badcalls
-  - id: asst2/stability/badcall/badcall-open.t
+# Stability tests (50 points)
+# Bad calls
+  - id: stability/badcall/badcall-open.t
     points: 3
-  - id: asst2/stability/badcall/badcall-close.t
+  - id: stability/badcall/badcall-close.t
     points: 3
-  - id: asst2/stability/badcall/badcall-read.t
+  - id: stability/badcall/badcall-read.t
     points: 3
-  - id: asst2/stability/badcall/badcall-write.t
+  - id: stability/badcall/badcall-write.t
     points: 3
-  - id: asst2/stability/badcall/badcall-lseek.t
+  - id: stability/badcall/badcall-lseek.t
     points: 3
-  - id: asst2/stability/badcall/badcall-dup2.t
+  - id: stability/badcall/badcall-dup2.t
     points: 3
-  - id: asst2/stability/badcall/badcall-execv.t
+  - id: stability/badcall/badcall-execv.t
     points: 5
-  - id: asst2/stability/badcall/badcall-waitpid.t
+  - id: stability/badcall/badcall-waitpid.t
     points: 5
-
-  - id: asst2/stability/crash/crash-allS.t
+# crash
+  - id: stability/crash/crash-allS.t
     points: 2
-
-  - id: asst2/stability/randcall.t
+# randcall
+  - id: stability/randcall.t
     points: 5
     commands:
       - id: /testbin/randcall
         args:
           - "-f"
-          - "-c 1000"
+          - "-c 100"
           - "-r {{randInt 1 4294967295}}"
           - "2"
-
-  - id: asst2/stability/forkbomb.t
+# forkbomb
+  - id: stability/forkbomb.t
     points: 10
-
-  - id: asst2/stability/forktest-stability.t
+# forktest
+  - id: stability/forktest-stability.t
     points: 5
-
