@@ -3,32 +3,21 @@ templates:
     panics: maybe
     output:
       - text: "/testbin/consoletest: Able was i ere i saw elbA"
-
-
   - name: /testbin/opentest
     panics: maybe
-
   - name: /testbin/readwritetest
     panics: maybe
     output:
       - text: "/testbin/readwritetest: h4xa0rRq0Vgbc96tiYJ^!#nXzZSAKPO"
-
   - name: /testbin/closetest
     panics: maybe
-
-
   - name: /testbin/fileonlytest
     panics: maybe
-
   - name: /testbin/redirect
-
   - name: /testbin/sparsefile
     panics: maybe
-
   - name: /extratests/badcall
   - name: faulter
-
-
   - name: /testbin/forkbomb
     timesout: yes
     timeout: 15.0
@@ -39,19 +28,14 @@ templates:
   - name: kmalloc
     output:
       - text: "kmalloc: out of memory"
-
-
   - name: /testbin/crash
   - name: /testbin/forktest
   - name: /testbin/randcall
-
   - name: /testbin/shelltest
     output:
       - text: "/testbin/shelltest: line-1: Able was i ere i saw elbA"
       - text: "/testbin/shelltest: line-2: Able was i ere i saw elbA"
       - text: "/testbin/shelltest: line-3: Able was i ere i saw elbA"
-
-
   - name: /testbin/argtest
     input:
       - "{{randString 1 2}}"
@@ -67,20 +51,15 @@ templates:
       - text: "/testbin/argtest: /testbin/argtest"
       - text: "{{range $index, $element := .Args}}/testbin/argtest: {{$element}}\n{{end}}"
       - text: "/testbin/argtest: [NULL]"
-
   - name: /testbin/bigexec
-
   - name: /testbin/factorial
     input:
       - "{{randInt 6 10}}"
     output:
       - text: "/testbin/factorial: {{$n:= index .Args 0 | atoi}}{{factorial $n}}\n"
-
   - name: /testbin/add
     input:
       - "{{randInt 2 1000}}"
       - "{{randInt 2 4000}}"
     output:
       - text: "/testbin/add: {{$x:= index .Args 0 | atoi}}{{$y := index .Args 1 | atoi}}{{add $x $y}}"
-
-

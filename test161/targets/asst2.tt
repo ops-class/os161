@@ -7,12 +7,12 @@ userland: true
 tests:
 # Make sure the console works
   - id: syscalls/consoletest.t
-    points: 2
-# File system system calls (48 points)
+    points: 10
+# File system system calls (50 points)
   - id: syscalls/opentest.t
     points: 5
   - id: syscalls/closetest.t
-    points: 3
+    points: 5
   - id: syscalls/readwritetest.t
     points: 10
   - id: syscalls/fileonlytest.t
@@ -34,7 +34,7 @@ tests:
     points: 5
   - id: syscalls/add.t
     points: 5
-# Stability tests (50 points)
+# Stability tests (40 points)
 # Bad calls
   - id: stability/badcall/badcall-open.t
     points: 3
