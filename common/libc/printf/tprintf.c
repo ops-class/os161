@@ -16,9 +16,9 @@ tprintf(const char *fmt, ...)
 	int chars;
 	va_list ap;
 
-	if (strcmp(SECRET, "") != 0) {
-		return 0;
-	}
+#ifdef SECRET_TESTING
+	return 0;
+#endif
 	
 	va_start(ap, fmt);
 	chars = vprintf(fmt, ap);
@@ -34,27 +34,10 @@ nprintf(const char *fmt, ...)
 	int chars;
 	va_list ap;
 
-	if (strcmp(SECRET, "") == 0) {
-		return 0;
-	}
+#ifndef SECRET_TESTING
+	return 0;
+#endif
 	
-	va_start(ap, fmt);
-	chars = vprintf(fmt, ap);
-	va_end(ap);
-
-	return chars;
-}
-
-/* printf variant that prepends the kernel secret */
-int
-printsf(const char *fmt, ...)
-{
-	int chars;
-	va_list ap;
-
-	if (strcmp(SECRET, "") != 0) {
-		printf("%s: ", SECRET);
-	}
 	va_start(ap, fmt);
 	chars = vprintf(fmt, ap);
 	va_end(ap);
