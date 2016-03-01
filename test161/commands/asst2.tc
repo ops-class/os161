@@ -16,7 +16,7 @@ templates:
   - name: /testbin/redirect
   - name: /testbin/sparsefile
     panics: maybe
-  - name: /extratests/badcall
+  - name: /testbin/badcall
   - name: faulter
   - name: /testbin/forkbomb
     timesout: yes
