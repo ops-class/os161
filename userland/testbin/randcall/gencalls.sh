@@ -34,6 +34,7 @@ awk < $1 '
 	printf "#include <stdlib.h>\n";
 	printf "#include <errno.h>\n";
 	printf "#include <err.h>\n";
+	printf "#include <test161/test161.h>\n";
 	printf "\n";
 	printf "#include \"extern.h\"\n";
 	printf "\n";
@@ -134,9 +135,11 @@ awk < $1 '
 
 	printf "\tfor (i=0; i<count; i++) {\n";
 	printf "\t\tfor (j=0; list[j]; j++) {\n";
+	printf "\t\t\tnprintf(\".\");\n";
 	printf "\t\t\t(*list[j])(dofork);\n";
 	printf "\t\t}\n";
 	printf "\t}\n";
+	printf "nprintf(\"\\n\");\n";
 	printf "}\n";
 	printf "\n";
     }
