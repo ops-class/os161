@@ -36,6 +36,7 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
@@ -111,6 +112,7 @@ try(const char *first, ...)
 	va_list ap;
 	int num;
 
+	nprintf(".");
 	assert(first != NULL);
 	args[0] = _PATH_MYSELF;
 	args[1] = first;
@@ -125,6 +127,7 @@ try(const char *first, ...)
 		assert(num < 20);
 		args[num++] = s;
 	}
+	nprintf("\n");
 	assert(num < 20);
 	args[num] = NULL;
 	execv(_PATH_MYSELF, (char **)args);

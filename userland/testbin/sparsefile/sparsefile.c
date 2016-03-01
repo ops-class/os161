@@ -81,10 +81,10 @@ main(int argc, char *argv[])
 	if (r < 0) {
 		err(1, "%s: write", filename);
 	}
-	nprintf(".");
 	else if (r != 1) {
 		errx(1, "%s: write: Unexpected result count %d", filename, r);
 	}
+	nprintf(".");
 
 	// Now check this byte.
 	// First seek to the beginning and then seek back to where the byte

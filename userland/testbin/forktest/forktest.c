@@ -228,7 +228,7 @@ test(int nowait)
 
 	memset(buffer, 0, 30);
 	len = read(fd, buffer, 30);
-	printf("%s\n", buffer);
+	printf("\n%s\n", buffer);
 	if(len != 30) {
 		err(1, "Did not get expected number of characters\n");
 	}
