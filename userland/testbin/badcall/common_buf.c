@@ -175,33 +175,46 @@ getcwd_badbuf(void *buf)
 ////////////////////////////////////////////////////////////
 
 static
-void
+int
 common_badbuf(struct buftest *info, void *buf, const char *bufdesc)
 {
 	int rv;
-
+	int result;
 
 	report_begin("%s with %s buffer", info->name, bufdesc);
 	info->setup();
 	rv = info->op(buf);
-	report_check(rv, errno, EFAULT);
+	result = report_check(rv, errno, EFAULT);
 	info->cleanup();
+	return result;
 }
 
 static
-void
-any_badbuf(struct buftest *info)
+int
+any_badbuf(struct buftest *info, int *ntests, int *lost_points)
 {
-	common_badbuf(info, NULL, "NULL");
-	common_badbuf(info, INVAL_PTR, "invalid");
-	common_badbuf(info, KERN_PTR, "kernel-space");
+	int result;
+
+	*ntests += 1;
+	result = common_badbuf(info, NULL, "NULL");
+	handle_result(result, lost_points);
+
+	*ntests += 1;
+	result = common_badbuf(info, INVAL_PTR, "invalid");
+	handle_result(result, lost_points);
+
+	*ntests += 1;
+	result = common_badbuf(info, KERN_PTR, "kernel-space");
+	handle_result(result, lost_points);
+
+	return result;
 }
 
 ////////////////////////////////////////////////////////////
 
 #define T(call) \
   void					\
-  test_##call##_buf(void)		\
+  test_##call##_buf(int *ntests, int *lost_points)		\
   {					\
   	static struct buftest info = {	\
   		call##_setup,		\
@@ -209,7 +222,7 @@ any_badbuf(struct buftest *info)
   		call##_cleanup,		\
   		#call,			\
 	};				\
-   	any_badbuf(&info);		\
+   	any_badbuf(&info, ntests, lost_points);	\
   }
 
 T(read);

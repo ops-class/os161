@@ -59,7 +59,7 @@ try_sbrk(long val)
 }
 
 static
-void
+int
 enforce_sbrk(long val, const char *desc, int err)
 {
 	int result;
@@ -67,59 +67,78 @@ enforce_sbrk(long val, const char *desc, int err)
 	report_begin("sbrk %s", desc);
 
 	result = try_sbrk(val);
-	report_check(result, errno, err);
+	return report_check(result, errno, err);
 }
 
 static
-void
+int
 sbrk_bigpos(void)
 {
-	enforce_sbrk(4096*1024*256, "huge positive", ENOMEM);
+	return enforce_sbrk(4096*1024*256, "huge positive", ENOMEM);
 }
 
 static
-void
+int
 sbrk_bigneg(void)
 {
-	enforce_sbrk(-4096*1024*256, "huge negative", EINVAL);
+	return enforce_sbrk(-4096*1024*256, "huge negative", EINVAL);
 }
 
 static
-void
+int
 sbrk_neg(void)
 {
-	enforce_sbrk(-8192, "too-large negative", EINVAL);
+	return enforce_sbrk(-8192, "too-large negative", EINVAL);
 }
 
 static
-void
+int
 sbrk_unalignedpos(void)
 {
 	int result;
 
 	report_begin("sbrk unaligned positive");
 	result = try_sbrk(17);
-	report_check2(result, errno, 0, EINVAL);
+	return report_check2(result, errno, 0, EINVAL);
 }
 
 static
-void
+int
 sbrk_unalignedneg(void)
 {
 	int result;
 
 	report_begin("sbrk unaligned negative");
 	result = try_sbrk(-17);
-	report_check2(result, errno, 0, EINVAL);
+	return report_check2(result, errno, 0, EINVAL);
 }
 
 void
 test_sbrk(void)
 {
-	sbrk_neg();
-	sbrk_bigpos();
-	sbrk_bigneg();
-	sbrk_unalignedpos();
-	sbrk_unalignedneg();
+	int ntests = 0, lost_points = 0;
+	int result;
+
+	ntests++;
+	result = sbrk_neg();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = sbrk_bigpos();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = sbrk_bigneg();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = sbrk_unalignedpos();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = sbrk_unalignedneg();
+	handle_result(result, &lost_points);
+
+	partial_credit(SECRET, "/testbin/badcall-sbrk", ntests - lost_points, ntests);
 }
 

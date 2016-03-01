@@ -43,6 +43,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <err.h>
+#include <test161/test161.h>
 
 #define PATH_CAT "/bin/cat"
 #define INFILE "redirect.in"
@@ -59,6 +60,7 @@ doopen(const char *path, int openflags)
 	fd = open(path, openflags, 0664);
 	if (fd < 0) {
 		err(1, "%s", path);
+		crash_prog();
 	}
 	return fd;
 }
@@ -75,6 +77,7 @@ dodup2(int ofd, int nfd, const char *file)
 	}
 	if (r != nfd) {
 		errx(1, "%s: dup2: Expected %d, got %d", nfd, r);
+		crash_prog();
 	}
 }
 
@@ -99,10 +102,12 @@ mkfile(void)
 	r = write(fd, slogan, strlen(slogan));
 	if (r < 0) {
 		err(1, "%s: write", INFILE);
+		crash_prog();
 	}
 	if ((size_t)r != strlen(slogan)) {
 		errx(1, "%s: write: Short count (got %zd, expected %zu)",
 		     INFILE, r, strlen(slogan));
+		crash_prog();
 	}
 
 	doclose(fd, INFILE);
@@ -121,13 +126,16 @@ chkfile(void)
 	r = read(fd, buf, sizeof(buf));
 	if (r < 0) {
 		err(1, "%s: read", OUTFILE);
+		crash_prog();
 	}
 	if (r == 0) {
 		errx(1, "%s: read: Unexpected EOF", OUTFILE);
+		crash_prog();
 	}
 	if ((size_t)r != strlen(slogan)) {
 		errx(1, "%s: read: Short count (got %zd, expected %zu)",
 		     OUTFILE, r, strlen(slogan));
+		crash_prog();
 	}
 
 	doclose(fd, OUTFILE);
@@ -147,6 +155,7 @@ cat(void)
 	pid = fork();
 	if (pid < 0) {
 		err(1, "fork");
+		crash_prog();
 	}
 
 	if (pid == 0) {
@@ -169,12 +178,15 @@ cat(void)
 	result = waitpid(pid, &status, 0);
 	if (result == -1) {
 		err(1, "waitpid");
+		crash_prog();
 	}
 	if (WIFSIGNALED(status)) {
 		errx(1, "pid %d: Signal %d", (int)pid, WTERMSIG(status));
+		crash_prog();
 	}
 	if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
 		errx(1, "pid %d: Exit %d", (int)pid, WEXITSTATUS(status));
+		crash_prog();
 	}
 }
 
@@ -191,6 +203,7 @@ main(void)
 	chkfile();
 
 	tprintf("Passed.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/redirect");
 	(void)remove(INFILE);
 	(void)remove(OUTFILE);
 	return 0;

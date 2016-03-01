@@ -28,98 +28,40 @@
  */
 
 /*
- * remove
+ * shelltest.c
+ *
+ * 	Tests whether console can be written to.
+ *
+ * This should run correctly when open and write syscalls are correctly implemented
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 #include <err.h>
 
-#include "config.h"
-#include "test.h"
+#include <test161/test161.h>
 
-static
+// 23 Mar 2012 : GWA : BUFFER_COUNT must be even.
+
 int
-remove_dir(void)
+main(int argc, char **argv)
 {
-	int rv;
-	int result = FAILED;
 
-	report_begin("remove() on a directory");
+	// 23 Mar 2012 : GWA : Assume argument passing is *not* supported.
 
-	if (create_testdir() < 0) {
-		/*report_aborted();*/ /* XXX in create_testdir */
-		return result;
+	(void) argc;
+	(void) argv;
+
+	int i;
+	char buf[64];
+	for(i = 0; i < 3; i++) {
+		memset(buf, 0, sizeof(buf));
+		snprintf(buf, 64, "line-%d: Able was i ere i saw elbA", i + 1);
+		secprintf(SECRET, buf, "/testbin/shelltest");
 	}
 
-	rv = remove(TESTDIR);
-	result = report_check(rv, errno, EISDIR);
-	rmdir(TESTDIR);
-
-	return result;
-}
-
-static
-int
-remove_dot(void)
-{
-	int rv;
-
-	report_begin("remove() on .");
-	rv = remove(".");
-	return report_check2(rv, errno, EISDIR, EINVAL);
-}
-
-static
-int
-remove_dotdot(void)
-{
-	int rv;
-
-	report_begin("remove() on ..");
-	rv = remove("..");
-	return report_check2(rv, errno, EISDIR, EINVAL);
-}
-
-static
-int
-remove_empty(void)
-{
-	int rv;
-
-	report_begin("remove() on empty string");
-	rv = remove("");
-	return report_check2(rv, errno, EISDIR, EINVAL);
-}
-
-void
-test_remove(void)
-{
-	int ntests = 0, lost_points = 0;
-	int result;
-
-	test_remove_path(&ntests, &lost_points);
-
-	ntests++;
-	result = remove_dir();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_dot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_dotdot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_empty();
-	handle_result(result, &lost_points);
-
-	partial_credit(SECRET, "/testbin/badcall-remove", ntests - lost_points, ntests);
+	// Expects exit() to work
+	return 0;
 }

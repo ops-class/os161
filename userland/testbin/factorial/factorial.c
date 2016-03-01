@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <assert.h>
 #include <err.h>
+#include <test161/test161.h>
 
 #define _PATH_SELF "/testbin/factorial"
 
@@ -246,6 +247,7 @@ main(int argc, char *argv[])
 	else if (argc == 3) {
 		if (!strcmp(argv[1], "1") || !strcmp(argv[1], "0")) {
 			tprintf("%s\n", argv[2]);
+			secprintf(SECRET, argv[2], "/testbin/factorial");
 		}
 		else {
 			number_init(&n1, argv[1]);

@@ -28,98 +28,54 @@
  */
 
 /*
- * remove
+ * closetest.c
+ *
+ * 	Tests the close syscall
+ *
+ * This should run correctly when open and close are implemented correctly.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 #include <err.h>
+#include <test161/test161.h>
 
-#include "config.h"
-#include "test.h"
 
-static
 int
-remove_dir(void)
+main(int argc, char **argv)
 {
-	int rv;
-	int result = FAILED;
 
-	report_begin("remove() on a directory");
+	// Assume argument passing is *not* supported.
 
-	if (create_testdir() < 0) {
-		/*report_aborted();*/ /* XXX in create_testdir */
-		return result;
+	(void) argc;
+	(void) argv;
+
+	int ret, fd = -1;
+	// Try to open a file and then close it
+	fd = open("sys161.conf", O_RDONLY);
+	if(fd < 0) {
+		err(-1, "Open syscall failed");
+	}
+	else if(fd < 3) {
+		warnx("Open syscall returned number(%d) used by standard file descriptors (0,1,2)", fd);
 	}
 
-	rv = remove(TESTDIR);
-	result = report_check(rv, errno, EISDIR);
-	rmdir(TESTDIR);
+	ret = close(fd);
+	if(ret) {
+		err(1, "Failed to close file\n");
+	}
 
-	return result;
-}
+	// Can we close 0?
+	ret = close(0);
+	if(ret) {
+		err(1, "Failed to close STDIN\n");
+	}
 
-static
-int
-remove_dot(void)
-{
-	int rv;
 
-	report_begin("remove() on .");
-	rv = remove(".");
-	return report_check2(rv, errno, EISDIR, EINVAL);
-}
-
-static
-int
-remove_dotdot(void)
-{
-	int rv;
-
-	report_begin("remove() on ..");
-	rv = remove("..");
-	return report_check2(rv, errno, EISDIR, EINVAL);
-}
-
-static
-int
-remove_empty(void)
-{
-	int rv;
-
-	report_begin("remove() on empty string");
-	rv = remove("");
-	return report_check2(rv, errno, EISDIR, EINVAL);
-}
-
-void
-test_remove(void)
-{
-	int ntests = 0, lost_points = 0;
-	int result;
-
-	test_remove_path(&ntests, &lost_points);
-
-	ntests++;
-	result = remove_dir();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_dot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_dotdot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_empty();
-	handle_result(result, &lost_points);
-
-	partial_credit(SECRET, "/testbin/badcall-remove", ntests - lost_points, ntests);
+	success(TEST161_SUCCESS, SECRET, "/testbin/closetest");
+	// Exit may not be implemented. So crash.
+	crash_prog();
+	return 0;
 }

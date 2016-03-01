@@ -36,6 +36,10 @@
 void
 test_fsync(void)
 {
-	test_fsync_fd();
+	int ntests = 0, lost_points = 0;
+
+	test_fsync_fd(&ntests, &lost_points);
+
+	partial_credit(SECRET, "/testbin/badcall-fsync", ntests - lost_points, ntests);
 }
 

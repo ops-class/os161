@@ -121,16 +121,18 @@ int
 create_testdir(void)
 {
 	int rv;
+	int result;
+
 	rv = mkdir(TESTDIR, 0775);
 	if (rv<0) {
 		if (errno == ENOSYS) {
 			report_saw_enosys();
 			report_warnx("mkdir unimplemented; cannot run test");
-			report_skipped();
+			report_skipped(&result);
 		}
 		else {
 			report_warn("mkdir %s failed", TESTDIR);
-			report_aborted();
+			report_aborted(&result);
 		}
 		return -1;
 	}

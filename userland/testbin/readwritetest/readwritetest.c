@@ -28,98 +28,74 @@
  */
 
 /*
- * remove
+ * readwritetest.c
+ *
+ * 	Tests whether read and write syscalls works
+ * 	This should run correctly when open, write and read are
+ * 	implemented correctly.
+ *
+ * NOTE: While checking, this test only checks the first 31 characters.
  */
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <errno.h>
 #include <err.h>
+#include <test161/test161.h>
 
-#include "config.h"
-#include "test.h"
+#define FILENAME "readwritetest.dat"
 
-static
+static const char *MAGIC = "h4xa0rRq0Vgbc96tiYJ^!#nXzZSAKPO";
+
 int
-remove_dir(void)
+main(int argc, char **argv)
 {
-	int rv;
-	int result = FAILED;
 
-	report_begin("remove() on a directory");
+	// 23 Mar 2012 : GWA : Assume argument passing is *not* supported.
 
-	if (create_testdir() < 0) {
-		/*report_aborted();*/ /* XXX in create_testdir */
-		return result;
+	(void) argc;
+	(void) argv;
+
+	int fd, len;
+	int expected_len = strlen(MAGIC);
+
+	fd = open(FILENAME, O_WRONLY | O_CREAT | O_TRUNC);
+	if(fd < 0) {
+		err(1, "Failed to open file.\n");
 	}
 
-	rv = remove(TESTDIR);
-	result = report_check(rv, errno, EISDIR);
-	rmdir(TESTDIR);
+	len = write(fd, MAGIC, expected_len);
+	if(len != expected_len) {
+		err(1, "writetest expected to write %d bytes to readwritetest.dat."
+			" Syscall reports that it wrote %d bytes.\n"
+			"Is your write syscall returning the right value?\n",
+			expected_len, len);
+	}
+	// Now, we test
+	// close() may not be implemented.
+	// So just try to open the file again.
+	fd = open(FILENAME, O_RDONLY);
+	if(fd < 0) {
+		err(1, "Failed to open file.\n");
+	}
 
-	return result;
-}
+	char buf[32];
+	len = read(fd, buf, expected_len);
+	if(len != 31) {
+		err(1, "readtest expected to read %d bytes from readtest.dat."
+			" Only read %d bytes.\n",
+			expected_len, len);
+	}
 
-static
-int
-remove_dot(void)
-{
-	int rv;
+	if(strcmp(MAGIC, buf) != 0) {
+		err(1, "Did not match MAGIC string.\n"
+			"MAGIC: %s\n"
+			"GOT  : %s\n", MAGIC, buf);
+	}
 
-	report_begin("remove() on .");
-	rv = remove(".");
-	return report_check2(rv, errno, EISDIR, EINVAL);
-}
-
-static
-int
-remove_dotdot(void)
-{
-	int rv;
-
-	report_begin("remove() on ..");
-	rv = remove("..");
-	return report_check2(rv, errno, EISDIR, EINVAL);
-}
-
-static
-int
-remove_empty(void)
-{
-	int rv;
-
-	report_begin("remove() on empty string");
-	rv = remove("");
-	return report_check2(rv, errno, EISDIR, EINVAL);
-}
-
-void
-test_remove(void)
-{
-	int ntests = 0, lost_points = 0;
-	int result;
-
-	test_remove_path(&ntests, &lost_points);
-
-	ntests++;
-	result = remove_dir();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_dot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_dotdot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_empty();
-	handle_result(result, &lost_points);
-
-	partial_credit(SECRET, "/testbin/badcall-remove", ntests - lost_points, ntests);
+	secprintf(SECRET, MAGIC, "/testbin/readwritetest");
+	// Exit may not be implemented. So crash.
+	crash_prog();
+	return 0;
 }

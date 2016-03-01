@@ -46,6 +46,8 @@
 #include <unistd.h>
 #include <signal.h>
 #include <err.h>
+#include <test161/test161.h>
+
 
 #if defined(__mips__)
 #define KERNEL_ADDR	0x80000000
@@ -384,5 +386,7 @@ main(int argc, char **argv)
 			}
 		}
 	}
+	printf("Should print success\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/crash");
 	return 0;
 }

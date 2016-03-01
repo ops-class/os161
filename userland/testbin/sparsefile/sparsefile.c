@@ -41,6 +41,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <err.h>
+#include <string.h>
+#include <test161/test161.h>
 
 int
 main(int argc, char *argv[])
@@ -57,7 +59,7 @@ main(int argc, char *argv[])
 
 	filename = argv[1];
 	size = atoi(argv[2]);
-	byte = '\n';
+	byte = '@';
 
 	if (size == 0) {
 		err(1, "Sparse files of length zero are not meaningful");
@@ -65,7 +67,7 @@ main(int argc, char *argv[])
 
 	tprintf("Creating a sparse file of size %d\n", size);
 
-	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC);
+	fd = open(filename, O_RDWR|O_CREAT|O_TRUNC);
 	if (fd < 0) {
 		err(1, "%s: create", filename);
 	}
@@ -81,7 +83,26 @@ main(int argc, char *argv[])
 		errx(1, "%s: write: Unexpected result count %d", filename, r);
 	}
 
+	// Now check this byte.
+	// First seek to the beginning and then seek back to where the byte
+	// should be.
+	if(lseek(fd, 0, SEEK_SET) == -1) {
+		err(1, "lseek failed to seek to beginning of file\n");
+	}
+	// Now seek back to where the byte should be
+	// While at it, also test SEEK_CUR
+	if(lseek(fd, size-1, SEEK_CUR) == -1) {
+		err(1, "lseek failed to seek to %d of file\n", size-1);
+	}
+	char test;
+	r = read(fd, &test, 1);
+	if(test != byte) {
+		err(1, "Byte test failed. Expected (%c) != Observed (%c)\n", byte, test);
+	}
 	close(fd);
 
+	success(TEST161_SUCCESS, SECRET, "/testbin/sparsefile");
+	// Exit may not be implemented. So crash.
+	crash_prog();
 	return 0;
 }

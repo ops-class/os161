@@ -41,6 +41,7 @@
 #include <limits.h>
 #include <assert.h>
 #include <err.h>
+#include <test161/test161.h>
 
 #define _PATH_MYSELF "/testbin/bigexec"
 
@@ -377,6 +378,7 @@ main(int argc, char *argv[])
 	else if (checkmany(argc, argv, 1000, word8)) {
 #endif
 		warnx("Complete.");
+		success(TEST161_SUCCESS, SECRET, "/testbin/bigexec");
 		return 0;
 	}
 	else {
@@ -384,4 +386,5 @@ main(int argc, char *argv[])
 		dumpargs(argc, argv);
 		return 1;
 	}
+	success(TEST161_SUCCESS, SECRET, "/testbin/bigexec");
 }

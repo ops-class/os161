@@ -36,6 +36,10 @@
 void
 test_write(void)
 {
-	test_write_fd();
-	test_write_buf();
+	int ntests = 0, lost_points = 0;
+
+	test_write_fd(&ntests, &lost_points);
+	test_write_buf(&ntests, &lost_points);
+
+	partial_credit(SECRET, "/testbin/badcall-write", ntests - lost_points, ntests);
 }

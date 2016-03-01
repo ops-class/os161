@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <test161/test161.h>
 
 #include "extern.h"
 
@@ -162,5 +163,6 @@ main(int argc, char *argv[])
 	srandom(seed);
 	trycalls(an, dofork, count);
 
+	success(TEST161_SUCCESS, SECRET, "/testbin/randcall");
 	return 0;
 }

@@ -44,7 +44,7 @@
 #include "test.h"
 
 static
-void
+int
 reboot_badflags(void)
 {
 	int rv;
@@ -52,11 +52,18 @@ reboot_badflags(void)
 	tprintf("(This should not kill the system...)\n");
 	report_begin("reboot with invalid flags");
 	rv = reboot(15353);
-	report_check(rv, errno, EINVAL);
+	return report_check(rv, errno, EINVAL);
 }
 
 void
 test_reboot(void)
 {
-	reboot_badflags();
+	int ntests = 0, lost_points = 0;
+	int result;
+
+	ntests++;
+	result = reboot_badflags();
+	handle_result(result, &lost_points);
+
+	partial_credit(SECRET, "/testbin/badcall-reboot", ntests - lost_points, ntests);
 }

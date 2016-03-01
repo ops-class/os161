@@ -36,5 +36,8 @@
 void
 test_getcwd(void)
 {
-	test_getcwd_buf();
+	int ntests = 0, lost_points = 0;
+	test_getcwd_buf(&ntests, &lost_points);
+
+	partial_credit(SECRET, "/testbin/badcall-getcwd", ntests - lost_points, ntests);
 }
