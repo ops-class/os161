@@ -995,6 +995,11 @@ subpage_kmalloc(size_t sz
 	if (prpage==0) {
 		/* Out of memory. */
 		kprintf("kmalloc: Subpage allocator couldn't get a page\n");
+		static int already_printed = 0;
+		if(!already_printed) {
+			already_printed = 1;
+			secprintf(SECRET, "out of memory", "kmalloc");
+		}
 		return NULL;
 	}
 	KASSERT(prpage % PAGE_SIZE == 0);
