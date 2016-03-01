@@ -195,14 +195,20 @@ main(void)
 {
 	tprintf("Creating %s...\n", INFILE);
 	mkfile();
+	nprintf(".");
 
 	tprintf("Running cat < %s > %s\n", INFILE, OUTFILE);
 	cat();
+	nprintf(".");
 
 	tprintf("Checking %s...\n", OUTFILE);
 	chkfile();
+	nprintf(".");
 
 	tprintf("Passed.\n");
+	nprintf(".");
+	nprintf("\n");
+
 	success(TEST161_SUCCESS, SECRET, "/testbin/redirect");
 	(void)remove(INFILE);
 	(void)remove(OUTFILE);

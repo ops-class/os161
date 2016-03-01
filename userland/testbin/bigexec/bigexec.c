@@ -138,9 +138,12 @@ trymany(int num, const char *word)
 	const char *args[num+2];
 	int i;
 
+	nprintf(".");
 	args[0] = _PATH_MYSELF;
 	for (i=0; i<num; i++) {
 		args[i+1] = word;
+		if(i%10)
+			nprintf(".");
 	}
 	args[num+1] = NULL;
 	execv(_PATH_MYSELF, (char **)args);
@@ -377,6 +380,7 @@ main(int argc, char *argv[])
 	}
 	else if (checkmany(argc, argv, 1000, word8)) {
 #endif
+		nprintf("\n");
 		warnx("Complete.");
 		success(TEST161_SUCCESS, SECRET, "/testbin/bigexec");
 		return 0;

@@ -66,6 +66,7 @@ main(int argc, char *argv[])
 	}
 
 	tprintf("Creating a sparse file of size %d\n", size);
+	nprintf(".");
 
 	fd = open(filename, O_RDWR|O_CREAT|O_TRUNC);
 	if (fd < 0) {
@@ -75,10 +76,12 @@ main(int argc, char *argv[])
 	if (lseek(fd, size-1, SEEK_SET) == -1) {
 		err(1, "%s: lseek", filename);
 	}
+	nprintf(".");
 	r = write(fd, &byte, 1);
 	if (r < 0) {
 		err(1, "%s: write", filename);
 	}
+	nprintf(".");
 	else if (r != 1) {
 		errx(1, "%s: write: Unexpected result count %d", filename, r);
 	}
@@ -89,18 +92,22 @@ main(int argc, char *argv[])
 	if(lseek(fd, 0, SEEK_SET) == -1) {
 		err(1, "lseek failed to seek to beginning of file\n");
 	}
+	nprintf(".");
 	// Now seek back to where the byte should be
 	// While at it, also test SEEK_CUR
 	if(lseek(fd, size-1, SEEK_CUR) == -1) {
 		err(1, "lseek failed to seek to %d of file\n", size-1);
 	}
+	nprintf(".");
 	char test;
 	r = read(fd, &test, 1);
 	if(test != byte) {
 		err(1, "Byte test failed. Expected (%c) != Observed (%c)\n", byte, test);
 	}
+	nprintf(".");
 	close(fd);
 
+	nprintf("\n");
 	success(TEST161_SUCCESS, SECRET, "/testbin/sparsefile");
 	// Exit may not be implemented. So crash.
 	crash_prog();

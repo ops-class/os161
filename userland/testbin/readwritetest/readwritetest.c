@@ -64,6 +64,7 @@ main(int argc, char **argv)
 	if(fd < 0) {
 		err(1, "Failed to open file.\n");
 	}
+	nprintf(".");
 
 	len = write(fd, MAGIC, expected_len);
 	if(len != expected_len) {
@@ -79,6 +80,7 @@ main(int argc, char **argv)
 	if(fd < 0) {
 		err(1, "Failed to open file.\n");
 	}
+	nprintf(".");
 
 	char buf[32];
 	len = read(fd, buf, expected_len);
@@ -87,12 +89,15 @@ main(int argc, char **argv)
 			" Only read %d bytes.\n",
 			expected_len, len);
 	}
+	nprintf(".");
 
 	if(strcmp(MAGIC, buf) != 0) {
 		err(1, "Did not match MAGIC string.\n"
 			"MAGIC: %s\n"
 			"GOT  : %s\n", MAGIC, buf);
 	}
+	nprintf(".");
+	nprintf("\n");
 
 	secprintf(SECRET, MAGIC, "/testbin/readwritetest");
 	// Exit may not be implemented. So crash.

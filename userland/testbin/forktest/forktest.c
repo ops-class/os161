@@ -95,6 +95,7 @@ check(void)
 	mypid = getpid();
 
 	/* Make sure each fork has its own address space. */
+	nprintf(".");
 	for (i=0; i<800; i++) {
 		volatile int seenpid;
 		seenpid = mypid;
@@ -181,15 +182,19 @@ test(int nowait)
 	}
 
 	pid0 = dofork();
+	nprintf(".");
 	write(fd, "A", 1);
 	check();
 	pid1 = dofork();
+	nprintf(".");
 	write(fd, "B", 1);
 	check();
 	pid2 = dofork();
+	nprintf(".");
 	write(fd, "C", 1);
 	check();
 	pid3 = dofork();
+	nprintf(".");
 	write(fd, "D", 1);
 	check();
 
@@ -198,9 +203,13 @@ test(int nowait)
 	 * improperly.
 	 */
 	dowait(nowait, pid3);
+	nprintf(".");
 	dowait(nowait, pid2);
+	nprintf(".");
 	dowait(nowait, pid1);
+	nprintf(".");
 	dowait(nowait, pid0);
+	nprintf(".");
 
 	// Check if file contents are correct
 	// lseek may not be implemented..so close and reopen
@@ -209,6 +218,8 @@ test(int nowait)
 	if(fd < 3) {
 		err(1, "Failed to open file for verification\n");
 	}
+	nprintf(".");
+
 	char buffer[30];
 	int len;
 	int char_idx, i;
@@ -221,9 +232,11 @@ test(int nowait)
 	if(len != 30) {
 		err(1, "Did not get expected number of characters\n");
 	}
+	nprintf(".");
 	// Check if number of instances of each character is correct
 	// 2As; 4Bs; 8Cs; 16Ds
 	for(char_idx = 0; char_idx < 4; char_idx++) {
+		nprintf(".");
 		observed = 0;
 		expected = pow_int(2, char_idx + 1);
 		for(i = 0; i < 30; i++) {
@@ -238,6 +251,7 @@ test(int nowait)
 			err(1, "Failed! Expected %d%cs..observed: %d\n", expected, character + char_idx, observed);
 		}
 	}
+	nprintf("\n");
 	success(TEST161_SUCCESS, SECRET, "/testbin/forktest");
 	close(fd);
 }
