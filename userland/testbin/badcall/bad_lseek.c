@@ -75,7 +75,7 @@ lseek_file_stdin(void)
 	const char slogan[] = "There ain't no such thing as a free lunch";
 	size_t len = strlen(slogan);
 	pid_t pid;
-	int result;
+	int result = 0;
 
 	report_begin("lseek stdin when open on file");
 
