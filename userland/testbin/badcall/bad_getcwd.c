@@ -39,5 +39,6 @@ test_getcwd(void)
 	int ntests = 0, lost_points = 0;
 	test_getcwd_buf(&ntests, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-getcwd", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

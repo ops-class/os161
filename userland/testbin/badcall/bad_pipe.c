@@ -94,5 +94,6 @@ test_pipe(void)
 	result = pipe_unaligned();
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-pipe", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

@@ -65,5 +65,6 @@ test_reboot(void)
 	result = reboot_badflags();
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-reboot", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

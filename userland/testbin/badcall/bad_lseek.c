@@ -303,5 +303,6 @@ test_lseek(void)
 	result = lseek_whence_inval();
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-lseek", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

@@ -157,5 +157,6 @@ test_dup2(void)
 	failure = dup2_self();
 	handle_result(failure, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-dup2", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

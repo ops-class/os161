@@ -39,5 +39,6 @@ test_close(void)
 	int ntests = 0, lost_points = 0;
 	test_close_fd(&ntests, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-close", ntests- lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

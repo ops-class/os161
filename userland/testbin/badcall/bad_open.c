@@ -86,5 +86,6 @@ test_open(void)
 	result = open_empty();
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-open", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

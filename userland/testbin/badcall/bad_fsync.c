@@ -40,6 +40,7 @@ test_fsync(void)
 
 	test_fsync_fd(&ntests, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-fsync", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 

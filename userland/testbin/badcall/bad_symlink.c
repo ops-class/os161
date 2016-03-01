@@ -78,5 +78,6 @@ test_symlink(void)
 	result = symlink_empty2();
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-symlink", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

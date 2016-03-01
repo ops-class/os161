@@ -96,5 +96,6 @@ test_mkdir(void)
 	mkdir_empty();
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-mkdir", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

@@ -217,5 +217,6 @@ test_execv(void)
 	result = exec_onearg(KERN_PTR, "exec with kernel pointer arg");
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-execv", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

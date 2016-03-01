@@ -130,6 +130,7 @@ test_rename(void)
 	result = rename_empty2();
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-rename", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 

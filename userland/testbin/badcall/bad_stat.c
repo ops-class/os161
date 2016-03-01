@@ -117,7 +117,8 @@ test_fstat(void)
 	result = any_badbuf(badbuf_fstat, "fstat");
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-fstat", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 
 void
@@ -136,7 +137,8 @@ test_lstat(void)
 	result = any_badbuf(badbuf_lstat, "lstat");
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-lstat", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 
 void
@@ -155,6 +157,7 @@ test_stat(void)
 	result = any_badbuf(badbuf_stat, "stat");
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-stat", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 

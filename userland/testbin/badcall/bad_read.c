@@ -41,7 +41,8 @@ test_read(void)
 	test_read_fd(&ntests, &lost_points);
 	test_read_buf(&ntests, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-read", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 
 }
 

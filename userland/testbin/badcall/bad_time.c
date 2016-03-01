@@ -87,5 +87,6 @@ test_time(void)
 	result = time_badnsecs(KERN_PTR, "__time with kernel nsecs pointer");
 	handle_result(result, &lost_points);
 
-	partial_credit(SECRET, "/testbin/badcall-time", ntests - lost_points, ntests);
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
