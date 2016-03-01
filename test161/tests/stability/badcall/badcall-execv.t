@@ -1,11 +1,10 @@
 ---
-name: "Badcall-execv Test"
+name: "Bad Exec"
 description:
-  Tests whether execv syscall is implemented correctly by invoking it in all
-  possible wrong ways.
-tags: [badcall, stability]
+  Stability test for sys_exec.
+tags: [badcall,stability]
 depends: [shell]
 sys161:
-  ram: 4M
+  ram: 512K
 ---
 $ /testbin/badcall a

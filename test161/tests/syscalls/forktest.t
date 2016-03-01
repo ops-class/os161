@@ -2,8 +2,8 @@
 name: "Fork Test"
 description: >
   Test that fork works.
-tags: [syscalls,procsyscalls]
-depends: [console,/asst2/fs/readwritetest.t]
+tags: [sys_fork,procsyscalls,syscalls]
+depends: [console]
 sys161:
   ram: 4M
 ---

@@ -1,9 +1,10 @@
 ---
-name: "Badcall-lseek Test"
+name: "Bad Seek"
 description:
-  Tests whether lseek syscall is implemented correctly by invoking it in all
-  possible wrong ways.
-tags: [badcall, stability]
+  Stability test for sys_lseek.
+tags: [badcall,stability]
 depends: [shell]
+sys161:
+  ram: 512K
 ---
 $ /testbin/badcall j

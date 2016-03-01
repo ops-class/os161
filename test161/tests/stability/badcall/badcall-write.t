@@ -1,9 +1,10 @@
 ---
-name: "Badcall-write Test"
+name: "Bad Write"
 description:
-  Tests whether write syscall is implemented correctly by invoking it in all
-  possible wrong ways.
-tags: [badcall, stability]
+  Stability test for sys_write.
+tags: [badcall,stability]
 depends: [shell]
+sys161:
+  ram: 512K
 ---
 $ /testbin/badcall e

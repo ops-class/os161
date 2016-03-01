@@ -1,9 +1,9 @@
 ---
-name: "Forktest Stability Test"
+name: "Fork Stability Test"
 description:
   Runs forktest 5 times to check for synchronization issues.
 tags: [stability]
-depends: [shell, /asst2/process/forktest.t]
+depends: [shell]
 sys161:
   ram: 16M
 ---

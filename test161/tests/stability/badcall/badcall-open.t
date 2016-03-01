@@ -1,9 +1,10 @@
 ---
-name: "Badcall-open Test"
+name: "Bad Open"
 description:
-  Tests whether open syscall is implemented correctly by invoking it in all
-  possible wrong ways.
-tags: [badcall, stability]
+  Stability test for sys_open.
+tags: [badcall,stability]
 depends: [shell]
+sys161:
+  ram: 512K
 ---
 $ /testbin/badcall c

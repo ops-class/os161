@@ -1,9 +1,8 @@
 ---
-name: "Badcall-read Test"
+name: "Bad Read"
 description:
-  Tests whether read syscall is implemented correctly by invoking it in all
-  possible wrong ways.
-tags: [badcall, stability]
+  Stability test for sys_read.
+tags: [badcall,stability]
 depends: [shell]
 ---
 $ /testbin/badcall d

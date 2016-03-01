@@ -1,11 +1,10 @@
 ---
-name: "Badcall-waitpid Test"
+name: "Bad Wait"
 description:
-  Tests whether waitpid syscall is implemented correctly by invoking it in all
-  possible wrong ways.
-tags: [badcall, stability]
+  Stability test for sys_wait.
+tags: [badcall,stability]
 depends: [shell]
 sys161:
-  ram: 4M
+  ram: 512K
 ---
 $ /testbin/badcall b

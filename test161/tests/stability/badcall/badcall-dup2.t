@@ -1,9 +1,8 @@
 ---
-name: "Badcall-dup2 Test"
+name: "Bad Dup"
 description:
-  Tests whether dup2 syscall is implemented correctly by invoking it in all
-  possible wrong ways.
-tags: [badcall, stability]
+  Stability test for sys_dup2.
+tags: [badcall,stability]
 depends: [shell]
 ---
 $ /testbin/badcall w

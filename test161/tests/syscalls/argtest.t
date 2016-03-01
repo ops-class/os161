@@ -2,7 +2,7 @@
 name: "Argtest"
 description:
   Checks whether your kernel supports argument passing.
-tags: [argtest, proc]
-depends: [console]
+tags: [sys_exec,procsyscalls,syscalls]
+depends: [shell]
 ---
 $ /testbin/argtest

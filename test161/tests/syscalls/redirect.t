@@ -3,9 +3,9 @@ name: "Redirect Test"
 description: >
   Tests sys_dup2. Opens a file handle, then forks a new process which
   manipulates the file table.
-tags: [syscalls,filesyscalls]
-depends: [/asst2/process/forktest.t]
+tags: [sys_dup2,filesyscalls,syscalls]
+depends: [console,sys_fork]
 sys161:
-  ram: 512K
+  ram: 1M
 ---
 p /testbin/redirect

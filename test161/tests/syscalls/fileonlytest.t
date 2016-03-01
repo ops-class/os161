@@ -5,8 +5,8 @@ description: >
   bytes, skips 512 bytes and writes another 512 bytes (odd steps). Seeks
   back to beginning and writes the even steps. Then seeks back to the
   beginning and verifies that the contents are correct.
-tags: [syscalls,filesyscalls]
-depends: [console, /asst2/fs/readwritetest.t,]
+tags: [filesyscalls,syscalls]
+depends: [console]
 sys161:
   ram: 512K
 ---

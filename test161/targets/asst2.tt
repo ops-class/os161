@@ -5,7 +5,7 @@ type: asst
 kconfig: ASST2
 userland: true
 tests:
-# Make sure the console works
+# Make sure the console works (10 points)
   - id: syscalls/consoletest.t
     points: 10
 # File system system calls (50 points)
@@ -35,26 +35,26 @@ tests:
   - id: syscalls/add.t
     points: 5
 # Stability tests (40 points)
-# Bad calls
+# Bad calls (10 points)
   - id: stability/badcall/badcall-open.t
-    points: 3
+    points: 1
   - id: stability/badcall/badcall-close.t
-    points: 3
+    points: 1
   - id: stability/badcall/badcall-read.t
-    points: 3
+    points: 1
   - id: stability/badcall/badcall-write.t
-    points: 3
+    points: 1
   - id: stability/badcall/badcall-lseek.t
-    points: 3
+    points: 1
   - id: stability/badcall/badcall-dup2.t
-    points: 3
+    points: 1
   - id: stability/badcall/badcall-execv.t
-    points: 5
+    points: 2
   - id: stability/badcall/badcall-waitpid.t
-    points: 5
+    points: 2
 # crash
   - id: stability/crash/crash-allS.t
-    points: 2
+    points: 5
 # randcall
   - id: stability/randcall.t
     points: 5
@@ -63,11 +63,11 @@ tests:
         args:
           - "-f"
           - "-c 100"
-          - "-r {{randInt 1 4294967295}}"
+          - "-r 421"
           - "2"
 # forkbomb
   - id: stability/forkbomb.t
     points: 10
 # forktest
   - id: stability/forktest-stability.t
-    points: 5
+    points: 10

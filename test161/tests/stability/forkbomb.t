@@ -1,5 +1,5 @@
 ---
-name: "Forkbomb"
+name: "Calm Like a Fork Bomb"
 tags: [stability]
 depends: [console]
 sys161:

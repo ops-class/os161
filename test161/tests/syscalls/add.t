@@ -2,7 +2,7 @@
 name: "Add Test"
 description:
   Adds two randomly generated numbers.
-tags: [proc, fun]
+tags: [sys_exec,procsyscalls,syscalls]
 depends: [shell]
 ---
 $ /testbin/add
