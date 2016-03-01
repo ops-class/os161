@@ -5,6 +5,6 @@ description: >
 tags: [sys_fork,procsyscalls,syscalls]
 depends: [console]
 sys161:
-  ram: 4M
+  ram: 2M
 ---
 p /testbin/forktest

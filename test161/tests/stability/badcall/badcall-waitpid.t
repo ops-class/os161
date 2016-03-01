@@ -5,6 +5,6 @@ description:
 tags: [badcall,stability]
 depends: [shell]
 sys161:
-  ram: 512K
+  ram: 2M
 ---
 $ /testbin/badcall b
