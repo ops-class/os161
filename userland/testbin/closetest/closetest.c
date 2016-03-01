@@ -54,7 +54,7 @@ main(int argc, char **argv)
 
 	int ret, fd = -1;
 	// Try to open a file and then close it
-	fd = open("sys161.conf", O_RDONLY);
+	fd = open("/bin/true", O_RDONLY);
 	if(fd < 0) {
 		err(-1, "Open syscall failed");
 	}
