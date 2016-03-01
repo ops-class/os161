@@ -9,6 +9,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
+#include <time.h>
+#include <stdio.h>
 #endif
 
 #include <kern/secure.h>
@@ -34,6 +37,10 @@ static const unsigned char opad[SHA256_BLOCK_SIZE] = { [0 ... SHA256_BLOCK_SIZE-
 
 static char temp_buffers[NUM_BUFFERS][BUFFER_LEN];
 static int buf_num = 0;
+
+#ifndef _KERNEL
+static int did_random = 0;
+#endif
 
 static void * _alloc(size_t size)
 {
@@ -133,6 +140,15 @@ static void array_to_hex(unsigned char *a, size_t len, char *res)
 
 static void make_salt(char *salt_str)
 {
+#ifndef _KERNEL
+	if (!did_random) {
+		did_random = 1;
+		time_t t;
+		time(&t);
+		srandom(t);
+	}
+#endif
+
 	// Compute salt value
 	uint32_t salt[SALT_BYTES/sizeof(uint32_t)];
 

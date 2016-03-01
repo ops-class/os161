@@ -58,6 +58,13 @@ success(int status, const char * secret, const char * name) {
 	}
 }
 
+int
+partial_credit(const char *secret, const char *name, int scored, int total)
+{
+        char buffer[128];
+        snprintf(buffer, 128, "PARTIAL CREDIT %d OF %d", scored, total);
+        return secprintf(secret, buffer, name);
+}
 #ifndef _KERNEL
 
 // Borrowed from parallelvm.  We need atomic console writes so our

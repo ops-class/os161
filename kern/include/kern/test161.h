@@ -37,5 +37,6 @@
 
 int success(int, const char *, const char *);
 int secprintf(const char *secret, const char *msg, const char *name);
+int partial_credit(const char *secret, const char *name, int scored, int total);
 
 #endif /* _KERN_TEST161_H_ */
