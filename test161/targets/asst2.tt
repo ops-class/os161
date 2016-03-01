@@ -1,0 +1,76 @@
+name: asst2
+version: 1
+points: 150
+type: asst
+kconfig: ASST2
+userland: true
+tests:
+# FS tests
+  - id: asst2/fs/consoletest.t
+    points: 2
+  - id: asst2/fs/opentest.t
+    points: 5
+  - id: asst2/fs/closetest.t
+    points: 3
+  - id: asst2/fs/readwritetest.t
+    points: 10
+  - id: asst2/fs/fileonlytest.t
+    points: 15
+  - id: asst2/fs/redirect.t
+    points: 10
+  - id: asst2/fs/sparsefile.t
+    points: 5
+
+# Process tests
+  - id: asst2/process/forktest.t
+    points: 15
+  - id: asst2/process/shell.t
+    points: 10
+  - id: asst2/process/argtest.t
+    points: 5
+  - id: asst2/process/bigexec.t
+    points: 10
+  - id: asst2/process/factorial.t
+    points: 5
+  - id: asst2/process/add.t
+    points: 5
+
+# All tests below this point are stability tests
+
+# badcalls
+  - id: asst2/stability/badcall/badcall-open.t
+    points: 3
+  - id: asst2/stability/badcall/badcall-close.t
+    points: 3
+  - id: asst2/stability/badcall/badcall-read.t
+    points: 3
+  - id: asst2/stability/badcall/badcall-write.t
+    points: 3
+  - id: asst2/stability/badcall/badcall-lseek.t
+    points: 3
+  - id: asst2/stability/badcall/badcall-dup2.t
+    points: 3
+  - id: asst2/stability/badcall/badcall-execv.t
+    points: 5
+  - id: asst2/stability/badcall/badcall-waitpid.t
+    points: 5
+
+  - id: asst2/stability/crash/crash-allS.t
+    points: 2
+
+  - id: asst2/stability/randcall.t
+    points: 5
+    commands:
+      - id: /testbin/randcall
+        args:
+          - "-f"
+          - "-c 1000"
+          - "-r {{randInt 1 4294967295}}"
+          - "2"
+
+  - id: asst2/stability/forkbomb.t
+    points: 10
+
+  - id: asst2/stability/forktest-stability.t
+    points: 5
+

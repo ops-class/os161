@@ -1,0 +1,10 @@
+---
+name: "Crash-template Test"
+description:
+  Tests whether your system correctly handles a variety of
+  illegal attempts from userspace processes to access resources that
+  do not belong to it. Please see userland/testbin/crash for more info.
+tags: [stability, crash]
+depends: [console]
+---
+p /extratests/crash-template
