@@ -1,4 +1,8 @@
 name: asst1
+print_name: ASST1
+description: >
+  In this assignment you will implement new synchronization
+  primitives for OS/161 and use them to solve several synchronization problems.
 version: 1
 points: 50
 type: asst

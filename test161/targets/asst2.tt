@@ -1,4 +1,8 @@
 name: asst2
+print_name: ASST2
+description: >
+  In this assignment you will add process and system call support to your
+  OS/161 kernel.
 version: 1
 points: 150
 type: asst
