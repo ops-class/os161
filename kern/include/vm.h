@@ -56,12 +56,11 @@ vaddr_t alloc_kpages(unsigned npages);
 void free_kpages(vaddr_t addr);
 
 /*
- * Return amount of free memory (in bytes) available in unallocated coremap pages.
- * If there are ongoing allocations, this value could change after it is
- * returned to the caller. But it should have been correct at some point in
- * time.
+ * Return amount of memory (in bytes) used by allocated coremap pages.  If
+ * there are ongoing allocations, this value could change after it is returned
+ * to the caller. But it should have been correct at some point in time.
  */
-unsigned int coremap_free_bytes(void);
+unsigned int coremap_used_bytes(void);
 
 /* TLB shootdown handling called from interprocessor_interrupt */
 void vm_tlbshootdown_all(void);

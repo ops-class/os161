@@ -128,7 +128,7 @@ free_kpages(vaddr_t addr)
 
 unsigned
 int
-coremap_free_bytes() {
+coremap_used_bytes() {
 
 	/* dumbvm doesn't track page allocations. Return 0 so that khu works. */
 

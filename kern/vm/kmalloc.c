@@ -834,7 +834,7 @@ kheap_printused(void)
 	for (pr = allbase; pr != NULL; pr = pr->next_all) {
 		total += subpage_stats(pr, true);
 	}
-	total += coremap_free_bytes();
+	total += coremap_used_bytes();
 	spinlock_release(&kmalloc_spinlock);
 
 	snprintf(total_string, sizeof(total_string), "%lu", total);
