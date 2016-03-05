@@ -827,16 +827,16 @@ kheap_printused(void)
 {
 	struct pageref *pr;
 	unsigned long total = 0;
+	char total_string[32];
+
 	/* print the whole thing with interrupts off */
 	spinlock_acquire(&kmalloc_spinlock);
-
 	for (pr = allbase; pr != NULL; pr = pr->next_all) {
 		total += subpage_stats(pr, true);
 	}
-
+	total += coremap_free_bytes();
 	spinlock_release(&kmalloc_spinlock);
 
-	char total_string[32];
 	snprintf(total_string, sizeof(total_string), "%lu", total);
 	secprintf(SECRET, total_string, "khu");
 }

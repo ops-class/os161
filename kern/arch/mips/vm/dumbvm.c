@@ -126,6 +126,15 @@ free_kpages(vaddr_t addr)
 	(void)addr;
 }
 
+unsigned
+int
+coremap_free_bytes() {
+
+	/* dumbvm doesn't track page allocations. Return 0 so that khu works. */
+
+	return 0;
+}
+
 void
 vm_tlbshootdown_all(void)
 {
