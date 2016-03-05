@@ -48,6 +48,7 @@ struct cpu;
 
 /* Size of kernel stacks; must be power of 2 */
 #define STACK_SIZE 4096
+#define MAX_NAME_LENGTH 64
 
 /* Mask for extracting the stack base address of a kernel stack pointer */
 #define STACK_MASK  (~(vaddr_t)(STACK_SIZE-1))
@@ -70,7 +71,16 @@ struct thread {
 	 * These go up front so they're easy to get to even if the
 	 * debugger is messed up.
 	 */
-	char *t_name;			/* Name of this thread */
+
+	/*
+	 * Name of this thread. Used to be dynamically allocated using kmalloc, but
+	 * this can cause small changes in the amount of available memory due to the
+	 * fact that it was cleaned up in exorcise. This produces more predictable
+	 * behavior at the cost of a small amount of memory overhead and the
+	 * inability to give threads huge names.
+	 */
+
+	char t_name[MAX_NAME_LENGTH];
 	const char *t_wchan_name;	/* Name of wait channel, if sleeping */
 	threadstate_t t_state;		/* State this thread is in */
 

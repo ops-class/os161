@@ -119,17 +119,16 @@ thread_create(const char *name)
 	struct thread *thread;
 
 	DEBUGASSERT(name != NULL);
+	if (strlen(name) > MAX_NAME_LENGTH) {
+		return NULL;
+	}
 
 	thread = kmalloc(sizeof(*thread));
 	if (thread == NULL) {
 		return NULL;
 	}
 
-	thread->t_name = kstrdup(name);
-	if (thread->t_name == NULL) {
-		kfree(thread);
-		return NULL;
-	}
+	strcpy(thread->t_name, name);
 	thread->t_wchan_name = "NEW";
 	thread->t_state = S_READY;
 
@@ -280,7 +279,6 @@ thread_destroy(struct thread *thread)
 	/* sheer paranoia */
 	thread->t_wchan_name = "DESTROYED";
 
-	kfree(thread->t_name);
 	kfree(thread);
 }
 
@@ -795,7 +793,7 @@ thread_exit(void)
 	thread_checkstack(cur);
 
 	/* Interrupts off on this processor */
-        splhigh();
+	splhigh();
 	thread_switch(S_ZOMBIE, NULL, NULL);
 	panic("braaaaaaaiiiiiiiiiiinssssss\n");
 }
