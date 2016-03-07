@@ -55,9 +55,9 @@ Standard C Library (libc, -lc)
 
 <h3>Description</h3>
 <p>
-<tt>dup2</tt> clones the file handle <em>oldfd</em> onto the file
-handle <em>newfd</em>. If <em>newfd</em> names an already-open file,
-that file is closed.
+<tt>dup2</tt> clones the file handle identifed by file descriptor <em>oldfd</em> 
+onto the file handle identified by <em>newfd</em>. If <em>newfd</em> 
+names an already-open file, that file is closed.
 </p>
 
 <p>
@@ -74,8 +74,8 @@ dup2 is most commonly used to relocate opened files onto
 </p>
 
 <p>
-Both filehandles must be non-negative, and, if applicable, smaller
-than the maximum allowed file handle number.
+Both file descriptors must be non-negative, and, if applicable, 
+smaller than the maximum allowed file handle number.
 </p>
 
 <p>
@@ -116,9 +116,9 @@ here.
 <tr><td width=5% rowspan=3>&nbsp;</td>
     <td width=10% valign=top>EBADF</td>
 				<td><em>oldfd</em> is not a valid file
-				handle, or <em>newfd</em> is a value
+				descriptor, or <em>newfd</em> is a value
 				that cannot be a valid file
-				handle.</td></tr>
+				descriptor.</td></tr>
 <tr><td valign=top>EMFILE</td>	<td>The process's file table was full, or a
 				process-specific limit on open files
 				was reached.</td></tr>
