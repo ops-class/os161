@@ -55,6 +55,4 @@ void vwarnx(const char *fmt, __va_list);
 __DEAD void verr(int exitcode, const char *fmt, __va_list);
 __DEAD void verrx(int exitcode, const char *fmt, __va_list);
 
-void crash_prog(void);
-
 #endif /* _ERR_H_ */

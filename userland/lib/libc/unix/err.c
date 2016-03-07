@@ -140,7 +140,6 @@ verr(int exitcode, const char *fmt, va_list ap)
 	__printerr(1, fmt, ap);
 	exit(exitcode);
 	// exit() didn't work.
-	crash_prog();
 }
 
 /* errx/verrx: don't use errno, but do then exit */
@@ -150,7 +149,6 @@ verrx(int exitcode, const char *fmt, va_list ap)
 	__printerr(0, fmt, ap);
 	exit(exitcode);
 	// exit() didn't work.
-	crash_prog();
 }
 
 /*
@@ -192,13 +190,4 @@ errx(int exitcode, const char *fmt, ...)
 	va_start(ap, fmt);
 	verrx(exitcode, fmt, ap);
 	va_end(ap);
-}
-
-void
-crash_prog(void)
-{
-	// Guru: Since exit() may not yet be implemented, just trigger a
-	// failure so things don't fall through to a success print
-	nprintf("Accessing invalid memory location to trigger failure\n");
-	tprintf("%d", *((int *) 0xd34db33f));
 }
