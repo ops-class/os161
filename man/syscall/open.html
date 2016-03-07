@@ -99,12 +99,12 @@ course's assignments.)
 </p>
 
 <p>
-<tt>open</tt> returns a file handle suitable for passing to
+<tt>open</tt> returns a file descriptor suitable for passing to
 <A HREF=read.html>read</A>,
 <A HREF=write.html>write</A>,
 <A HREF=close.html>close</A>,
-etc. This file handle must be greater than or equal to zero.  Note
-that file handles 0 (STDIN_FILENO), 1 (STDOUT_FILENO), and 2
+etc. This file descriptor must be greater than or equal to zero.  Note
+that file descriptors 0 (STDIN_FILENO), 1 (STDOUT_FILENO), and 2
 (STDERR_FILENO) are used in special ways and are typically assumed by
 user-level code to always be open.
 </p>
@@ -128,9 +128,9 @@ contain <tt>..</tt> is usually not quite atomic.
 
 <h3>Return Values</h3>
 <p>
-On success, <tt>open</tt> returns a nonnegative file handle. On error,
--1 is returned, and <A HREF=errno.html>errno</A> is set according to
-the error encountered.
+On success, <tt>open</tt> returns a nonnegative file descriptor. On 
+error, -1 is returned, and <A HREF=errno.html>errno</A> is set 
+according to the error encountered.
 </p>
 
 <h3>Errors</h3>
