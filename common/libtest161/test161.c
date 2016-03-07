@@ -3,6 +3,7 @@
 #ifdef _KERNEL
 #include <types.h>
 #include <lib.h>
+#include <synch.h>
 #include <kern/errno.h>
 #include <kern/secure.h>
 #include <kern/test161.h>
@@ -17,31 +18,32 @@
 #include <test161/secure.h>
 #endif
 
-// Hack for allocating userspace memory without malloc.
-#define BUFFER_SIZE 4096
+// Hack for allocating userspace memory without malloc, and for
+// allowing secprintf in kmalloc when we're out of memory.
+#define BUFFER_SIZE 1024
+
+static char temp_buffer[BUFFER_SIZE];
 
 #ifndef _KERNEL
-static char temp_buffer[BUFFER_SIZE];
 static char write_buffer[BUFFER_SIZE];
 #endif
 
-static inline void * _alloc(size_t size)
-{
 #ifdef _KERNEL
-	return kmalloc(size);
-#else
-	(void)size;
-	return temp_buffer;
+// secprintf needs to be synchronized in the kernel because multiple threads
+// may be trying to secprintf at the same time.
+static struct semaphore *test161_sem;
 #endif
+
+// For now, allocating just passes a reference to our static temp buffer, and
+// free does nothing.
+static inline void * _alloc()
+{
+	return temp_buffer;
 }
 
 static inline void _free(void *ptr)
 {
-#ifdef _KERNEL
-	kfree(ptr);
-#else
 	(void)ptr;
-#endif
 }
 
 /*
@@ -106,19 +108,29 @@ secprintf(const char * secret, const char * msg, const char * name)
 	int res;
 	size_t len;
 
+#ifdef _KERNEL
+	if (test161_sem == NULL) {
+		panic("test161_sem is NULL. Your kernel is missing test161_bootstrap.");
+	}
+	P(test161_sem);
+#endif
+
 	hash = salt = fullmsg = NULL;
 
 	// test161 expects "name: msg"
 	len = strlen(name) + strlen(msg) + 3;	// +3 for " :" and null terminator
 	fullmsg = (char *)_alloc(len);
 	if (fullmsg == NULL) {
-		return -ENOMEM;
+		res = -ENOMEM;
+		goto out;
 	}
 	snprintf(fullmsg, len, "%s: %s", name, msg);
 
 	res = hmac_salted(fullmsg, len-1, secret, strlen(secret), &hash, &salt);
-	if (res)
-		return -res;
+	if (res) {
+		res = -res;
+		goto out;
+	}
 
 #ifdef _KERNEL
 	res = kprintf("(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
@@ -126,11 +138,27 @@ secprintf(const char * secret, const char * msg, const char * name)
 	res = say("(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
 #endif
 
+out:
+	// These may be NULL, but that's OK
 	_free(hash);
 	_free(salt);
 	_free(fullmsg);
 
+#ifdef _KERNEL
+	V(test161_sem);
+#endif
+
 	return res;
 }
 
+#endif
+
+#ifdef _KERNEL
+void test161_bootstrap()
+{
+	test161_sem = sem_create("test161", 1);
+	if (test161_sem == NULL) {
+		panic("Failed to create test161 secprintf semaphore");
+	}
+}
 #endif

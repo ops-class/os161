@@ -44,35 +44,25 @@ static int did_random = 0;
 #define MSEC_PER_SEC 1000ULL
 #endif
 
+// Both userspace and the kernel are using the temp buffers now.
 static void * _alloc(size_t size)
 {
-#ifdef _KERNEL
-	// Compiler
-	(void)temp_buffers;
-	(void)buf_num;
-
-	return kmalloc(size);
-#else
 	(void)size;
 	void *ptr = temp_buffers[buf_num];
 	buf_num++;
 	buf_num = buf_num % NUM_BUFFERS;
 	return ptr;
-#endif
 }
 
 static void _free(void *ptr)
 {
-#ifdef _KERNEL
-	kfree(ptr);
-#else
 	(void)ptr;
-#endif
 }
 
 /*
  * hamc_sha256 follows FIPS 198-1 HMAC using sha256.
  * See http://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf for details.
+ * NOTE: This is only thread-safe if called from within secprintf()!!!
  */
 static int hmac_sha256(const char *msg, size_t msg_len, const char *key, size_t key_len, 
 		unsigned char output[SHA256_OUTPUT_SIZE])
@@ -189,6 +179,7 @@ int hmac(const char *msg, size_t msg_len, const char *key, size_t key_len,
 	return 0;
 }
 
+// NOTE: This is only thread-safe if called from within secprintf()!!!
 int hmac_salted(const char *msg, size_t msg_len, const char *key, size_t key_len, 
 		char **hash_str, char **salt_str)
 {
