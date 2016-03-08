@@ -61,13 +61,13 @@ cleanprog:
 install-staging-local: $(INSTALLTOP)$(BINDIR) .WAIT $(INSTALLTOP)$(BINDIR)/$(PROG)
 $(INSTALLTOP)$(BINDIR)/$(PROG): $(MYBUILDDIR)/$(PROG)
 	rm -f $(.TARGET)
-	ln $(MYBUILDDIR)/$(PROG) $(.TARGET) || \
+	ln $(MYBUILDDIR)/$(PROG) $(.TARGET) >/dev/null 2>&1 || \
 	  cp $(MYBUILDDIR)/$(PROG) $(.TARGET)
 
 install-local: install-prog
 install-prog: $(OSTREE)$(BINDIR) $(MYBUILDDIR)/$(PROG)
 	rm -f $(OSTREE)$(BINDIR)/$(PROG)
-	ln $(MYBUILDDIR)/$(PROG) $(OSTREE)$(BINDIR)/$(PROG) || \
+	ln $(MYBUILDDIR)/$(PROG) $(OSTREE)$(BINDIR)/$(PROG) >/dev/null 2>&1 || \
 	  cp $(MYBUILDDIR)/$(PROG) $(OSTREE)$(BINDIR)/$(PROG)
 
 # Link the program.

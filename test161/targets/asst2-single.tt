@@ -1,0 +1,51 @@
+name: asst2-single
+print_name: "ASST2 (Single)"
+description: >
+  In this assignment you will add process and system call support to your
+  OS/161 kernel. This is the single-submitter version for students that are
+  working alone and were provided the file system system calls.
+leaderboard: false
+version: 1
+points: 80
+type: asst
+kconfig: ASST2
+userland: true
+tests:
+# Process system call tests (50 points)
+  - id: syscalls/forktest.t
+    points: 15
+  - id: syscalls/shell.t
+    points: 10
+  - id: syscalls/argtest.t
+    points: 5
+  - id: syscalls/bigexec.t
+    points: 10
+  - id: syscalls/factorial.t
+    points: 5
+  - id: syscalls/add.t
+    points: 5
+# Stability tests (30 points)
+# Bad calls (5 points)
+  - id: stability/badcall/badcall-execv.t
+    points: 3
+  - id: stability/badcall/badcall-waitpid.t
+    points: 2
+# crash
+  - id: stability/crash/crash-allS.t
+    points: 3
+# randcall
+  - id: stability/randcall.t
+    points: 2
+    commands:
+      - id: /testbin/randcall
+        args:
+          - "-f"
+          - "-c 100"
+          - "-r 421"
+          - "2"
+# forkbomb
+  - id: stability/forkbomb.t
+    points: 10
+# forktest
+  - id: stability/forktest-stability.t
+    points: 10

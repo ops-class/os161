@@ -44,14 +44,14 @@ install-staging-local: $(INSTALLTOP)$(MANDIR) .WAIT
 install-staging-local: $(INSTALLTOP)$(MANDIR)/$(_F_)
 $(INSTALLTOP)$(MANDIR)/$(_F_): $(_F_)
 	rm -f $(.TARGET)
-	ln $(_F_) $(.TARGET) || cp $(_F_) $(.TARGET)
+	ln $(_F_) $(.TARGET) >/dev/null 2>&1 || cp $(_F_) $(.TARGET)
 .endfor
 
 install-local: $(OSTREE)$(MANDIR) .WAIT installmanpages
 installmanpages:
 .for _F_ in $(MANFILES)
 	rm -f $(OSTREE)$(MANDIR)/$(_F_)
-	ln $(_F_) $(OSTREE)$(MANDIR)/$(_F_) || \
+	ln $(_F_) $(OSTREE)$(MANDIR)/$(_F_) >/dev/null 2>&1 || \
 	  cp $(_F_) $(OSTREE)$(MANDIR)/$(_F_)
 .endfor
 
