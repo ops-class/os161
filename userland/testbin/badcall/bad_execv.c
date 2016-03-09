@@ -32,6 +32,7 @@
  */
 
 #include <sys/types.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -106,8 +107,7 @@ exec_badprog(const void *prog, const char *desc)
 	report_begin(desc);
 	rv = execv(prog, args);
 	result = report_check(rv, errno, EFAULT);
-	//XXX: Make sure this doesn't interfere with SIGNALLED/EXITED
-	int code = MAGIC_STATUS | result;
+	int code = result ? result : MAGIC_STATUS;
 	exit(code);
 }
 
@@ -128,8 +128,7 @@ exec_emptyprog(void)
 	report_begin("exec the empty string");
 	rv = execv("", args);
 	result = report_check2(rv, errno, EINVAL, EISDIR);
-	//XXX: Make sure this doesn't interfere with SIGNALLED/EXITED
-	int code = MAGIC_STATUS | result;
+	int code = result ? result : MAGIC_STATUS;
 	exit(code);
 }
 
@@ -146,8 +145,7 @@ exec_badargs(void *args, const char *desc)
 	report_begin(desc);
 	rv = execv("/bin/true", args);
 	result = report_check(rv, errno, EFAULT);
-	//XXX: Make sure this doesn't interfere with SIGNALLED/EXITED
-	int code = MAGIC_STATUS | result;
+	int code = result ? result : MAGIC_STATUS;
 	exit(code);
 }
 
@@ -170,8 +168,7 @@ exec_onearg(void *ptr, const char *desc)
 	report_begin(desc);
 	rv = execv("/bin/true", args);
 	result = report_check(rv, errno, EFAULT);
-	//XXX: Make sure this doesn't interfere with SIGNALLED/EXITED
-	int code = MAGIC_STATUS | result;
+	int code = result ? result : MAGIC_STATUS;
 	exit(code);
 
 }
