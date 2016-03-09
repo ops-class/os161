@@ -217,7 +217,7 @@ wait_parent(void)
 		report_survival(rv, errno, &result);
 		_exit(0);
 	}
-	rv = waitpid(childpid, &x, 0);
+	rv = waitpid(mypid, &x, 0);
 	report_beginsub("from parent:");
 	report_survival(rv, errno, &result);
 	return result;
