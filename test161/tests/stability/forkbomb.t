@@ -12,6 +12,6 @@ monitor:
     max: 1.0
   kernel:
     enablemin: true
-    min: 0.2
+    min: 0.01
 ---
 p /testbin/forkbomb
