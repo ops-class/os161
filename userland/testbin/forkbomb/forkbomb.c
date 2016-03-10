@@ -49,6 +49,10 @@
 
 #include <unistd.h>
 #include <err.h>
+#include <time.h>
+#include <test161/test161.h>
+
+#define TEST_DURATION 10
 
 static volatile int pid;
 
@@ -57,8 +61,16 @@ main(void)
 {
 	int i;
 
+	time_t start_time_s, time_now_s;
+	unsigned long start_time_ns, time_now_ns;
+	__time(&start_time_s, &start_time_ns);
 	while (1) {
 		fork();
+
+		__time(&time_now_s, &time_now_ns);
+		if(time_now_s - start_time_s > TEST_DURATION) {
+			success(TEST161_SUCCESS, SECRET, "/testbin/forkbomb");
+		}
 
 		pid = getpid();
 
