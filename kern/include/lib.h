@@ -130,6 +130,7 @@ void *kmalloc(size_t size);
 void kfree(void *ptr);
 void kheap_printstats(void);
 void kheap_printused(void);
+unsigned long kheap_getused(void);
 void kheap_nextgeneration(void);
 void kheap_dump(void);
 void kheap_dumpall(void);
