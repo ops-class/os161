@@ -21,13 +21,6 @@ templates:
   - name: /testbin/forkbomb
     timesout: yes
     timeout: 15.0
-    output:
-      - text: "/testbin/forkbomb: SUCCESS"
-      - text: "/testbin/forkbomb: SUCCESS"
-      - text: "/testbin/forkbomb: SUCCESS"
-      - text: "/testbin/forkbomb: SUCCESS"
-      - text: "/testbin/forkbomb: SUCCESS"
-
   - name: kmalloc
     output:
       - text: "kmalloc: out of memory"
