@@ -64,11 +64,14 @@ main(void)
 	time_t start_time_s, time_now_s;
 	unsigned long start_time_ns, time_now_ns;
 	__time(&start_time_s, &start_time_ns);
+	int parent_pid = getpid();
 	while (1) {
 		fork();
 
 		__time(&time_now_s, &time_now_ns);
-		if(time_now_s - start_time_s > TEST_DURATION) {
+		// Only parent gets to print
+		if(getpid() == parent_pid &&
+				time_now_s - start_time_s > TEST_DURATION) {
 			success(TEST161_SUCCESS, SECRET, "/testbin/forkbomb");
 		}
 
