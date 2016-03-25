@@ -113,6 +113,7 @@ int kmalloctest(int, char **);
 int kmallocstress(int, char **);
 int kmalloctest3(int, char **);
 int kmalloctest4(int, char **);
+int kmalloctest5(int, char **);
 int nettest(int, char **);
 
 /* Routine for running a user-level program. */

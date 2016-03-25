@@ -481,6 +481,7 @@ static const char *testmenu[] = {
 	"[km2] kmalloc stress test           ",
 	"[km3] Large kmalloc test            ",
 	"[km4] Multipage kmalloc test        ",
+	"[km5] kmalloc coremap alloc test    ",
 	"[tt1] Thread test 1                 ",
 	"[tt2] Thread test 2                 ",
 	"[tt3] Thread test 3                 ",
@@ -626,6 +627,7 @@ static struct {
 	{ "km2",	kmallocstress },
 	{ "km3",	kmalloctest3 },
 	{ "km4",	kmalloctest4 },
+	{ "km5",	kmalloctest5 },
 #if OPT_NET
 	{ "net",	nettest },
 #endif

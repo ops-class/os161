@@ -33,12 +33,18 @@
 #include <types.h>
 #include <kern/errno.h>
 #include <lib.h>
+#include <cpu.h>
 #include <thread.h>
 #include <synch.h>
 #include <vm.h> /* for PAGE_SIZE */
 #include <test.h>
+#include <kern/test161.h>
+#include <mainbus.h>
 
 #include "opt-dumbvm.h"
+
+// from arch/mips/vm/ram.c
+extern vaddr_t firstfree;
 
 ////////////////////////////////////////////////////////////
 // km1/km2
@@ -58,6 +64,12 @@
 #define ITEMSIZE  997
 #define NTHREADS  8
 
+#define PROGRESS(iter) do { \
+	if ((iter % 100) == 0) { \
+		kprintf("."); \
+	} \
+} while (0)
+
 static
 void
 kmallocthread(void *sm, unsigned long num)
@@ -69,6 +81,7 @@ kmallocthread(void *sm, unsigned long num)
 	int i;
 
 	for (i=0; i<NTRIES; i++) {
+		PROGRESS(i);
 		ptr = kmalloc(ITEMSIZE);
 		if (ptr==NULL) {
 			if (sem) {
@@ -105,7 +118,8 @@ kmalloctest(int nargs, char **args)
 
 	kprintf("Starting kmalloc test...\n");
 	kmallocthread(NULL, 0);
-	kprintf("kmalloc test done\n");
+	kprintf("\n");
+	success(TEST161_SUCCESS, SECRET, "km1");
 
 	return 0;
 }
@@ -140,7 +154,8 @@ kmallocstress(int nargs, char **args)
 	}
 
 	sem_destroy(sem);
-	kprintf("kmalloc stress test done\n");
+	kprintf("\n");
+	success(TEST161_SUCCESS, SECRET, "km2");
 
 	return 0;
 }
@@ -252,6 +267,7 @@ kmalloctest3(int nargs, char **args)
 	curpos = 0;
 	cursizeindex = 0;
 	for (i=0; i<numptrs; i++) {
+		PROGRESS(i);
 		cursize = sizes[cursizeindex];
 		ptr = ptrblocks[curblock][curpos];
 		KASSERT(ptr != NULL);
@@ -282,13 +298,15 @@ kmalloctest3(int nargs, char **args)
 
 	/* Free the lower tier. */
 	for (i=0; i<numptrblocks; i++) {
+		PROGRESS(i);
 		KASSERT(ptrblocks[i] != NULL);
 		kfree(ptrblocks[i]);
 	}
 	/* Free the upper tier. */
 	kfree(ptrblocks);
 
-	kprintf("kmalloctest3: passed\n");
+	kprintf("\n");
+	success(TEST161_SUCCESS, SECRET, "km3");
 	return 0;
 }
 
@@ -300,20 +318,24 @@ void
 kmalloctest4thread(void *sm, unsigned long num)
 {
 #define NUM_KM4_SIZES 5
+#define ITERATIONS 50
 	static const unsigned sizes[NUM_KM4_SIZES] = { 1, 3, 5, 2, 4 };
 
 	struct semaphore *sem = sm;
 	void *ptrs[NUM_KM4_SIZES];
 	unsigned p, q;
-	unsigned i;
+	unsigned i, j;
+	uint32_t magic;
 
 	for (i=0; i<NUM_KM4_SIZES; i++) {
 		ptrs[i] = NULL;
 	}
 	p = 0;
 	q = NUM_KM4_SIZES / 2;
+	magic = random();
 
 	for (i=0; i<NTRIES; i++) {
+		PROGRESS(i);
 		if (ptrs[q] != NULL) {
 			kfree(ptrs[q]);
 			ptrs[q] = NULL;
@@ -324,6 +346,17 @@ kmalloctest4thread(void *sm, unsigned long num)
 			      "allocating %u pages failed\n",
 			      num, sizes[p]);
 		}
+
+		// Write to the allocated memory and make sure nothing overwrites it.
+		*(uint32_t *)ptrs[p] = magic;
+		for (j = 0; j < ITERATIONS; j++) {
+			random_yielder(4);
+			if ((*(uint32_t *)ptrs[p]) != magic) {
+				panic("km4: expected %u got %u. Your VM is broken!",
+					magic, (*(uint32_t *)ptrs[p]));
+			}
+		}
+		magic++;
 		p = (p + 1) % NUM_KM4_SIZES;
 		q = (q + 1) % NUM_KM4_SIZES;
 	}
@@ -375,6 +408,193 @@ kmalloctest4(int nargs, char **args)
 	}
 
 	sem_destroy(sem);
-	kprintf("Multipage kmalloc test done\n");
+
+	kprintf("\n");
+	success(TEST161_SUCCESS, SECRET, "km4");
+	return 0;
+}
+
+static inline
+void
+km5_usage()
+{
+	kprintf("usage: km5 [--avail <num_pages>] [--kernel <num_pages>]\n");
+}
+
+/*
+ * Allocate and free all physical memory a number of times. Along the we, we
+ * check coremap_used_bytes to make sure it's reporting the number we're
+ * expecting.
+ */
+int
+kmalloctest5(int nargs, char **args)
+{
+#define KM5_ITERATIONS 5
+
+	// We're expecting an even number of arguments, less arg[0].
+	if (nargs > 5 || (nargs % 2) == 0) {
+		km5_usage();
+		return 0;
+	}
+
+	unsigned avail_page_slack = 0, kernel_page_limit = 0;
+	int arg = 1;
+
+	while (arg < nargs) {
+		if (strcmp(args[arg], "--avail") == 0) {
+			arg++;
+			avail_page_slack = atoi(args[arg++]);
+		} else if (strcmp(args[arg], "--kernel") == 0) {
+			arg++;
+			kernel_page_limit = atoi(args[arg++]);
+		} else {
+			km5_usage();
+			return 0;
+		}
+	}
+
+#if OPT_DUMBVM
+	kprintf("(This test will not work with dumbvm)\n");
+#endif
+
+	// First, we need to figure out how much memory we're running with and how
+	// much space it will take up if we maintain a pointer to each allocated
+	// page. We do something similar to km3 - for 32 bit systems with
+	// PAGE_SIZE == 4096, we can store 1024 pointers on a page. We keep an array
+	// of page size blocks of pointers which in total can hold enough pointers
+	// for each page of available physical memory.
+	unsigned orig_used, ptrs_per_page, num_ptr_blocks, max_pages;
+	unsigned total_ram, avail_ram, magic, orig_magic, known_pages;
+
+	ptrs_per_page = PAGE_SIZE / sizeof(void *);
+	total_ram = mainbus_ramsize();
+	avail_ram = total_ram - (uint32_t)(firstfree - MIPS_KSEG0);
+	max_pages = (avail_ram + PAGE_SIZE-1) / PAGE_SIZE;
+	num_ptr_blocks = (max_pages + ptrs_per_page-1) / ptrs_per_page;
+
+	// The array can go on the stack, we won't have that many
+	// (sys161 16M max => 4 blocks)
+	void **ptrs[num_ptr_blocks];
+
+	for (unsigned i = 0; i < num_ptr_blocks; i++) {
+		ptrs[i] = kmalloc(PAGE_SIZE);
+		if (ptrs[i] == NULL) {
+			panic("Can't allocate ptr page!");
+		}
+		bzero(ptrs[i], PAGE_SIZE);
+	}
+
+	kprintf("km5 --> phys ram: %uk avail ram: %uk  (%u pages) ptr blocks: %u\n", total_ram/1024,
+		avail_ram/1024, max_pages, num_ptr_blocks);
+
+	// Initially, there must be at least 1 page allocated for each thread stack,
+	// one page for kmalloc for this thread struct, plus what we just allocated).
+	// This probably isn't the GLB, but its a decent lower bound.
+	orig_used = coremap_used_bytes();
+	known_pages = num_cpus + num_ptr_blocks + 1;
+	if (orig_used < known_pages * PAGE_SIZE) {
+		panic ("Not enough pages initially allocated");
+	}
+	if ((orig_used % PAGE_SIZE) != 0) {
+		panic("Coremap used bytes should be a multiple of PAGE_SIZE");
+	}
+
+	// Test for kernel bloat.
+	if (kernel_page_limit > 0) {
+		uint32_t kpages = (total_ram - avail_ram + PAGE_SIZE) / PAGE_SIZE;
+		if (kpages > kernel_page_limit) {
+			panic("You're kernel is bloated! Max allowed pages: %d, used pages: %d",
+				kernel_page_limit, kpages);
+		}
+	}
+
+	orig_magic = magic = random();
+
+	for (int i = 0; i < KM5_ITERATIONS; i++) {
+		// Step 1: allocate all physical memory, with checks along the way
+		unsigned int block, pos, oom, pages, used, prev;
+		void *page;
+
+		block = pos = oom = pages = used = 0;
+		prev = orig_used;
+
+		while (pages < max_pages+1) {
+			PROGRESS(pages);
+			page = kmalloc(PAGE_SIZE);
+			if (page == NULL) {
+				oom = 1;
+				break;
+			}
+
+			// Make sure we can write to the page
+			*(uint32_t *)page = magic++;
+
+			// Make sure the number of used bytes is going up, and by increments of PAGE_SIZE
+			used = coremap_used_bytes();
+			if (used != prev + PAGE_SIZE) {
+				panic("Allocation not equal to PAGE_SIZE. prev: %u used: %u", prev, used);
+			}
+			prev = used;
+
+			ptrs[block][pos] = page;
+			pos++;
+			if (pos >= ptrs_per_page) {
+				pos = 0;
+				block++;
+			}
+			pages++;
+		}
+
+		// Step 2: Check that we were able to allocate a reasonable number of pages
+		unsigned expected;
+		if (avail_page_slack > 0 ) {
+			// max avail pages + what we can prove we allocated + some slack
+			expected = max_pages - (known_pages + avail_page_slack);
+		} else {
+			// At the very least, just so we know things are working.
+			expected = 3;
+		}
+
+		if (pages < expected) {
+			panic("Expected to allocate at least %d pages, only allocated %d",
+				expected, pages);
+		}
+
+		// We tried to allocate 1 more page than is available in physical memory. That
+		// should fail unless you're swapping out kernel pages, which you should
+		// probably not be doing.
+		if (!oom) {
+			panic("Allocated more pages than physical memory. Are you swapping kernel pages?");
+		}
+
+		// Step 3: free everything and check that we're back to where we started
+		for (block = 0; block < num_ptr_blocks; block++) {
+			for (pos = 0; pos < ptrs_per_page; pos++) {
+				if (ptrs[block][pos] != NULL) {
+					// Make sure we got unique addresses
+					if ((*(uint32_t *)ptrs[block][pos]) != orig_magic++) {
+						panic("km5: expected %u got %u - your VM is broken!",
+							orig_magic-1, (*(uint32_t *)ptrs[block][pos]));
+					}
+					kfree(ptrs[block][pos]);
+				}
+			}
+		}
+
+		// Check that we're back to where we started
+		used = coremap_used_bytes();
+		if (used != orig_used) {
+			panic("orig (%u) != used (%u)", orig_used, used);
+		}
+	}
+
+	//Clean up the pointer blocks
+	for (unsigned i = 0; i < num_ptr_blocks; i++) {
+		kfree(ptrs[i]);
+	}
+
+	kprintf("\n");
+	success(TEST161_SUCCESS, SECRET, "km5");
+
 	return 0;
 }
