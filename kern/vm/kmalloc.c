@@ -828,13 +828,23 @@ unsigned long
 kheap_getused(void) {
 	struct pageref *pr;
 	unsigned long total = 0;
+	unsigned int num_pages = 0, coremap_bytes = 0;
 
 	/* compute with interrupts off */
 	spinlock_acquire(&kmalloc_spinlock);
 	for (pr = allbase; pr != NULL; pr = pr->next_all) {
 		total += subpage_stats(pr, true);
+		num_pages++;
 	}
-	total += coremap_used_bytes();
+
+	coremap_bytes = coremap_used_bytes();
+
+	// Don't double-count the pages we're using for subpage allocation;
+	// we've already accounted for the used portion.
+	if (coremap_bytes > 0) {
+		total += coremap_bytes - (num_pages * PAGE_SIZE);
+	}
+
 	spinlock_release(&kmalloc_spinlock);
 
 	return total;
