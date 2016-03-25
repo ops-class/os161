@@ -65,6 +65,7 @@ struct wchan {
 DECLARRAY(cpu, static __UNUSED inline);
 DEFARRAY(cpu, static __UNUSED inline);
 static struct cpuarray allcpus;
+unsigned num_cpus;
 
 /* Used to wait for secondary CPUs to come online. */
 static struct semaphore *cpu_startup_sem;
@@ -426,7 +427,8 @@ thread_start_cpus(void)
 	cpu_startup_sem = sem_create("cpu_hatch", 0);
 	mainbus_start_cpus();
 
-	for (i=0; i<cpuarray_num(&allcpus) - 1; i++) {
+	num_cpus = cpuarray_num(&allcpus);
+	for (i=0; i<num_cpus - 1; i++) {
 		P(cpu_startup_sem);
 	}
 	sem_destroy(cpu_startup_sem);
