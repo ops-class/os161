@@ -1,7 +1,8 @@
 ---
 name: "Coremap Test (Tight Bounds)"
-description:
-  "This tests allocates and frees all physical memory multiple times, checking that the amount it was able to allocate is within a reasonable bound"
+description: >
+  Allocates and frees all physical memory multiple times checking
+  that the amount allocated is within a reasonable bound.
 tags: [coremap]
 depends: [not-dumbvm.t]
 sys161:
@@ -11,4 +12,4 @@ sys161:
   disk2:
     bytes: 8M
 ---
-|km5 --avail 20 --kernel 105
+| km5 --avail 20 --kernel 105
