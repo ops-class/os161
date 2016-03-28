@@ -324,7 +324,7 @@ kmalloctest4thread(void *sm, unsigned long num)
 	struct semaphore *sem = sm;
 	void *ptrs[NUM_KM4_SIZES];
 	unsigned p, q;
-	unsigned i, j;
+	unsigned i, j, k;
 	uint32_t magic;
 
 	for (i=0; i<NUM_KM4_SIZES; i++) {
@@ -347,13 +347,19 @@ kmalloctest4thread(void *sm, unsigned long num)
 			      num, sizes[p]);
 		}
 
-		// Write to the allocated memory and make sure nothing overwrites it.
-		*(uint32_t *)ptrs[p] = magic;
+		// Write to each page of the allocated memory and make sure nothing
+		// overwrites it.
+		for (k = 0; k < sizes[p]; k++) {
+			*((uint32_t *)ptrs[p] + k*PAGE_SIZE/sizeof(uint32_t)) = magic;
+		}
+
 		for (j = 0; j < ITERATIONS; j++) {
 			random_yielder(4);
-			if ((*(uint32_t *)ptrs[p]) != magic) {
-				panic("km4: expected %u got %u. Your VM is broken!",
-					magic, (*(uint32_t *)ptrs[p]));
+			for (k = 0; k < sizes[p]; k++) {
+				if (*((uint32_t *)ptrs[p] + k*PAGE_SIZE/sizeof(uint32_t)) != magic) {
+					panic("km4: expected %u got %u. Your VM is broken!",
+						magic, (*(uint32_t *)ptrs[p]));
+				}
 			}
 		}
 		magic++;
