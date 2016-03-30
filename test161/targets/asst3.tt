@@ -2,7 +2,7 @@ name: asst3
 print_name: ASST3
 description: >
   In this assignment you will add support for virtual memory to your OS/161
-  kernel. 
+  kernel.
 version: 1
 points: 100
 type: asst
