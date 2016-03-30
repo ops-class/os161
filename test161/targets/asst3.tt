@@ -7,7 +7,6 @@ version: 1
 points: 100
 type: asst
 kconfig: ASST3
-leaderboard: false
 userland: false
 tests:
   - id: coremap/not-dumbvm.t
