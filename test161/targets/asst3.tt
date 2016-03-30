@@ -1,8 +1,8 @@
-name: asst3-coremap
-print_name: ASST3-coremap
+name: asst3
+print_name: ASST3
 description: >
   In this assignment you will add support for virtual memory to your OS/161
-  kernel. This target tests your coremap and kernel memory allocator.
+  kernel. 
 version: 1
 points: 100
 type: asst
