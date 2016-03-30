@@ -356,9 +356,10 @@ kmalloctest4thread(void *sm, unsigned long num)
 		for (j = 0; j < ITERATIONS; j++) {
 			random_yielder(4);
 			for (k = 0; k < sizes[p]; k++) {
-				if (*((uint32_t *)ptrs[p] + k*PAGE_SIZE/sizeof(uint32_t)) != magic) {
+				uint32_t actual = *((uint32_t *)ptrs[p] + k*PAGE_SIZE/sizeof(uint32_t));
+				if (actual != magic) {
 					panic("km4: expected %u got %u. Your VM is broken!",
-						magic, (*(uint32_t *)ptrs[p]));
+						magic, actual);
 				}
 			}
 		}
