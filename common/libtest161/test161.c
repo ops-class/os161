@@ -93,9 +93,9 @@ secprintf(const char * secret, const char * msg, const char * name)
 	(void)secret;
 
 #ifdef _KERNEL
-	return kprintf("%s: %s\n", name, msg);
+	return kprintf("\n%s: %s\n", name, msg);
 #else
-	return say("%s: %s\n", name, msg);
+	return say("\n%s: %s\n", name, msg);
 #endif
 }
 
@@ -133,9 +133,9 @@ secprintf(const char * secret, const char * msg, const char * name)
 	}
 
 #ifdef _KERNEL
-	res = kprintf("(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
+	res = kprintf("\n(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
 #else
-	res = say("(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
+	res = say("\n(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
 #endif
 
 out:
