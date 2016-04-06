@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <err.h>
 #include <errno.h>
+#include <test161/test161.h>
 
 #define _PATH_RANDOM   "random:"
 
@@ -272,6 +273,37 @@ dosbrk(ssize_t size)
 }
 
 ////////////////////////////////////////////////////////////
+// fork a child that segfaults
+
+typedef void (*segfault_fn)(void);
+
+static
+void
+expect_segfault(segfault_fn func)
+{
+	int status;
+	int result;
+	pid_t pid = dofork();
+
+	if (pid == 0) {
+		func();	// This exits
+	} else {
+		result = waitpid(pid, &status, 0);
+		if (result == -1) {
+			err(1, "waitpid");
+		}
+		else if (WIFSIGNALED(status)) {
+			if (WTERMSIG(status) != 11) {
+				errx(1, "child: Signal %d", WTERMSIG(status));
+			}
+		}
+		else  {
+			errx(1, "child exited, expected segfault");
+		}
+	}
+}
+
+////////////////////////////////////////////////////////////
 // align the heap
 
 static
@@ -323,8 +355,7 @@ test1(void)
 	if (checkpage(p, 0, false)) {
 		errx(1, "FAILED: data corrupt");
 	}
-
-	tprintf("Passed sbrk test 1.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -362,8 +393,7 @@ test2(void)
 		errx(1, "FAILED: sbrk shrink didn't restore the heap "
 		     "(got %p, expected %p", q, op);
 	}
-
-	tprintf("Passed sbrk test 2.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -414,8 +444,7 @@ test3(void)
 		errx(1, "FAILED: sbrk shrink didn't restore the heap "
 		     "(got %p, expected %p", q, op);
 	}
-
-	tprintf("Passed sbrk test 3.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -474,8 +503,7 @@ test4(void)
 		errx(1, "FAILED: sbrk shrink didn't restore the heap "
 		     "(got %p, expected %p", q, op);
 	}
-
-	tprintf("Passed sbrk test 4.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 ////////////////////////////////////////////////////////////
@@ -487,7 +515,7 @@ test4(void)
  */
 static
 void
-test5(void)
+test5_helper(void)
 {
 	void *p;
 
@@ -497,13 +525,21 @@ test5(void)
 	errx(1, "FAILED: I didn't crash");
 }
 
+static
+void
+test5(void)
+{
+	expect_segfault(test5_helper);
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
+}
+
 /*
  * Allocates a page and checks that the next page past it is not
  * valid. (Crashes when successful.)
  */
 static
 void
-test6(void)
+test6_helper(void)
 {
 	void *p;
 
@@ -514,13 +550,21 @@ test6(void)
 	errx(1, "FAILED: I didn't crash");
 }
 
+static
+void
+test6(void)
+{
+	expect_segfault(test6_helper);
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
+}
+
 /*
  * Allocates and frees a page and checks that the page freed is no
  * longer valid. (Crashes when successful.)
  */
 static
 void
-test7(void)
+test7_helper(void)
 {
 	void *p;
 
@@ -532,6 +576,14 @@ test7(void)
 	errx(1, "FAILED: I didn't crash");
 }
 
+static
+void
+test7(void)
+{
+	expect_segfault(test7_helper);
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
+}
+
 /*
  * Allocates some pages, frees half of them, and checks that the page
  * past the new end of the heap is no longer valid. (Crashes when
@@ -539,7 +591,7 @@ test7(void)
  */
 static
 void
-test8(void)
+test8_helper(void)
 {
 	void *p;
 
@@ -549,6 +601,14 @@ test8(void)
 	tprintf("This should produce fatal signal 11 (SIGSEGV).\n");
 	((long *)p)[10] = 0;
 	errx(1, "FAILED: I didn't crash");
+}
+
+static
+void
+test8(void)
+{
+	expect_segfault(test8_helper);
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 ////////////////////////////////////////////////////////////
@@ -600,12 +660,12 @@ test9(void)
 	dot = pages / 64;
 	for (i=0; i<pages; i++) {
 		markpagelight(p, i);
-		if (dot > 0 && i % dot == 0) {
-			tprintf(".");
+		if (dot > 0) {
+			TEST161_LPROGRESS_N(i, dot);
 		}
 	}
 	if (dot > 0) {
-		tprintf("\n");
+		printf("\n");
 	}
 
 	tprintf("Testing each page.\n");
@@ -618,12 +678,12 @@ test9(void)
 			warnx("FAILED: data corrupt");
 			bad = true;
 		}
-		if (dot > 0 && i % dot == 0) {
-			tprintf(".");
+		if (dot > 0) {
+			TEST161_LPROGRESS_N(i, dot);
 		}
 	}
 	if (dot > 0) {
-		tprintf("\n");
+		printf("\n");
 	}
 	if (bad) {
 		exit(1);
@@ -641,6 +701,7 @@ test9(void)
 	tprintf("And really freeing it.\n");
 	(void)dosbrk(-size);
 	tprintf("Passed sbrk test 9 (all)\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -692,6 +753,7 @@ test10(void)
 	(void)dosbrk(-PAGE_SIZE);
 
 	tprintf("Passed sbrk test 10.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 ////////////////////////////////////////////////////////////
@@ -714,9 +776,7 @@ test11(void)
 	tprintf("Touching the pages.\n");
 	for (i=0; i<num; i++) {
 		markpagelight(p, i);
-		if (i % 4 == 0) {
-			tprintf(".");
-		}
+		TEST161_LPROGRESS_N(i, 4);
 	}
 	tprintf("\n");
 
@@ -727,17 +787,16 @@ test11(void)
 			warnx("FAILED: data corrupt");
 			bad = true;
 		}
-		if (i % 4 == 0) {
-			tprintf(".");
-		}
+		TEST161_LPROGRESS_N(i, 4);
 	}
-	tprintf("\n");
+	printf("\n");
 	if (bad) {
 		exit(1);
 	}
 
 	tprintf("Now NOT freeing the pages. They should get freed on exit.\n");
 	tprintf("If not, you'll notice pretty quickly.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 ////////////////////////////////////////////////////////////
@@ -779,6 +838,7 @@ test12(void)
 	say("Parent done.\n");
 	dowait(pid);
 	tprintf("Passed sbrk test 12.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -812,6 +872,7 @@ test13(void)
 	}
 	dowait(pid);
 	tprintf("Passed sbrk test 13.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -847,6 +908,7 @@ test14(void)
 		errx(1, "FAILED: data corrupt in parent after child ran");
 	}
 	tprintf("Passed sbrk test 14.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -948,6 +1010,8 @@ test15(void)
 
 	(void)dosbrk(-PAGE_SIZE * num);
 	tprintf("Passed sbrk test 15.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
+
 }
 
 ////////////////////////////////////////////////////////////
@@ -1004,11 +1068,9 @@ stresstest(unsigned long seed, bool large)
 				bad = true;
 			}
 		}
-		if (i % dot == 0) {
-			tprintf(".");
-		}
+		TEST161_LPROGRESS_N(i, dot);
 	}
-	tprintf("\n");
+	printf("\n");
 	if (bad) {
 		warnx("FAILED");
 		exit(1);
@@ -1016,6 +1078,7 @@ stresstest(unsigned long seed, bool large)
 
 	dosbrk(-(num * PAGE_SIZE));
 	tprintf("Passed sbrk %s stress test.\n", large ? "large" : "small");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 static

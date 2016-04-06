@@ -39,6 +39,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <err.h>
+#include <test161/test161.h>
 
 /* Larger than physical memory */
 #define SIZE  (144*1024)
@@ -54,6 +55,8 @@
  * Also, quicksort has somewhat more interesting memory usage patterns.
  */
 
+static int iters;
+
 static
 void
 sort(int *arr, int size)
@@ -64,6 +67,8 @@ sort(int *arr, int size)
 	if (size<2) {
 		return;
 	}
+	TEST161_LPROGRESS_N(iters, 4000);
+	++iters;
 
 	pivot = size/2;
 	sort(arr, pivot);
@@ -122,7 +127,7 @@ check(void)
 			     i, A[i], i+1, A[i+1]);
 		}
 	}
-	warnx("Passed.");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sort");
 }
 
 int

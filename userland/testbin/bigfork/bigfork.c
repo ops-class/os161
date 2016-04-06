@@ -44,6 +44,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <err.h>
+#include <test/test.h>
+#include <test161/test161.h>
 
 #define BRANCHES 6
 
@@ -76,7 +78,9 @@ init(void)
 		for (j=0; j<DIM; j++) {
 			m1[i*DIM+j] = random() % 11 - 5;
 		}
+		TEST161_TPROGRESS(0);
 	}
+	nprintf("\n");
 }
 
 static
@@ -177,11 +181,15 @@ dowait(pid_t pid)
 		exit(failures);
 	}
 	else {
+		// If the child crashes or waitpid returns -1, we don't know how many errors
+		// resulted (if any), but it's an error if we can't tell.
 		if (waitpid(pid, &status, 0) < 0) {
 			warn("waitpid(%d)", pid);
+			failures += 1;
 		}
 		else if (WIFSIGNALED(status)) {
 			warnx("pid %d: signal %d", pid, WTERMSIG(status));
+			failures += 1;
 		}
 		else if (WEXITSTATUS(status) > 0) {
 			failures += WEXITSTATUS(status);
@@ -196,7 +204,6 @@ dotest(void)
 	unsigned i, me;
 	pid_t pids[BRANCHES];
 	int t;
-	char msg[128];
 
 	me = 0;
 	for (i=0; i<BRANCHES; i++) {
@@ -207,26 +214,28 @@ dotest(void)
 		grind();
 		t = trace();
 		if (t == right[i]) {
-			snprintf(msg, sizeof(msg),
-				 "Stage %u #%u done: %d\n", i, me, trace());
+			tsay("Stage %u #%u done: %d\n", i, me, trace());
 		}
 		else {
-			snprintf(msg, sizeof(msg),
-				 "Stage %u #%u FAILED: got %d, expected %d\n",
+			tsay("Stage %u #%u FAILED: got %d, expected %d\n",
 				 i, me, t, right[i]);
+			success(TEST161_FAIL, SECRET, "/testbin/bigfork");
 			failures++;
 		}
-		(void)write(STDOUT_FILENO, msg, strlen(msg));
+		TEST161_TPROGRESS(0);
 	}
 
 	for (i=BRANCHES; i-- > 0; ) {
 		dowait(pids[i]);
 	}
+
 	if (failures > 0) {
 		tprintf("%u failures.\n", failures);
+		success(TEST161_FAIL, SECRET, "/testbin/bigfork");
 	}
 	else {
 		tprintf("Done.\n");
+		success(TEST161_SUCCESS, SECRET, "/testbin/bigfork");
 	}
 }
 

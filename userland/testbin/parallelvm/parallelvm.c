@@ -45,6 +45,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <err.h>
+#include <test/test.h>
+#include <test161/test161.h>
 
 #define NJOBS    24
 
@@ -87,24 +89,6 @@ struct matrix {
 
 ////////////////////////////////////////////////////////////
 
-/*
- * Use this instead of just calling tprintf so we know each printout
- * is atomic; this prevents the lines from getting intermingled.
- */
-static
-void
-say(const char *fmt, ...)
-{
-	char buf[256];
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(buf, sizeof(buf), fmt, ap);
-	va_end(ap);
-	write(STDOUT_FILENO, buf, strlen(buf));
-}
-
-////////////////////////////////////////////////////////////
-
 static
 void
 multiply(struct matrix *res, const struct matrix *m1, const struct matrix *m2)
@@ -120,6 +104,7 @@ multiply(struct matrix *res, const struct matrix *m1, const struct matrix *m2)
 			res->m_data[i][j] = val;
 		}
 	}
+	TEST161_TPROGRESS(0);
 }
 
 static
@@ -201,18 +186,20 @@ go(int mynum)
 {
 	int r;
 
-	say("Process %d (pid %d) starting computation...\n", mynum,
+	tsay("Process %d (pid %d) starting computation...\n", mynum,
 	    (int) getpid());
-
 	computeall(mynum);
 	r = answer();
 
 	if (r != right_answers[mynum]) {
-		say("Process %d answer %d: FAILED, should be %d\n",
+		tsay("Process %d answer %d: FAILED, should be %d\n",
 		    mynum, r, right_answers[mynum]);
+		success(TEST161_FAIL, SECRET, "/testbin/parallelvm");
 		exit(1);
 	}
-	say("Process %d answer %d: passed\n", mynum, r);
+
+	tsay("Process %d answer %d: passed\n", mynum, r);
+	nsay("\nProc %d OK\n", mynum);
 	exit(0);
 }
 
@@ -341,7 +328,7 @@ makeprocs(bool dowait)
 		if (pids[i]==0) {
 			/* child */
 			if (dowait) {
-				say("Process %d forked\n", i);
+				tsay("Process %d forked\n", i);
 				semopen(&s1);
 				semopen(&s2);
 				semV(&s1, 1);
@@ -356,9 +343,9 @@ makeprocs(bool dowait)
 	if (dowait) {
 		semopen(&s1);
 		semopen(&s2);
-		say("Waiting for fork...\n");
+		tsay("Waiting for fork...\n");
 		semP(&s1, NJOBS);
-		say("Starting computation.\n");
+		tsay("Starting computation.\n");
 		semV(&s2, NJOBS);
 	}
 
@@ -378,10 +365,12 @@ makeprocs(bool dowait)
 	}
 
 	if (failcount>0) {
-		tprintf("%d subprocesses failed\n", failcount);
+		printf("%d subprocesses failed\n", failcount);
 		exit(1);
 	}
+	nprintf("\n");
 	tprintf("Test complete\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/parallelvm");
 
 	semclose(&s1);
 	semclose(&s2);

@@ -38,6 +38,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <test161/test161.h>
 
 /*
  * SIZE is the amount of memory used.
@@ -90,12 +91,11 @@ main(int argc, char **argv)
 	 */
 	e = &array[0];
 	for (i=0; i<SIZE; i++) {
-		if (i % stride == 0) {
-			putchar('.');
-		}
+		TEST161_LPROGRESS(i, stride);
 		e = e->e;
 	}
 
-	tprintf("\nDone!\n");
+	// Success is not crashing
+	success(TEST161_SUCCESS, SECRET, "/testbin/ctest");
 	return 0;
 }

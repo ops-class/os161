@@ -39,6 +39,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <test161/test161.h>
 
 #define PageSize	4096
 #define NumPages	512
@@ -54,30 +55,37 @@ main(void)
 
 	/* move number in so that sparse[i][0]=i */
 	for (i=0; i<NumPages; i++) {
+		TEST161_TPROGRESS(i);
 		sparse[i][0]=i;
 	}
 
 	tprintf("stage [1] done\n");
+	nprintf("\n");
 
 	/* increment each location 5 times */
 	for (j=0; j<5; j++) {
 		for (i=0; i<NumPages; i++) {
+			TEST161_TPROGRESS(i);
 			sparse[i][0]++;
 		}
 		tprintf("stage [2.%d] done\n", j);
+		nprintf("\n");
 	}
 
 	tprintf("stage [2] done\n");
 
 	/* check if the numbers are sane */
 	for (i=NumPages-1; i>=0; i--) {
+		TEST161_TPROGRESS(i);
 		if (sparse[i][0]!=i+5) {
 			tprintf("BAD NEWS!!! - your VM mechanism has a bug!\n");
+			success(TEST161_FAIL, SECRET, "/testbin/huge");
 			exit(1);
 		}
 	}
 
-	tprintf("You passed!\n");
+	nprintf("\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/huge");
 
 	return 0;
 }
