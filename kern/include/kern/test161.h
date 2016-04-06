@@ -35,6 +35,35 @@
 
 #include <kern/secret.h>
 
+#ifdef _KERNEL
+#define __TEST161_PROGRESS_N(iter, mod) do { \
+	if (((iter) % mod) == 0) { \
+		kprintf("."); \
+	} \
+} while (0)
+#else
+#include <stdio.h>
+#define __TEST161_PROGRESS_N(iter, mod) do { \
+	if (((iter) % mod) == 0) { \
+		printf("."); \
+	} \
+} while (0)
+#endif
+
+// Always loud
+#define TEST161_LPROGRESS_N(iter, mod) __TEST161_PROGRESS_N(iter, mod)
+#define TEST161_LPROGRESS(iter) __TEST161_PROGRESS_N(iter, 100)
+
+// Depends on whether or not it's automated testing. Some tests are
+// quite verbose with useful information so these should just stay quiet.
+#ifdef SECRET_TESTING
+#define TEST161_TPROGRESS_N(iter, mod) __TEST161_PROGRESS_N(iter, mod)
+#define TEST161_TPROGRESS(iter) __TEST161_PROGRESS_N(iter, 100)
+#else
+#define TEST161_TPROGRESS_N(iter, mod)
+#define TEST161_TPROGRESS(iter)
+#endif
+
 int success(int, const char *, const char *);
 int secprintf(const char *secret, const char *msg, const char *name);
 int partial_credit(const char *secret, const char *name, int scored, int total);
