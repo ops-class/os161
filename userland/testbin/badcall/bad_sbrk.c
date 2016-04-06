@@ -74,7 +74,7 @@ static
 int
 sbrk_bigpos(void)
 {
-	return enforce_sbrk(4096*1024*256, "huge positive", ENOMEM);
+	return enforce_sbrk(1024*1024*1024 + (1024*1024*1024 - 4096*17), "huge positive", ENOMEM);
 }
 
 static
