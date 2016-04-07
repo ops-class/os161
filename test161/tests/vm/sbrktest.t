@@ -4,7 +4,7 @@ description: >
   "Test various properites of your vm's heap management using
   the sbrk() system call."
 tags: [sbrk]
-depends: [not-dumbvm-paging, shell]
+depends: [not-dumbvm-vm, shell]
 sys161:
   ram: 4M
 ---

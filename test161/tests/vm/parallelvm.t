@@ -4,7 +4,7 @@ description: >
   Stress tests your VM by performing various matrix computations in
   multiple concurrent processes.
 tags: [vm]
-depends: [not-dumbvm-paging]
+depends: [not-dumbvm-vm]
 sys161:
   cpus: 2
   ram: 4M

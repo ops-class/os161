@@ -3,7 +3,7 @@ name: "Stack Test"
 description: >
   Tests your VM stack handling by running the bigexec test from ASST2.
 tags: [vm]
-depends: [not-dumbvm-paging, shell]
+depends: [not-dumbvm-vm, shell]
 sys161:
   ram: 4M
 ---
