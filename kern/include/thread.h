@@ -178,5 +178,7 @@ void schedule(void);
  */
 void thread_consider_migration(void);
 
+extern unsigned thread_count;
+void thread_wait_for_count(unsigned);
 
 #endif /* _THREAD_H_ */
