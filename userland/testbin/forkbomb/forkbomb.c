@@ -66,16 +66,22 @@ main(void)
 	__time(&start_time_s, &start_time_ns);
 	int parent_pid = getpid();
 	int did_print = 0;
+	int iters = 0;
 	while (1) {
 		fork();
-
-		__time(&time_now_s, &time_now_ns);
 		// Only parent gets to print
-		if(getpid() == parent_pid &&
-				time_now_s - start_time_s > TEST_DURATION &&
-				!did_print) {
-			did_print = 1;
-			success(TEST161_SUCCESS, SECRET, "/testbin/forkbomb");
+		if(getpid() == parent_pid) {
+			TEST161_LPROGRESS(0);
+			if (iters > 0 && iters % 20 == 0) {
+				putchar('\n');
+			}
+			iters++;
+
+			__time(&time_now_s, &time_now_ns);
+			if (time_now_s - start_time_s > TEST_DURATION && !did_print) {
+				did_print = 1;
+				success(TEST161_SUCCESS, SECRET, "/testbin/forkbomb");
+			}
 		}
 
 		pid = getpid();
