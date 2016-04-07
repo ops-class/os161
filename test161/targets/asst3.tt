@@ -3,12 +3,14 @@ print_name: ASST3
 description: >
   In this assignment you will add support for virtual memory to your OS/161
   kernel.
-version: 1
-points: 100
+version: 2
+points: 200
 type: asst
 kconfig: ASST3
-userland: false
+userland: true
 tests:
+# Checkpoint 1 (100 points)
+
   - id: coremap/not-dumbvm.t
     points: 20
   - id: coremap/km1.t
@@ -26,4 +28,44 @@ tests:
   - id: coremap/coremap-loose.t
     points: 10
   - id: coremap/coremap-tight.t
+    points: 15
+
+# Checkpoint 2 (100 points)
+
+# Basic paging (30 points)
+  - id: vm/not-dumbvm2.t
+    points: 5
+  - id: vm/sort.t
+    points: 5
+  - id: vm/palin.t
+    points: 5
+  - id: vm/matmult.t
+    points: 5
+  - id: vm/ctest.t
+    points: 5
+  - id: vm/stacktest.t
+    points: 5
+
+# Concurrent paging (40 points)
+  - id: vm/bigfork.t
+    points: 8
+  - id: vm/parallelvm.t
+    points: 8
+  - id: vm/quintsort.t
+    points: 8
+  - id: vm/quintmat.t
+    points: 8
+  - id: vm/quinthuge.t
+    points: 8
+
+# Heap (10 points)
+  - id: vm/sbrktest.t
+    points: 8
+  - id: vm/sbrk-badcall.t
+    points: 2
+
+# Stress tests/misc (20 points)
+  - id: vm/zero.t
+    points: 5
+  - id: vm/stability/vm-stability.t
     points: 15

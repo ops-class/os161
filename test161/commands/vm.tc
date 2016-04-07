@@ -1,0 +1,51 @@
+templates:
+#Single tests - everything has the default output
+  - name: /testbin/bigfork
+  - name: /testbin/ctest
+  - name: /testbin/huge
+  - name: /testbin/matmult
+  - name: /testbin/palin
+  - name: /testbin/parallelvm
+  - name: /testbin/sbrktest
+  - name: /testbin/sort
+  - name: /testbin/zero
+
+#Triples
+  - name: /testbin/triplehuge
+    output:
+      - {text: /testbin/huge, external: true, trusted: true}
+      - {text: /testbin/huge, external: true, trusted: true}
+      - {text: /testbin/huge, external: true, trusted: true}
+  - name: /testbin/triplemat
+    output:
+      - {text: /testbin/matmult, external: true, trusted: true}
+      - {text: /testbin/matmult, external: true, trusted: true}
+      - {text: /testbin/matmult, external: true, trusted: true}
+  - name: /testbin/triplesort
+    output:
+      - {text: /testbin/sort, external: true, trusted: true}
+      - {text: /testbin/sort, external: true, trusted: true}
+      - {text: /testbin/sort, external: true, trusted: true}
+
+#Quints
+  - name: /testbin/quinthuge
+    output:
+      - {text: /testbin/huge, external: true, trusted: true}
+      - {text: /testbin/huge, external: true, trusted: true}
+      - {text: /testbin/huge, external: true, trusted: true}
+      - {text: /testbin/huge, external: true, trusted: true}
+      - {text: /testbin/huge, external: true, trusted: true}
+  - name: /testbin/quintmat
+    output:
+      - {text: /testbin/matmult, external: true, trusted: true}
+      - {text: /testbin/matmult, external: true, trusted: true}
+      - {text: /testbin/matmult, external: true, trusted: true}
+      - {text: /testbin/matmult, external: true, trusted: true}
+      - {text: /testbin/matmult, external: true, trusted: true}
+  - name: /testbin/quintsort
+    output:
+      - {text: /testbin/sort, external: true, trusted: true}
+      - {text: /testbin/sort, external: true, trusted: true}
+      - {text: /testbin/sort, external: true, trusted: true}
+      - {text: /testbin/sort, external: true, trusted: true}
+      - {text: /testbin/sort, external: true, trusted: true}
