@@ -40,6 +40,7 @@ tests:
   - id: vm/palin.t
     points: 5
   - id: vm/matmult.t
+    mem_leak_points: 2
     points: 5
   - id: vm/ctest.t
     points: 5
@@ -49,6 +50,7 @@ tests:
 # Concurrent VM (40 points)
   - id: vm/bigfork.t
     points: 8
+    mem_leak_points: 2
   - id: vm/parallelvm.t
     points: 8
   - id: vm/quintsort.t
@@ -61,6 +63,7 @@ tests:
 # Heap (10 points)
   - id: vm/sbrktest.t
     points: 8
+    mem_leak_points: 2
   - id: vm/sbrk-badcall.t
     points: 2
 
@@ -69,5 +72,6 @@ tests:
     points: 5
   - id: vm/stability/vm-stability.t
     points: 10
+    mem_leak_points: 2
   - id: vm/stability/forkbomb.t
     points: 5
