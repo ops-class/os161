@@ -91,7 +91,7 @@ main(int argc, char **argv)
 	 */
 	e = &array[0];
 	for (i=0; i<SIZE; i++) {
-		TEST161_LPROGRESS(i, stride);
+		TEST161_LPROGRESS_N(i, stride);
 		e = e->e;
 	}
 
