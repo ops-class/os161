@@ -98,7 +98,7 @@ kmallocthread(void *sm, unsigned long num)
 		oldptr2 = oldptr;
 		oldptr = ptr;
 	}
-done:
+
 	if (oldptr2) {
 		kfree(oldptr2);
 	}
