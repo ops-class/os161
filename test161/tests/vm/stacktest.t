@@ -5,6 +5,7 @@ description: >
 tags: [vm]
 depends: [not-dumbvm-vm, shell]
 sys161:
-  ram: 4M
+  ram: 2M
 ---
 $ /testbin/bigexec
+$ /testbin/stacktest

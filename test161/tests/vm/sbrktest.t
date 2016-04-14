@@ -6,7 +6,7 @@ description: >
 tags: [sbrk]
 depends: [not-dumbvm-vm, shell]
 sys161:
-  ram: 4M
+  ram: 2M
 ---
 khu
 $ /testbin/sbrktest 1
@@ -22,5 +22,7 @@ $ /testbin/sbrktest 12
 $ /testbin/sbrktest 13
 $ /testbin/sbrktest 14
 $ /testbin/sbrktest 15
-$ /testbin/sbrktest 16
+$ /testbin/sbrktest 17
+$ /testbin/sbrktest 22
+$ /testbin/sbrktest 23
 khu

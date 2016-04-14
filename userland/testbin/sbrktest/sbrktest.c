@@ -1125,6 +1125,61 @@ test21(void)
 	stresstest(geti(), true);
 }
 
+static
+void
+test22(void)
+{
+	int i;
+	void *p, *q;
+	int num = 10;
+	int num_pages = 5 * 1024;	// 20MB
+
+	p = dosbrk(num_pages * PAGE_SIZE);
+	q = dosbrk(0);
+
+	if ((unsigned int)q - (unsigned int)p != (unsigned int)(num_pages*PAGE_SIZE)) {
+		errx(1, "Heap size not equal to expected size: p=0x%x q=0x%x", (unsigned int)p, (unsigned int)q);
+	}
+
+	// Just touch the last 10 pages
+	for (i = 0; i < num; i++) {
+		markpage(p, num_pages-(i+1));
+	}
+
+	// Check the last 10 pages
+	for (i = 0; i < num; i++) {
+		if (checkpage(p, num_pages-(i+1), false)) {
+			errx(1, "FAILED: data corrupt");
+		}
+	}
+
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
+}
+
+static
+void
+test23(void)
+{
+	// Make sure sbrk is freeing memory. This allocates, in total, just over 4M
+	// of memory, but moves the heap breakpoint in such a way that only one page
+	// should ever be required. This test doesn't make much sense to run with
+	// more than 4M or with swap enabled.
+	void *start;
+	int num_pages = 1030;
+	int num;
+
+	start = dosbrk(PAGE_SIZE);
+
+	for (num = 1; num <= num_pages; num++) {
+		TEST161_LPROGRESS(num);
+		start = dosbrk(num*PAGE_SIZE);
+		markpagelight(start, num-1);
+		checkpagelight(start, num-1, true);
+		dosbrk(-(num*PAGE_SIZE));
+	}
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
+}
+
 ////////////////////////////////////////////////////////////
 // main
 
@@ -1154,6 +1209,8 @@ static const struct {
 	{ 19, "Large stress test", test19 },
 	{ 20, "Randomized large stress test", test20 },
 	{ 21, "Large stress test with particular seed", test21 },
+	{ 22, "Large sbrk test", test22 },
+	{ 23, "Allocate 4MB in total, but free pages in between", test23 },
 };
 static const unsigned numtests = sizeof(tests) / sizeof(tests[0]);
 

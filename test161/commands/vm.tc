@@ -8,6 +8,7 @@ templates:
   - name: /testbin/parallelvm
   - name: /testbin/sbrktest
   - name: /testbin/sort
+  - name: /testbin/stacktest
   - name: /testbin/zero
 
 #Triples
