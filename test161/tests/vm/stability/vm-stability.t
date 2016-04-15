@@ -5,7 +5,7 @@ description:
 tags: [stability-vm]
 depends: [/vm/bigfork.t, /vm/parallelvm.t, /vm/quintmat.t, /vm/zero.t, /vm/sort.t]
 sys161:
-  ram: 8M
+  ram: 10M
   cpus: 4
 ---
 khu

@@ -6,7 +6,7 @@ tags: [vm]
 depends: [not-dumbvm-vm]
 sys161:
   cpus: 2
-  ram: 8M
+  ram: 10M
 ---
 khu
 $ /testbin/quintmat
