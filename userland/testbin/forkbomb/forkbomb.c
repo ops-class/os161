@@ -67,6 +67,13 @@ main(void)
 	int parent_pid = getpid();
 	int did_print = 0;
 	int iters = 0;
+
+	// Do not remove!
+	// We need to cause page faults on the static secprintf buffers so the
+	// pages are available when we print success. With on-demand page allocation,
+	// we will probably be out of pages by the time we try to print success.
+	secprintf(SECRET, "!!< Starting Forkbbbboooommmmbbbb >!!", "/testbin/forkbomb");
+
 	while (1) {
 		fork();
 		// Only parent gets to print
