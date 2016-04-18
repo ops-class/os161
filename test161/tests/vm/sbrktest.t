@@ -7,6 +7,8 @@ tags: [sbrk]
 depends: [not-dumbvm-vm, shell]
 sys161:
   ram: 2M
+monitor:
+  progresstimeout: 15.0
 ---
 khu
 $ /testbin/sbrktest 1
