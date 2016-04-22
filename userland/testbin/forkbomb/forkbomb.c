@@ -53,6 +53,7 @@
 #include <test161/test161.h>
 
 #define TEST_DURATION 10
+#define LOCAL_SUCCESS "SUCCESS"
 
 static volatile int pid;
 
@@ -74,6 +75,9 @@ main(void)
 	// we will probably be out of pages by the time we try to print success.
 	secprintf(SECRET, "!!< Starting Forkbbbboooommmmbbbb >!!", "/testbin/forkbomb");
 
+	// And now for the success string
+	printf("This should print %s after 10s\n", LOCAL_SUCCESS);
+
 	while (1) {
 		fork();
 		// Only parent gets to print
@@ -87,7 +91,9 @@ main(void)
 			__time(&time_now_s, &time_now_ns);
 			if (time_now_s - start_time_s > TEST_DURATION && !did_print) {
 				did_print = 1;
-				success(TEST161_SUCCESS, SECRET, "/testbin/forkbomb");
+				// We need to print this using secprintf so that it uses
+				// the same page we warmed up earlier.
+				secprintf(SECRET, LOCAL_SUCCESS, "/testbin/forkbomb");
 			}
 		}
 

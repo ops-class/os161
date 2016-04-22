@@ -13,5 +13,8 @@ monitor:
   kernel:
     enablemin: true
     min: 0.01
+commandoverrides:
+  - name: /testbin/forkbomb
+    timeout: 20.0
 ---
 p /testbin/forkbomb
