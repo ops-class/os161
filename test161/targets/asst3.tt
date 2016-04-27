@@ -86,7 +86,7 @@ tests:
     mem_leak_points: 2
     points: 15
 
-# Basic Swapping (70 points)
+# Concurrent Swapping (70 points)
   - id: vm/swap/bigfork.t
     points: 10
   - id: vm/swap/bigfork-32.t
