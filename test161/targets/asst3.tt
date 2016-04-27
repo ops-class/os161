@@ -3,8 +3,8 @@ print_name: ASST3
 description: >
   In this assignment you will add support for virtual memory to your OS/161
   kernel.
-version: 2
-points: 200
+version: 3
+points: 300
 type: asst
 kconfig: ASST3
 userland: true
@@ -75,3 +75,31 @@ tests:
     mem_leak_points: 2
   - id: vm/stability/forkbomb.t
     points: 5
+
+# Checkpoint 3 (100 points)
+
+# Basic Swapping (30 points)
+  - id: vm/swap/sort.t
+    mem_leak_points: 2
+    points: 15
+  - id: vm/swap/matmult.t
+    mem_leak_points: 2
+    points: 15
+
+# Basic Swapping (70 points)
+  - id: vm/swap/bigfork.t
+    points: 10
+  - id: vm/swap/bigfork-32.t
+    points: 10
+    mem_leak_points: 2
+  - id: vm/swap/parallelvm.t
+    points: 10
+  - id: vm/swap/parallelvm-32.t
+    points: 10
+  - id: vm/swap/quintsort.t
+    points: 10
+  - id: vm/swap/quintmat.t
+    points: 10
+  - id: vm/swap/quinthuge.t
+    points: 10
+    mem_leak_points: 2
