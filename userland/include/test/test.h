@@ -78,4 +78,17 @@ nsay(const char *fmt, ...)
 #endif
 }
 
+static
+inline
+void
+lsay(const char *fmt, ...)
+{
+	char buf[256];
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(buf, sizeof(buf), fmt, ap);
+	va_end(ap);
+	write(STDOUT_FILENO, buf, strlen(buf));
+}
+
 #endif /* _TEST_TEST_H_ */

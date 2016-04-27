@@ -56,6 +56,8 @@
  */
 #define DIM 64
 
+#define PROGRESS_INTERVAL 25000
+
 static int m1[DIM*DIM], m2[DIM*DIM], m3[DIM*DIM], m4[DIM*DIM];
 static const int right[BRANCHES] = {
 	536763422,
@@ -78,7 +80,7 @@ init(void)
 		for (j=0; j<DIM; j++) {
 			m1[i*DIM+j] = random() % 11 - 5;
 		}
-		TEST161_TPROGRESS(0);
+		TEST161_LPROGRESS(0);
 	}
 	nprintf("\n");
 }
@@ -100,12 +102,15 @@ static
 void
 mul(int *x, const int *a, const int *b)
 {
-	unsigned i, j, k;
+	unsigned i, j, k, tot;
 
+	tot = 0;
 	for (i=0; i<DIM; i++) {
 		for (j=0; j<DIM; j++) {
 			x[i*DIM+j] = 0;
 			for (k=0; k<DIM; k++) {
+				TEST161_LPROGRESS_N(tot, PROGRESS_INTERVAL);
+				tot++;
 				x[i*DIM+j] += a[i*DIM+k] * b[k*DIM+j]; 
 			}
 		}
@@ -214,15 +219,15 @@ dotest(void)
 		grind();
 		t = trace();
 		if (t == right[i]) {
-			tsay("Stage %u #%u done: %d\n", i, me, trace());
+			lsay("\nStage %u #%u done: %d\n", i, me, trace());
 		}
 		else {
-			tsay("Stage %u #%u FAILED: got %d, expected %d\n",
+			lsay("Stage %u #%u FAILED: got %d, expected %d\n",
 				 i, me, t, right[i]);
 			success(TEST161_FAIL, SECRET, "/testbin/bigfork");
 			failures++;
 		}
-		TEST161_TPROGRESS(0);
+		TEST161_LPROGRESS(0);
 	}
 
 	for (i=BRANCHES; i-- > 0; ) {
