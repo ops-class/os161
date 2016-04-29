@@ -11,7 +11,7 @@ sys161:
     enabled: true
 monitor:
   progresstimeout: 30.0
-  commandtimeout: 700.0
+  commandtimeout: 1100.0
 misc:
   prompttimeout: 3600.0
 ---
