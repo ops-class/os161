@@ -13,7 +13,10 @@ sys161:
 monitor:
   progresstimeout: 15.0
   commandtimeout: 760.0
+  window: 40
 misc:
   prompttimeout: 3600.0
+stat:
+  resolution: 0.1
 ---
 $ /testbin/parallelvm -w

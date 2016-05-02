@@ -11,7 +11,10 @@ sys161:
     enabled: true
 monitor:
   commandtimeout: 130.0
+  window: 40
 misc:
   prompttimeout: 3600.0
+stat:
+  resolution: 0.1
 ---
 | p /testbin/sort

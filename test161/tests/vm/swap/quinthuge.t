@@ -12,8 +12,11 @@ sys161:
 monitor:
   progresstimeout: 20.0
   commandtimeout: 3530.0
+  window: 20
 misc:
   prompttimeout: 3600.0
+stat:
+  resolution: 0.2
 ---
 khu
 $ /testbin/quinthuge

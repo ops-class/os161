@@ -14,8 +14,11 @@ sys161:
 monitor:
   progresstimeout: 40.0
   commandtimeout: 1330.0
+  window: 40
 misc:
   prompttimeout: 3600.0
+stat:
+  resolution: 0.1
 ---
 khu
 $ /testbin/bigfork
