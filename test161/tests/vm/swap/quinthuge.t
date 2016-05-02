@@ -16,5 +16,5 @@ misc:
   prompttimeout: 3600.0
 ---
 khu
-$ /testbin/triplehuge
+$ /testbin/quinthuge
 khu
