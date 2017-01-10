@@ -156,6 +156,13 @@ int vfs_getcwd(struct uio *buf);
  *    vfs_unmount   - Unmount the filesystem presently mounted on the
  *                    specified device.
  *
+ *    vfs_swapon    - Look up DEVNAME and mark it as a swap device,
+ *                    returning a vnode. Similar to vfs_mount.
+ *
+ *    vfs_swapoff   - Unmark DEVNAME as a swap device. The vnode
+ *                    previously returned by vfs_swapon should be
+ *                    decref'd first. Similar to vfs_unmount.
+ *
  *    vfs_unmountall - Unmount all mounted filesystems.
  */
 
@@ -172,6 +179,8 @@ int vfs_mount(const char *devname, void *data,
 			       struct device *dev,
 			       struct fs **result));
 int vfs_unmount(const char *devname);
+int vfs_swapon(const char *devname, struct vnode **result);
+int vfs_swapoff(const char *devname);
 int vfs_unmountall(void);
 
 /*

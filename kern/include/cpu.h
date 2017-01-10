@@ -74,23 +74,20 @@ struct cpu {
 	 * Accessed by other cpus.
 	 * Protected by the IPI lock.
 	 *
-	 * If c_numshootdown is -1 (TLBSHOOTDOWN_ALL), all mappings
-	 * should be invalidated. This is used if more than
-	 * TLBSHOOTDOWN_MAX mappings are going to be invalidated at
-	 * once. TLBSHOOTDOWN_MAX is MD and chosen based on when it
-	 * becomes more efficient just to flush the whole TLB.
+	 * TLB shootdown requests made to this CPU are queued in
+	 * c_shootdown[], with c_numshootdown holding the number of
+	 * requests. TLBSHOOTDOWN_MAX is the maximum number that can
+	 * be queued at once, which is machine-dependent.
 	 *
-	 * struct tlbshootdown is machine-dependent and might
-	 * reasonably be either an address space and vaddr pair, or a
-	 * paddr, or something else.
+	 * The contents of struct tlbshootdown are also machine-
+	 * dependent and might reasonably be either an address space
+	 * and vaddr pair, or a paddr, or something else.
 	 */
 	uint32_t c_ipi_pending;		/* One bit for each IPI number */
 	struct tlbshootdown c_shootdown[TLBSHOOTDOWN_MAX];
-	int c_numshootdown;
+	unsigned c_numshootdown;
 	struct spinlock c_ipi_lock;
 };
-
-#define TLBSHOOTDOWN_ALL  (-1)
 
 /*
  * Initialization functions.
