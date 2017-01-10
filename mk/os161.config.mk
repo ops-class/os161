@@ -96,7 +96,7 @@
 #				the build. Default is $(WORKDIR)/tooldir.
 #
 # INSTALLTOP			Staging directory for installation.
-#				Default is $(WORKDIR)/install
+#				Default is $(WORKDIR)/install.
 #
 # Probably the only reason to change these would be if you're short on
 # diskspace in $(WORKDIR).

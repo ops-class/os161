@@ -478,7 +478,7 @@ thread_make_runnable(struct thread *target, bool already_have_lock)
 	target->t_state = S_READY;
 	threadlist_addtail(&targetcpu->c_runqueue, target);
 
-	if (targetcpu->c_isidle) {
+	if (targetcpu->c_isidle && targetcpu != curcpu->c_self) {
 		/*
 		 * Other processor is idle; send interrupt to make
 		 * sure it unidles.
@@ -1139,6 +1139,9 @@ ipi_send(struct cpu *target, int code)
 	spinlock_release(&target->c_ipi_lock);
 }
 
+/*
+ * Send an IPI to all CPUs.
+ */
 void
 ipi_broadcast(int code)
 {
@@ -1153,16 +1156,28 @@ ipi_broadcast(int code)
 	}
 }
 
+/*
+ * Send a TLB shootdown IPI to the specified CPU.
+ */
 void
 ipi_tlbshootdown(struct cpu *target, const struct tlbshootdown *mapping)
 {
-	int n;
+	unsigned n;
 
 	spinlock_acquire(&target->c_ipi_lock);
 
 	n = target->c_numshootdown;
 	if (n == TLBSHOOTDOWN_MAX) {
-		target->c_numshootdown = TLBSHOOTDOWN_ALL;
+		/*
+		 * If you have problems with this panic going off,
+		 * consider: (1) increasing the maximum, (2) putting
+		 * logic here to sleep until space appears (may
+		 * interact awkwardly with VM system locking), (3)
+		 * putting logic here to coalesce requests together,
+		 * and/or (4) improving VM system state tracking to
+		 * reduce the number of unnecessary shootdowns.
+		 */
+		panic("ipi_tlbshootdown: Too many shootdowns queued\n");
 	}
 	else {
 		target->c_shootdown[n] = *mapping;
@@ -1175,11 +1190,14 @@ ipi_tlbshootdown(struct cpu *target, const struct tlbshootdown *mapping)
 	spinlock_release(&target->c_ipi_lock);
 }
 
+/*
+ * Handle an incoming interprocessor interrupt.
+ */
 void
 interprocessor_interrupt(void)
 {
 	uint32_t bits;
-	int i;
+	unsigned i;
 
 	spinlock_acquire(&curcpu->c_ipi_lock);
 	bits = curcpu->c_ipi_pending;
@@ -1207,13 +1225,13 @@ interprocessor_interrupt(void)
 		 */
 	}
 	if (bits & (1U << IPI_TLBSHOOTDOWN)) {
-		if (curcpu->c_numshootdown == TLBSHOOTDOWN_ALL) {
-			vm_tlbshootdown_all();
-		}
-		else {
-			for (i=0; i<curcpu->c_numshootdown; i++) {
-				vm_tlbshootdown(&curcpu->c_shootdown[i]);
-			}
+		/*
+		 * Note: depending on your VM system locking you might
+		 * need to release the ipi lock while calling
+		 * vm_tlbshootdown.
+		 */
+		for (i=0; i<curcpu->c_numshootdown; i++) {
+			vm_tlbshootdown(&curcpu->c_shootdown[i]);
 		}
 		curcpu->c_numshootdown = 0;
 	}

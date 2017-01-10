@@ -136,12 +136,6 @@ coremap_used_bytes() {
 }
 
 void
-vm_tlbshootdown_all(void)
-{
-	panic("dumbvm tried to do tlb shootdown?!\n");
-}
-
-void
 vm_tlbshootdown(const struct tlbshootdown *ts)
 {
 	(void)ts;

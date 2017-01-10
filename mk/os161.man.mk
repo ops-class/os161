@@ -55,10 +55,13 @@ installmanpages:
 	  cp $(_F_) $(OSTREE)$(MANDIR)/$(_F_)
 .endfor
 
+# clean: remove build products (nothing to do)
+clean-local: ;
 
 # Mark targets that don't represent files PHONY, to prevent various
 # lossage if files by those names appear.
 .PHONY: all all-local install-staging-local install-local installmanpages
+.PHONY: clean-local
 
 # Finally, get the shared definitions for the most basic rules.
 .include "$(TOP)/mk/os161.baserules.mk"

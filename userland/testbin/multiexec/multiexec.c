@@ -174,8 +174,11 @@ spawn(int njobs)
 	for (i=0; i<njobs; i++) {
 		pids[i] = fork();
 		if (pids[i] == -1) {
-			/* abandon the other procs; no way to kill them */
-			err(1, "fork");
+			/* continue with the procs we have; cannot kill them */
+			warn("fork");
+			warnx("*** Only started %u processes ***", i);
+			njobs = i;
+			break;
 		}
 		if (pids[i] == 0) {
 			/* child */

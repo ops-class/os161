@@ -63,7 +63,6 @@ void free_kpages(vaddr_t addr);
 unsigned int coremap_used_bytes(void);
 
 /* TLB shootdown handling called from interprocessor_interrupt */
-void vm_tlbshootdown_all(void);
 void vm_tlbshootdown(const struct tlbshootdown *);
 
 
