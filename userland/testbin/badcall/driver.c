@@ -121,18 +121,16 @@ int
 create_testdir(void)
 {
 	int rv;
-	int result;
-
 	rv = mkdir(TESTDIR, 0775);
 	if (rv<0) {
 		if (errno == ENOSYS) {
 			report_saw_enosys();
 			report_warnx("mkdir unimplemented; cannot run test");
-			report_skipped(&result);
+			report_skipped();
 		}
 		else {
 			report_warn("mkdir %s failed", TESTDIR);
-			report_aborted(&result);
+			report_aborted();
 		}
 		return -1;
 	}
@@ -200,20 +198,20 @@ menu(void)
 {
 	int i;
 	for (i=0; ops[i].name; i++) {
-		tprintf("[%c] %-24s", ops[i].ch, ops[i].name);
+		printf("[%c] %-24s", ops[i].ch, ops[i].name);
 		if (i%2==1) {
-			tprintf("\n");
+			printf("\n");
 		}
 	}
 	if (i%2==1) {
-		tprintf("\n");
+		printf("\n");
 	}
-	tprintf("[1] %-24s", "asst1");
-	tprintf("[2] %-24s\n", "asst2");
-	tprintf("[3] %-24s", "asst3");
-	tprintf("[4] %-24s\n", "asst4");
-	tprintf("[*] %-24s", "all");
-	tprintf("[!] %-24s\n", "quit");
+	printf("[1] %-24s", "asst1");
+	printf("[2] %-24s\n", "asst2");
+	printf("[3] %-24s", "asst3");
+	printf("[4] %-24s\n", "asst4");
+	printf("[*] %-24s", "all");
+	printf("[!] %-24s\n", "quit");
 }
 
 static
@@ -233,7 +231,7 @@ runit(int op)
 
 	if (op=='*') {
 		for (i=0; ops[i].name; i++) {
-			tprintf("[%s]\n", ops[i].name);
+			printf("[%s]\n", ops[i].name);
 			ops[i].f();
 		}
 		return;
@@ -243,7 +241,7 @@ runit(int op)
 		k = op-'0';
 		for (i=0; ops[i].name; i++) {
 			if (ops[i].asst <= k) {
-				tprintf("[%s]\n", ops[i].name);
+				printf("[%s]\n", ops[i].name);
 				ops[i].f();
 			}
 		}
@@ -251,7 +249,7 @@ runit(int op)
 	}
 
 	if (op < LOWEST || op > HIGHEST) {
-		tprintf("Invalid request %c\n", op);
+		printf("Invalid request %c\n", op);
 		return;
 	}
 
@@ -263,12 +261,12 @@ main(int argc, char **argv)
 {
 	int op, i, j;
 
-	tprintf("[%c-%c, 1-4, *, ?=menu, !=quit]\n", LOWEST, HIGHEST);
+	printf("[%c-%c, 1-4, *, ?=menu, !=quit]\n", LOWEST, HIGHEST);
 
 	if (argc > 1) {
 		for (i=1; i<argc; i++) {
 			for (j=0; argv[i][j]; j++) {
-				tprintf("Choose: %c\n",
+				printf("Choose: %c\n",
 				       argv[i][j]);
 				runit(argv[i][j]);
 			}
@@ -277,12 +275,12 @@ main(int argc, char **argv)
 	else {
 		menu();
 		while (1) {
-			tprintf("Choose: ");
+			printf("Choose: ");
 			op = getchar();
 			if (op==EOF) {
 				break;
 			}
-			tprintf("%c\n", op);
+			printf("%c\n", op);
 			runit(op);
 		}
 	}

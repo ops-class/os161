@@ -37,28 +37,26 @@
 #include "test.h"
 
 static
-int
+void
 readlink_file(void)
 {
 	char buf[128];
 	int fd, rv;
-	int result;
 
 	report_begin("readlink on file");
 	fd = open_testfile("the question contains an invalid assumption");
 	if (fd<0) {
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 	close(fd);
 	rv = readlink(TESTFILE, buf, sizeof(buf));
-	result = report_check(rv, errno, EINVAL);
+	report_check(rv, errno, EINVAL);
 	remove(TESTFILE);
-	return result;
 }
 
 static
-int
+void
 readlink_dir(void)
 {
 	char buf[128];
@@ -66,11 +64,11 @@ readlink_dir(void)
 
 	report_begin("readlink on .");
 	rv = readlink(".", buf, sizeof(buf));
-	return report_check(rv, errno, EISDIR);
+	report_check(rv, errno, EISDIR);
 }
 
 static
-int
+void
 readlink_empty(void)
 {
 	char buf[128];
@@ -78,31 +76,17 @@ readlink_empty(void)
 
 	report_begin("readlink on empty string");
 	rv = readlink("", buf, sizeof(buf));
-	return report_check2(rv, errno, EISDIR, EINVAL);
+	report_check2(rv, errno, EISDIR, EINVAL);
 }
 
 void
 test_readlink(void)
 {
-	int ntests = 0, lost_points = 0;
-	int result;
+	test_readlink_path();
+	test_readlink_buf();
 
-	test_readlink_path(&ntests, &lost_points);
-	test_readlink_buf(&ntests, &lost_points);
-
-	ntests++;
-	result = readlink_file();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = readlink_dir();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = readlink_empty();
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	readlink_file();
+	readlink_dir();
+	readlink_empty();
 }
 

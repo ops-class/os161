@@ -83,7 +83,6 @@ a canal - Panama!
 
 #include <stdio.h>
 #include <string.h>
-#include <test161/test161.h>
 
 char palindrome[8000] =
 "amanaplanacaretabanamyriadasumalacaliarahoopapintacatalpaagasanoil"
@@ -176,24 +175,24 @@ main(void)
 {
 	char *start, *end;
 
-	tprintf("Welcome to the palindrome tester!\n");
-	tprintf("I will take a large palindrome and test it.\n");
-	tprintf("Here it is:\n");
-	tprintf("%s\n", palindrome);
+	printf("Welcome to the palindrome tester!\n");
+	printf("I will take a large palindrome and test it.\n");
+	printf("Here it is:\n");
+	printf("%s\n", palindrome);
 
-	tprintf("Testing...");
+	printf("Testing...");
 	/* skip to end */
 	end = palindrome+strlen(palindrome);
 	end--;
 
 	for (start = palindrome; start <= end; start++, end--) {
+		putchar('.');
 		if (*start != *end) {
-			success(TEST161_FAIL, SECRET, "/testbin/palin");
-			tprintf("NOT a palindrome\n");
+			printf("NOT a palindrome\n");
 			return 0;
 		}
 	}
-	tprintf("IS a palindrome\n");
-	success(TEST161_SUCCESS, SECRET, "/testbin/palin");
+
+	printf("IS a palindrome\n");
 	return 0;
 }

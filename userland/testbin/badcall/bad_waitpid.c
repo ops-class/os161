@@ -42,7 +42,7 @@
 #include "test.h"
 
 static
-int
+void
 wait_badpid(pid_t pid, const char *desc)
 {
 	pid_t rv;
@@ -59,24 +59,23 @@ wait_badpid(pid_t pid, const char *desc)
 	else if (err == ENOSYS) {
 		report_saw_enosys();
 	}
-	return report_check2(rv, err, ESRCH, ECHILD);
+	report_check2(rv, err, ESRCH, ECHILD);
 }
 
 static
-int
+void
 wait_nullstatus(void)
 {
 	pid_t pid, rv;
 	int x;
-	int result;
 
 	report_begin("wait with NULL status");
 
 	pid = fork();
 	if (pid<0) {
 		report_warn("fork failed");
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 	if (pid==0) {
 		exit(0);
@@ -84,54 +83,50 @@ wait_nullstatus(void)
 
 	/* POSIX explicitly says passing NULL for status is allowed */
 	rv = waitpid(pid, NULL, 0);
-	result = report_check(rv, errno, 0);
+	report_check(rv, errno, 0);
 	waitpid(pid, &x, 0);
-	return result;
 }
 
 static
-int
+void
 wait_badstatus(void *ptr, const char *desc)
 {
 	pid_t pid, rv;
 	int x;
-	int result;
 
 	report_begin(desc);
 
 	pid = fork();
 	if (pid<0) {
 		report_warn("fork failed");
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 	if (pid==0) {
 		exit(0);
 	}
 
 	rv = waitpid(pid, ptr, 0);
-	result = report_check(rv, errno, EFAULT);
+	report_check(rv, errno, EFAULT);
 	waitpid(pid, &x, 0);
-	return result;
 }
 
 static
-int
+void
 wait_unaligned(void)
 {
 	pid_t pid, rv;
 	int x;
 	int status[2];	/* will have integer alignment */
 	char *ptr;
-	int result;
 
 	report_begin("wait with unaligned status");
 
 	pid = fork();
 	if (pid<0) {
 		report_warn("fork failed");
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 	if (pid==0) {
 		exit(0);
@@ -144,61 +139,55 @@ wait_unaligned(void)
 	ptr++;
 
 	rv = waitpid(pid, (int *)ptr, 0);
-	report_survival(rv, errno, &result);
+	report_survival(rv, errno);
 	if (rv<0) {
 		waitpid(pid, &x, 0);
 	}
-	return result;
 }
 
 static
-int
+void
 wait_badflags(void)
 {
 	pid_t pid, rv;
 	int x;
-	int result;
 
 	report_begin("wait with bad flags");
 
 	pid = fork();
 	if (pid<0) {
 		report_warn("fork failed");
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 	if (pid==0) {
 		exit(0);
 	}
 
 	rv = waitpid(pid, &x, 309429);
-	result = report_check(rv, errno, EINVAL);
+	report_check(rv, errno, EINVAL);
 	waitpid(pid, &x, 0);
-	return result;
 }
 
 static
-int
+void
 wait_self(void)
 {
 	pid_t rv;
 	int x;
-	int result;
 
 	report_begin("wait for self");
 
 	rv = waitpid(getpid(), &x, 0);
-	report_survival(rv, errno, &result);
-	return result;
+	report_survival(rv, errno);
 }
 
 static
-int
+void
 wait_parent(void)
 {
 	pid_t mypid, childpid, rv;
 	int x;
-	int result;
 
 	report_begin("wait for parent");
 	report_hassubs();
@@ -207,32 +196,30 @@ wait_parent(void)
 	childpid = fork();
 	if (childpid<0) {
 		report_warn("can't fork");
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 	if (childpid==0) {
 		/* Child. Wait for parent. */
 		rv = waitpid(mypid, &x, 0);
 		report_beginsub("from child:");
-		report_survival(rv, errno, &result);
+		report_survival(rv, errno);
 		_exit(0);
 	}
-	rv = waitpid(mypid, &x, 0);
+	rv = waitpid(childpid, &x, 0);
 	report_beginsub("from parent:");
-	report_survival(rv, errno, &result);
-	return result;
+	report_survival(rv, errno);
 }
 
 ////////////////////////////////////////////////////////////
 
 static
-int
+void
 wait_siblings_child(const char *semname)
 {
 	pid_t pids[2], mypid, otherpid;
 	int rv, fd, semfd, x;
 	char c;
-	int result;
 
 	mypid = getpid();
 
@@ -257,7 +244,7 @@ wait_siblings_child(const char *semname)
 	if (fd<0) {
 		report_warn("child process (pid %d) can't open %s",
 			    mypid, TESTFILE);
-		return FAILED;
+		return;
 	}
 
 	/*
@@ -270,13 +257,13 @@ wait_siblings_child(const char *semname)
 		if (rv<0) {
 			report_warn("child process (pid %d) lseek error",
 				    mypid);
-			return FAILED;
+			return;
 		}
 		rv = read(fd, pids, sizeof(pids));
 		if (rv<0) {
 			report_warn("child process (pid %d) read error",
 				    mypid);
-			return FAILED;
+			return;
 		}
 	} while (rv < (int)sizeof(pids));
 
@@ -289,25 +276,23 @@ wait_siblings_child(const char *semname)
 	else {
 		report_warn("child process (pid %d) got garbage in comm file",
 			    mypid);
-		return FAILED;
+		return;
 	}
 	close(fd);
 
 	rv = waitpid(otherpid, &x, 0);
 	report_beginsub("sibling (pid %d)", mypid);
-	report_survival(rv, errno, &result);
-	return result;
+	report_survival(rv, errno);
 }
 
 static
-int
+void
 wait_siblings(void)
 {
 	pid_t pids[2];
 	int rv, fd, semfd, x;
 	int bad = 0;
 	char semname[32];
-	int result;
 
 	/* This test may also blow up if FS synchronization is substandard */
 
@@ -318,26 +303,26 @@ wait_siblings(void)
 	semfd = open(semname, O_WRONLY|O_CREAT|O_TRUNC, 0664);
 	if (semfd < 0) {
 		report_warn("can't make semaphore");
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 
 	fd = open_testfile(NULL);
 	if (fd<0) {
-		report_aborted(&result);
+		report_aborted();
 		close(semfd);
 		remove(semname);
-		return result;
+		return;
 	}
 
 	pids[0] = fork();
 	if (pids[0]<0) {
 		report_warn("can't fork");
-		report_aborted(&result);
+		report_aborted();
 		close(fd);
 		close(semfd);
 		remove(semname);
-		return result;
+		return;
 	}
 	if (pids[0]==0) {
 		close(fd);
@@ -349,12 +334,12 @@ wait_siblings(void)
 	pids[1] = fork();
 	if (pids[1]<0) {
 		report_warn("can't fork");
-		report_aborted(&result);
+		report_aborted();
 		/* abandon the other child process :( */
 		close(fd);
 		close(semfd);
 		remove(semname);
-		return result;
+		return;
 	}
 	if (pids[1]==0) {
 		close(fd);
@@ -366,21 +351,21 @@ wait_siblings(void)
 	rv = write(fd, pids, sizeof(pids));
 	if (rv < 0) {
 		report_warn("write error on %s", TESTFILE);
-		report_aborted(&result);
+		report_aborted();
 		/* abandon child procs :( */
 		close(fd);
 		close(semfd);
 		remove(semname);
-		return result;
+		return;
 	}
 	if (rv != (int)sizeof(pids)) {
 		report_warnx("write error on %s: short count", TESTFILE);
-		report_aborted(&result);
+		report_aborted();
 		/* abandon child procs :( */
 		close(fd);
 		close(semfd);
 		remove(semname);
-		return result;
+		return;
 	}
 
 	/* gate the child procs */
@@ -403,17 +388,15 @@ wait_siblings(void)
 	}
 	if (bad) {
 		/* XXX: aborted, or failure, or what? */
-		report_aborted(&result);
+		report_aborted();
 	}
 	else {
-		report_passed(&result);
+		report_passed();
 	}
 	close(fd);
 	close(semfd);
 	remove(semname);
 	remove(TESTFILE);
-
-	return result;
 }
 
 ////////////////////////////////////////////////////////////
@@ -421,61 +404,20 @@ wait_siblings(void)
 void
 test_waitpid(void)
 {
-	int ntests = 0, lost_points = 0;
-	int result;
+	wait_badpid(-8, "wait for pid -8");
+	wait_badpid(-1, "wait for pid -1");
+	wait_badpid(0, "pid zero");
+	wait_badpid(NONEXIST_PID, "nonexistent pid");
 
-	ntests++;
-	result = wait_badpid(-8, "wait for pid -8");
-	handle_result(result, &lost_points);
+	wait_nullstatus();
+	wait_badstatus(INVAL_PTR, "wait with invalid pointer status");
+	wait_badstatus(KERN_PTR, "wait with kernel pointer status");
 
-	ntests++;
-	result = wait_badpid(-1, "wait for pid -1");
-	handle_result(result, &lost_points);
+	wait_unaligned();
 
-	ntests++;
-	result = wait_badpid(0, "pid zero");
-	handle_result(result, &lost_points);
+	wait_badflags();
 
-	ntests++;
-	result = wait_badpid(NONEXIST_PID, "nonexistent pid");
-	handle_result(result, &lost_points);
-
-
-	ntests++;
-	result = wait_nullstatus();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = wait_badstatus(INVAL_PTR, "wait with invalid pointer status");
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = wait_badstatus(KERN_PTR, "wait with kernel pointer status");
-	handle_result(result, &lost_points);
-
-
-	ntests++;
-	result = wait_unaligned();
-	handle_result(result, &lost_points);
-
-
-	ntests++;
-	result = wait_badflags();
-	handle_result(result, &lost_points);
-
-
-	ntests++;
-	result = wait_self();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = wait_parent();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = wait_siblings();
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	wait_self();
+	wait_parent();
+	wait_siblings();
 }

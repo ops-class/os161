@@ -78,7 +78,7 @@ main(int argc, char *argv[])
 	/* round size up */
 	size = ((size + chunksize - 1) / chunksize) * chunksize;
 
-	tprintf("Creating a file of size %d in %d-byte chunks\n",
+	printf("Creating a file of size %d in %d-byte chunks\n",
 	       size, chunksize);
 
 	fd = open(filename, O_WRONLY|O_CREAT|O_TRUNC);

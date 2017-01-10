@@ -37,34 +37,16 @@
  */
 
 #include <unistd.h>
-#include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <err.h>
-#include <test161/test161.h>
-
-#define FORKTEST_FILENAME_BASE "forktest"
-
-static char filename[32];
 
 /*
  * This is used by all processes, to try to help make sure all
  * processes have a distinct address space.
  */
 static volatile int mypid;
-
-/*
- * Helper function to do pow()
- */
-static
-int pow_int(int x, int y) {
-	int i;
-	int result = 1;
-	for(i = 0; i < y; i++)
-		result *= x;
-	return result;
-}
 
 /*
  * Helper function for fork that prints a warning on error.
@@ -95,7 +77,6 @@ check(void)
 	mypid = getpid();
 
 	/* Make sure each fork has its own address space. */
-	nprintf(".");
 	for (i=0; i<800; i++) {
 		volatile int seenpid;
 		seenpid = mypid;
@@ -133,13 +114,13 @@ dowait(int nowait, int pid)
 
 	if (!nowait) {
 		if (waitpid(pid, &x, 0)<0) {
-			errx(1, "waitpid");
+			warn("waitpid");
 		}
 		else if (WIFSIGNALED(x)) {
-			errx(1, "pid %d: signal %d", pid, WTERMSIG(x));
+			warnx("pid %d: signal %d", pid, WTERMSIG(x));
 		}
 		else if (WEXITSTATUS(x) != 0) {
-			errx(1, "pid %d: exit %d", pid, WEXITSTATUS(x));
+			warnx("pid %d: exit %d", pid, WEXITSTATUS(x));
 		}
 	}
 }
@@ -160,42 +141,17 @@ test(int nowait)
 	 * to prevent wait/exit problems if fork corrupts memory.
 	 */
 
-	/*
-	 * Guru: We have a problem here.
-	 * We need to write the output to a file since test161 is
-	 * supposed to be as simple as possible. This requires the
-	 * test to tell test161 whether it passed or succeeded.
-	 * We cannot lseek and read stdout, to check the output,
-	 * so we need to write the output to a file and then check it later.
-	 *
-	 * So far so good. However, if in the future, forktest is
-	 * going to be combined with triple/quint/etc, then the filename
-	 * cannot be the same across multiple copies. So we need a
-	 * unique filename per instance of forktest.
-	 * So...
-	 */
-	snprintf(filename, 32, "%s-%d.bin", FORKTEST_FILENAME_BASE, getpid());
-	int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC);
-	if(fd < 3) {
-		// 0, 1, 2 are stdin, stdout, stderr
-		err(1, "Failed to open file to write data into\n");
-	}
-
 	pid0 = dofork();
-	nprintf(".");
-	write(fd, "A", 1);
+	putchar('A');
 	check();
 	pid1 = dofork();
-	nprintf(".");
-	write(fd, "B", 1);
+	putchar('B');
 	check();
 	pid2 = dofork();
-	nprintf(".");
-	write(fd, "C", 1);
+	putchar('C');
 	check();
 	pid3 = dofork();
-	nprintf(".");
-	write(fd, "D", 1);
+	putchar('D');
 	check();
 
 	/*
@@ -203,57 +159,11 @@ test(int nowait)
 	 * improperly.
 	 */
 	dowait(nowait, pid3);
-	nprintf(".");
 	dowait(nowait, pid2);
-	nprintf(".");
 	dowait(nowait, pid1);
-	nprintf(".");
 	dowait(nowait, pid0);
-	nprintf(".");
 
-	// Check if file contents are correct
-	// lseek may not be implemented..so close and reopen
-	close(fd);
-	fd = open(filename, O_RDONLY);
-	if(fd < 3) {
-		err(1, "Failed to open file for verification\n");
-	}
-	nprintf(".");
-
-	char buffer[30];
-	int len;
-	int char_idx, i;
-	int observed, expected;
-	char character = 'A';
-
-	memset(buffer, 0, 30);
-	len = read(fd, buffer, 30);
-	printf("\n%s\n", buffer);
-	if(len != 30) {
-		err(1, "Did not get expected number of characters\n");
-	}
-	nprintf(".");
-	// Check if number of instances of each character is correct
-	// 2As; 4Bs; 8Cs; 16Ds
-	for(char_idx = 0; char_idx < 4; char_idx++) {
-		nprintf(".");
-		observed = 0;
-		expected = pow_int(2, char_idx + 1);
-		for(i = 0; i < 30; i++) {
-			// In C, char can be directly converted to an ASCII index
-			// So, A is 65, B is 66, ...
-			if(buffer[i] == character + char_idx) {
-				observed++;
-			}
-		}
-		if(observed != expected) {
-			// Failed
-			err(1, "Failed! Expected %d%cs..observed: %d\n", expected, character + char_idx, observed);
-		}
-	}
-	nprintf("\n");
-	success(TEST161_SUCCESS, SECRET, "/testbin/forktest");
-	close(fd);
+	putchar('\n');
 }
 
 int

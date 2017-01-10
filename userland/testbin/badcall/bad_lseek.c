@@ -44,38 +44,34 @@
 #include "test.h"
 
 static
-int
+void
 lseek_fd_device(void)
 {
 	int fd, rv;
-	int result;
 
 	report_begin("lseek on device");
 
 	fd = open("null:", O_RDONLY);
 	if (fd<0) {
 		report_warn("opening null: failed");
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 
 	rv = lseek(fd, 309, SEEK_SET);
-	result = report_check(rv, errno, ESPIPE);
+	report_check(rv, errno, ESPIPE);
 
 	close(fd);
-
-	return result;
 }
 
 static
-int
+void
 lseek_file_stdin(void)
 {
 	int fd, fd2, rv, status;
 	const char slogan[] = "There ain't no such thing as a free lunch";
 	size_t len = strlen(slogan);
 	pid_t pid;
-	int result = 0;
 
 	report_begin("lseek stdin when open on file");
 
@@ -83,27 +79,27 @@ lseek_file_stdin(void)
 	pid = fork();
 	if (pid<0) {
 		report_warn("fork failed");
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 	else if (pid!=0) {
 		/* parent */
 		rv = waitpid(pid, &status, 0);
 		if (rv<0) {
 			report_warn("waitpid failed");
-			report_aborted(&result);
+			report_aborted();
 		}
 		if (WIFSIGNALED(status)) {
 			report_warnx("subprocess exited with signal %d",
 				     WTERMSIG(status));
-			report_aborted(&result);
+			report_aborted();
 		}
 		else if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
 			report_warnx("subprocess exited with code %d",
 				     WEXITSTATUS(status));
-			report_aborted(&result);
+			report_aborted();
 		}
-		return result;
+		return;
 	}
 
 	/* child */
@@ -150,159 +146,133 @@ lseek_file_stdin(void)
 	}
 
 	/* blah */
-	report_skipped(&result);
+	report_skipped();
 
 	rv = lseek(STDIN_FILENO, 0, SEEK_SET);
 	report_begin("try 1: SEEK_SET");
-	result = report_check(rv, errno, 0);
+	report_check(rv, errno, 0);
 
 	rv = lseek(STDIN_FILENO, 0, SEEK_END);
 	report_begin("try 2: SEEK_END");
-	result = report_check(rv, errno, 0);
+	report_check(rv, errno, 0);
 
 	remove(TESTFILE);
 	_exit(0);
 }
 
 static
-int
+void
 lseek_loc_negative(void)
 {
 	int fd, rv;
-	int result;
 
 	report_begin("lseek to negative offset");
 
 	fd = open_testfile(NULL);
 	if (fd<0) {
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 
 	rv = lseek(fd, -309, SEEK_SET);
-	result = report_check(rv, errno, EINVAL);
+	report_check(rv, errno, EINVAL);
 
 	close(fd);
 	remove(TESTFILE);
-
-	return result;
 }
 
 static
-int
+void
 lseek_whence_inval(void)
 {
 	int fd, rv;
-	int result;
 
 	report_begin("lseek with invalid whence code");
 
 	fd = open_testfile(NULL);
 	if (fd<0) {
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 
 	rv = lseek(fd, 0, 3594);
-	result = report_check(rv, errno, EINVAL);
+	report_check(rv, errno, EINVAL);
 
 	close(fd);
 	remove(TESTFILE);
-	return result;
 }
 
 static
-int
+void
 lseek_loc_pasteof(void)
 {
 	const char *message = "blahblah";
 	int fd;
 	off_t pos;
-	int result;
 
 	report_begin("seek past/to EOF");
 
 	fd = open_testfile(message);
 	if (fd<0) {
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 
 	pos = lseek(fd, 5340, SEEK_SET);
 	if (pos == -1) {
 		report_warn("lseek past EOF failed");
-		report_failure(&result);
+		report_failure();
 		goto out;
 	}
 	if (pos != 5340) {
 		report_warnx("lseek to 5340 got offset %lld", (long long) pos);
-		report_failure(&result);
+		report_failure();
 		goto out;
 	}
 
 	pos = lseek(fd, -50, SEEK_CUR);
 	if (pos == -1) {
 		report_warn("small seek beyond EOF failed");
-		report_failure(&result);
+		report_failure();
 		goto out;
 	}
 	if (pos != 5290) {
 		report_warnx("SEEK_CUR to 5290 got offset %lld",
 			     (long long) pos);
-		report_failure(&result);
+		report_failure();
 		goto out;
 	}
 
 	pos = lseek(fd, 0, SEEK_END);
 	if (pos == -1) {
 		report_warn("seek to EOF failed");
-		report_failure(&result);
+		report_failure();
 		goto out;
 	}
 
 	if (pos != (off_t) strlen(message)) {
 		report_warnx("seek to EOF got %lld (should be %zu)",
 			     (long long) pos, strlen(message));
-		report_failure(&result);
+		report_failure();
 		goto out;
 	}
 
-	report_passed(&result);
+	report_passed();
 
     out:
 	close(fd);
 	remove(TESTFILE);
-	return result;
+	return;
 }
 
 void
 test_lseek(void)
 {
-	int ntests = 0, lost_points = 0;
-	int result;
+	test_lseek_fd();
 
-	test_lseek_fd(&ntests, &lost_points);
-
-	ntests++;
-	result = lseek_fd_device();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = lseek_file_stdin();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = lseek_loc_negative();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = lseek_loc_pasteof();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = lseek_whence_inval();
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	lseek_fd_device();
+	lseek_file_stdin();
+	lseek_loc_negative();
+	lseek_loc_pasteof();
+	lseek_whence_inval();
 }

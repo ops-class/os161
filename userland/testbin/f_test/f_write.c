@@ -67,7 +67,7 @@ subproc_write(void)
 		buffer[i] = WRITECHAR;
 	}
 
-	tprintf("File Writer starting ...\n");
+	printf("File Writer starting ...\n");
 
 	fd = open(FNAME, O_WRONLY);
 	if (fd < 0) {
@@ -81,5 +81,5 @@ subproc_write(void)
 
 	close(fd);
 
-	tprintf("File Write exited successfully!\n");
+	printf("File Write exited successfully!\n");
 }

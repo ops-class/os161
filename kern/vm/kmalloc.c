@@ -31,8 +31,6 @@
 #include <lib.h>
 #include <spinlock.h>
 #include <vm.h>
-#include <kern/test161.h>
-#include <test.h>
 
 /*
  * Kernel malloc.
@@ -745,8 +743,8 @@ kheap_dumpall(void)
  * Print the allocated/freed map of a single kernel heap page.
  */
 static
-unsigned long
-subpage_stats(struct pageref *pr, bool quiet)
+void
+subpage_stats(struct pageref *pr)
 {
 	vaddr_t prpage, fla;
 	struct freelist *fl;
@@ -782,21 +780,18 @@ subpage_stats(struct pageref *pr, bool quiet)
 		}
 	}
 
-	if (!quiet) {
-		kprintf("at 0x%08lx: size %-4lu  %u/%u free\n",
-				(unsigned long)prpage, (unsigned long) sizes[blktype],
-				(unsigned) pr->nfree, n);
-		kprintf("   ");
-		for (i=0; i<n; i++) {
-			int val = (freemap[i/32] & (1<<(i%32)))!=0;
-			kprintf("%c", val ? '.' : '*');
-			if (i%64==63 && i<n-1) {
-				kprintf("\n   ");
-			}
+	kprintf("at 0x%08lx: size %-4lu  %u/%u free\n",
+		(unsigned long)prpage, (unsigned long) sizes[blktype],
+		(unsigned) pr->nfree, n);
+	kprintf("   ");
+	for (i=0; i<n; i++) {
+		int val = (freemap[i/32] & (1<<(i%32)))!=0;
+		kprintf("%c", val ? '.' : '*');
+		if (i%64==63 && i<n-1) {
+			kprintf("\n   ");
 		}
-		kprintf("\n");
 	}
-	return ((unsigned long)sizes[blktype] * (n - (unsigned) pr->nfree));
+	kprintf("\n");
 }
 
 /*
@@ -813,53 +808,10 @@ kheap_printstats(void)
 	kprintf("Subpage allocator status:\n");
 
 	for (pr = allbase; pr != NULL; pr = pr->next_all) {
-		subpage_stats(pr, false);
+		subpage_stats(pr);
 	}
 
 	spinlock_release(&kmalloc_spinlock);
-}
-
-
-/*
- * Return the number of used bytes.
- */
-
-unsigned long
-kheap_getused(void) {
-	struct pageref *pr;
-	unsigned long total = 0;
-	unsigned int num_pages = 0, coremap_bytes = 0;
-
-	/* compute with interrupts off */
-	spinlock_acquire(&kmalloc_spinlock);
-	for (pr = allbase; pr != NULL; pr = pr->next_all) {
-		total += subpage_stats(pr, true);
-		num_pages++;
-	}
-
-	coremap_bytes = coremap_used_bytes();
-
-	// Don't double-count the pages we're using for subpage allocation;
-	// we've already accounted for the used portion.
-	if (coremap_bytes > 0) {
-		total += coremap_bytes - (num_pages * PAGE_SIZE);
-	}
-
-	spinlock_release(&kmalloc_spinlock);
-
-	return total;
-}
-
-/*
- * Print number of used bytes.
- */
-
-void
-kheap_printused(void)
-{
-	char total_string[32];
-	snprintf(total_string, sizeof(total_string), "%lu", kheap_getused());
-	secprintf(SECRET, total_string, "khu");
 }
 
 ////////////////////////////////////////
@@ -1015,7 +967,7 @@ subpage_kmalloc(size_t sz
 	prpage = alloc_kpages(1);
 	if (prpage==0) {
 		/* Out of memory. */
-		silent("kmalloc: Subpage allocator couldn't get a page\n");
+		kprintf("kmalloc: Subpage allocator couldn't get a page\n");
 		return NULL;
 	}
 	KASSERT(prpage % PAGE_SIZE == 0);

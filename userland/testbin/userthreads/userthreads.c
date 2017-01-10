@@ -79,7 +79,7 @@ main(int argc, char *argv[])
 	    threadfork(BladeRunner);
     }
 
-    tprintf("Parent has left.\n");
+    printf("Parent has left.\n");
     return 0;
 }
 
@@ -93,7 +93,7 @@ BladeRunner()
 {
     while (count < MAX) {
 	if (count % 500 == 0)
-	    tprintf("Blade ");
+	    printf("Blade ");
 	count++;
     }
 }
@@ -103,7 +103,7 @@ ThreadRunner()
 {
     while (count < MAX) {
 	if (count % 513 == 0)
-	    tprintf(" Runner\n");
+	    printf(" Runner\n");
 	count++;
     }
 }

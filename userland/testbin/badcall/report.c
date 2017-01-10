@@ -251,31 +251,27 @@ report_end(const char *msg)
 }
 
 void
-report_passed(int *status)
+report_passed(void)
 {
 	report_end("passed");
-	*status = SUCCESS;
 }
 
 void
-report_failure(int *status)
+report_failure(void)
 {
 	report_end("FAILURE");
-	*status = FAILED;
 }
 
 void
-report_skipped(int *status)
+report_skipped(void)
 {
 	report_end("------");
-	*status = SKIPPED;
 }
 
 void
-report_aborted(int *status)
+report_aborted(void)
 {
 	report_end("ABORTED");
-	*status = ABORTED;
 }
 
 ////////////////////////////////////////////////////////////
@@ -287,19 +283,18 @@ report_aborted(int *status)
  */
 
 void
-report_survival(int rv, int error, int *result)
+report_survival(int rv, int error)
 {
 	/* allow any error as long as we survive */
 	report_result(rv, error);
-	report_passed(result);
+	report_passed();
 }
 
 static
-int
+void
 report_checkN(int rv, int error, int *right_errors, int right_num)
 {
 	int i, goterror;
-	int result = 1;
 
 	if (rv==-1) {
 		goterror = error;
@@ -311,40 +306,39 @@ report_checkN(int rv, int error, int *right_errors, int right_num)
 	for (i=0; i<right_num; i++) {
 		if (goterror == right_errors[i]) {
 			report_result(rv, error);
-			report_passed(&result);
-			return result;
+			report_passed();
+			return;
 		}
 	}
 
 	if (goterror == ENOSYS) {
 		report_saw_enosys();
 		say("(unimplemented) ");
-		report_skipped(&result);
+		report_skipped();
 	}
 	else {
 		report_result(rv, error);
-		report_failure(&result);
+		report_failure();
 	}
-	return result;
 }
 
-int
+void
 report_check(int rv, int error, int right_error)
 {
-	return report_checkN(rv, error, &right_error, 1);
+	report_checkN(rv, error, &right_error, 1);
 }
 
-int
+void
 report_check2(int rv, int error, int okerr1, int okerr2)
 {
 	int ok[2];
 
 	ok[0] = okerr1;
 	ok[1] = okerr2;
-	return report_checkN(rv, error, ok, 2);
+	report_checkN(rv, error, ok, 2);
 }
 
-int
+void
 report_check3(int rv, int error, int okerr1, int okerr2, int okerr3)
 {
 	int ok[3];
@@ -352,13 +346,5 @@ report_check3(int rv, int error, int okerr1, int okerr2, int okerr3)
 	ok[0] = okerr1;
 	ok[1] = okerr2;
 	ok[2] = okerr3;
-	return report_checkN(rv, error, ok, 3);
+	report_checkN(rv, error, ok, 3);
 }
-
-void
-handle_result(int result, int *lost_points)
-{
-	if(result)
-		*lost_points = *lost_points + 1;
-}
-

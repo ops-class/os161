@@ -44,67 +44,52 @@
 #include "test.h"
 
 static
-int
+void
 ftruncate_fd_device(void)
 {
 	int rv, fd;
-	int result;
 
 	report_begin("ftruncate on device");
 
 	fd = open("null:", O_RDWR);
 	if (fd<0) {
 		report_warn("opening null: failed");
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 
 	rv = ftruncate(fd, 6);
-	result = report_check(rv, errno, EINVAL);
+	report_check(rv, errno, EINVAL);
 
 	close(fd);
-	return result;
 }
 
 static
-int
+void
 ftruncate_size_neg(void)
 {
 	int rv, fd;
-	int result;
 
 	report_begin("ftruncate to negative size");
 
 	fd = open_testfile(NULL);
 	if (fd<0) {
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 
 	rv = ftruncate(fd, -60);
-	result = report_check(rv, errno, EINVAL);
+	report_check(rv, errno, EINVAL);
 
 	close(fd);
 	remove(TESTFILE);
-	return result;
 }
 
 void
 test_ftruncate(void)
 {
-	int ntests = 0, lost_points = 0;
-	int result;
+	test_ftruncate_fd();
 
-	test_ftruncate_fd(&ntests, &lost_points);
-
-	ntests++;
-	result = ftruncate_fd_device();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = ftruncate_size_neg();
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	ftruncate_fd_device();
+	ftruncate_size_neg();
 }

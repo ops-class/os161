@@ -46,8 +46,6 @@
 #include <unistd.h>
 #include <signal.h>
 #include <err.h>
-#include <test161/test161.h>
-
 
 #if defined(__mips__)
 #define KERNEL_ADDR	0x80000000
@@ -294,7 +292,7 @@ runop(int op)
 	/* intentionally don't check if op is in bounds :) */
 	opindex = op-'a';
 
-	tprintf("Running: [%c] %s\n", ops[opindex].ch, ops[opindex].name);
+	printf("Running: [%c] %s\n", ops[opindex].ch, ops[opindex].name);
 
 	if (forking) {
 		pid = fork();
@@ -309,25 +307,25 @@ runop(int op)
 			}
 			ok = 0;
 			if (WIFSIGNALED(status)) {
-				tprintf("Signal %d\n", WTERMSIG(status));
+				printf("Signal %d\n", WTERMSIG(status));
 				if (WTERMSIG(status) == ops[opindex].sig) {
 					ok = 1;
 				}
 			}
 			else {
-				tprintf("Exit %d\n", WEXITSTATUS(status));
+				printf("Exit %d\n", WEXITSTATUS(status));
 				if (WEXITSTATUS(status) == MAGIC) {
 					ok = 1;
 				}
 			}
 			if (ok) {
-				tprintf("Ok.\n");
+				printf("Ok.\n");
 			}
 			else {
-				tprintf("FAILED: expected signal %d\n",
+				printf("FAILED: expected signal %d\n",
 				       ops[opindex].sig);
 			}
-			tprintf("\n");
+			printf("\n");
 			return;
 		}
 	}
@@ -353,14 +351,14 @@ ask(void)
 	while (1) {
 
 		for (i=0; ops[i].name; i++) {
-			tprintf("[%c] %s\n", ops[i].ch, ops[i].name);
+			printf("[%c] %s\n", ops[i].ch, ops[i].name);
 		}
-		tprintf("[-] Disable forking\n");
-		tprintf("[+] Enable forking (default)\n");
-		tprintf("[*] Run everything\n");
-		tprintf("[!] Quit\n");
+		printf("[-] Disable forking\n");
+		printf("[+] Enable forking (default)\n");
+		printf("[*] Run everything\n");
+		printf("[!] Quit\n");
 
-		tprintf("Choose: ");
+		printf("Choose: ");
 		op = getchar();
 
 		if (op == '!') {
@@ -386,7 +384,5 @@ main(int argc, char **argv)
 			}
 		}
 	}
-	printf("Should print success\n");
-	success(TEST161_SUCCESS, SECRET, "/testbin/crash");
 	return 0;
 }

@@ -72,7 +72,7 @@ do_createfile(unsigned name)
 	if (fd < 0) {
 		err(1, "%s: create", namestr);
 	}
-	tprintf("create %s\n", namestr);
+	printf("create %s\n", namestr);
 	return fd;
 }
 
@@ -122,7 +122,7 @@ do_write(int fd, unsigned name, unsigned code, unsigned seq,
 		done += ret;
 	}
 
-	tprintf("write %s: %lld at %lld\n", namestr, len, pos);
+	printf("write %s: %lld at %lld\n", namestr, len, pos);
 }
 
 void
@@ -134,7 +134,7 @@ do_truncate(int fd, unsigned name, off_t len)
 	if (ftruncate(fd, len) == -1) {
 		err(1, "%s: truncate to %lld", namestr, len);
 	}
-	tprintf("truncate %s: to %lld\n", namestr, len);
+	printf("truncate %s: to %lld\n", namestr, len);
 }
 
 void
@@ -146,7 +146,7 @@ do_mkdir(unsigned name)
 	if (mkdir(namestr, 0775) == -1) {
 		err(1, "%s: mkdir", namestr);
 	}
-	tprintf("mkdir %s\n", namestr);
+	printf("mkdir %s\n", namestr);
 }
 
 void
@@ -158,7 +158,7 @@ do_rmdir(unsigned name)
 	if (rmdir(namestr) == -1) {
 		err(1, "%s: rmdir", namestr);
 	}
-	tprintf("rmdir %s\n", namestr);
+	printf("rmdir %s\n", namestr);
 }
 
 void
@@ -170,7 +170,7 @@ do_unlink(unsigned name)
 	if (remove(namestr) == -1) {
 		err(1, "%s: remove", namestr);
 	}
-	tprintf("remove %s\n", namestr);
+	printf("remove %s\n", namestr);
 }
 
 void
@@ -183,7 +183,7 @@ do_link(unsigned from, unsigned to)
 	if (link(fromstr, tostr) == -1) {
 		err(1, "link %s to %s", fromstr, tostr);
 	}
-	tprintf("link %s %s\n", fromstr, tostr);
+	printf("link %s %s\n", fromstr, tostr);
 }
 
 void
@@ -196,7 +196,7 @@ do_rename(unsigned from, unsigned to)
 	if (rename(fromstr, tostr) == -1) {
 		err(1, "rename %s to %s", fromstr, tostr);
 	}
-	tprintf("rename %s %s\n", fromstr, tostr);
+	printf("rename %s %s\n", fromstr, tostr);
 }
 
 void
@@ -216,7 +216,7 @@ do_renamexd(unsigned fromdir, unsigned from, unsigned todir, unsigned to)
 	if (rename(frombuf, tobuf) == -1) {
 		err(1, "rename %s to %s", frombuf, tobuf);
 	}
-	tprintf("rename %s %s\n", frombuf, tobuf);
+	printf("rename %s %s\n", frombuf, tobuf);
 }
 
 void
@@ -228,7 +228,7 @@ do_chdir(unsigned name)
 	if (chdir(namestr) == -1) {
 		err(1, "chdir: %s", namestr);
 	}
-	tprintf("chdir %s\n", namestr);
+	printf("chdir %s\n", namestr);
 }
 
 void
@@ -237,7 +237,7 @@ do_chdirup(void)
 	if (chdir("..") == -1) {
 		err(1, "chdir: ..");
 	}
-	tprintf("chdir ..\n");
+	printf("chdir ..\n");
 }
 
 void
@@ -246,6 +246,6 @@ do_sync(void)
 	if (sync()) {
 		warn("sync");
 	}
-	tprintf("sync\n");
-	tprintf("----------------------------------------\n");
+	printf("sync\n");
+	printf("----------------------------------------\n");
 }

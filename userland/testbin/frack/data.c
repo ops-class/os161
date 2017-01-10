@@ -165,7 +165,7 @@ data_matches(const char *namestr, off_t regionoffset,
 		}
 		else if (zero_at(where, howmuch)) {
 			if (where >= zerostart) {
-				tprintf("WARNING: file %s range %lld-%lld is "
+				printf("WARNING: file %s range %lld-%lld is "
 				       "zeroed\n",
 				       namestr, regionoffset + where,
 				       regionoffset + where + howmuch);
@@ -176,7 +176,7 @@ data_matches(const char *namestr, off_t regionoffset,
 		}
 		else if (poison_at(where, howmuch)) {
 			if (where >= zerostart) {
-				tprintf("ERROR: file %s range %lld-%lld is "
+				printf("ERROR: file %s range %lld-%lld is "
 				       "poisoned\n",
 				       namestr, regionoffset + where,
 				       regionoffset + where + howmuch);
@@ -205,7 +205,7 @@ data_check(const char *namestr, off_t regionoffset,
 
 	if (!data_matches(namestr, regionoffset,
 			  code, seq, zerostart, len, checkstart, checklen)) {
-		tprintf("ERROR: file %s range %lld-%lld contains garbage\n",
+		printf("ERROR: file %s range %lld-%lld contains garbage\n",
 		       namestr, regionoffset + checkstart,
 		       regionoffset + checkstart + checklen);
 	}

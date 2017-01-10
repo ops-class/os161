@@ -124,8 +124,8 @@ big_file(int size)
 {
 	int i, j, fileid;
 
-	tprintf("[BIGFILE] test starting :\n");
-	tprintf("\tCreating a file of size: %d\n", size);
+	printf("[BIGFILE] test starting :\n");
+	printf("\tCreating a file of size: %d\n", size);
 
 	fileid = open(BIGFILE_NAME, O_WRONLY|O_CREAT|O_TRUNC, 0664);
 	if (fileid < 0) {
@@ -136,16 +136,16 @@ big_file(int size)
 		fbuffer[i] = LETTER(i);
 	}
 
-	tprintf("\tWriting to file.\n");
+	printf("\tWriting to file.\n");
 	for (i = 0; i < size; i += BUFFER_SIZE) {
 		write(fileid, fbuffer, BUFFER_SIZE);
 
 		if (!(i % (10 * BUFFER_SIZE))) {
-			tprintf("\rBW : %d", i);
+			printf("\rBW : %d", i);
 		}
 	}
 
-	tprintf("\n\tReading from file.\n");
+	printf("\n\tReading from file.\n");
 	close(fileid);
 
 	fileid = open(BIGFILE_NAME, O_RDONLY);
@@ -164,7 +164,7 @@ big_file(int size)
 	}
 
 	if (!(i % (10 * BUFFER_SIZE))) {
-		tprintf("\rBR : %d", i);
+		printf("\rBR : %d", i);
 	}
 
 	/* Check to see that the data is consistent : */
@@ -181,7 +181,7 @@ big_file(int size)
 		err(1, "[BIGFILE]: %s: remove", BIGFILE_NAME);
 	}
 
-	tprintf("\n[BIGFILE] : Success!\n");
+	printf("\n[BIGFILE] : Success!\n");
 }
 
 /* ===================================================
@@ -195,7 +195,7 @@ concur(void)
 	int i, fd;
 	int r1, r2, w1;
 
-	tprintf("Spawning 2 readers, 1 writer.\n");
+	printf("Spawning 2 readers, 1 writer.\n");
 
 
 	fd = open(FNAME, O_WRONLY|O_CREAT|O_TRUNC, 0664);
@@ -203,7 +203,7 @@ concur(void)
 		err(1, "[CONCUR]: %s: open", FNAME);
 	}
 
-	tprintf("Initializing test file: ");
+	printf("Initializing test file: ");
 
 	for (i = 0; i < SECTOR_SIZE + 1; i++) {
 		cbuffer[i] = READCHAR;
@@ -216,13 +216,13 @@ concur(void)
 
 	close(fd);
 
-	tprintf("Done initializing. Starting processes...\n");
+	printf("Done initializing. Starting processes...\n");
 
 	r1 = forkoff(subproc_read);
 	w1 = forkoff(subproc_write);
 	r2 = forkoff(subproc_read);
 
-	tprintf("Waiting for processes.\n");
+	printf("Waiting for processes.\n");
 
 	dowait(r1);
 	dowait(r2);
@@ -232,7 +232,7 @@ concur(void)
 		err(1, "[CONCUR]: %s: remove", FNAME);
 	}
 
-	tprintf("[CONCUR] Done!\n");
+	printf("[CONCUR] Done!\n");
 }
 
 /* ===================================================
@@ -253,14 +253,14 @@ dir_test(int depth)
 	for (i = 0; i < depth; i++) {
 		strcat(dirname, tmp);
 
-		tprintf("\tCreating dir : %s\n", dirname);
+		printf("\tCreating dir : %s\n", dirname);
 
 		if (mkdir(dirname, 0775) < 0) {
 			err(1, "[DIRTEST]: %s: mkdir", dirname);
 		}
 
 		strcat(dirname, fmp);
-		tprintf("\tCreating file: %s\n", dirname);
+		printf("\tCreating file: %s\n", dirname);
 
 		fd = open(dirname, O_WRONLY|O_CREAT|O_TRUNC, 0664);
 		if (fd<0) {
@@ -270,19 +270,19 @@ dir_test(int depth)
 		dirname[strlen(dirname) - strlen(fmp)] = '\0';
 	}
 
-	tprintf("[DIRTEST] : Passed directory creation test.\n");
+	printf("[DIRTEST] : Passed directory creation test.\n");
 
 	for (i = 0; i < depth; i++) {
 		strcat(dirname, fmp);
 
-		tprintf("\tDeleting file: %s\n", dirname);
+		printf("\tDeleting file: %s\n", dirname);
 
 		if (remove(dirname)) {
 			 err(1, "[DIRTEST]: %s: remove", dirname);
 		}
 
 		dirname[strlen(dirname) - strlen(fmp)] = '\0';
-		tprintf("\tRemoving dir : %s\n", dirname);
+		printf("\tRemoving dir : %s\n", dirname);
 
 		if (rmdir(dirname)) {
 			err(1, "[DIRTEST]: %s: rmdir", dirname);
@@ -291,8 +291,8 @@ dir_test(int depth)
 		dirname[strlen(dirname) - strlen(tmp)] = '\0';
 	}
 
-	tprintf("[DIRTEST] : Passed directory removal test.\n");
-	tprintf("[DIRTEST] : Success!\n");
+	printf("[DIRTEST] : Passed directory removal test.\n");
+	printf("[DIRTEST] : Success!\n");
 }
 
 /* ===================================================
@@ -325,21 +325,21 @@ main(int argc, char * argv[])
 	}
 
 	if (tv & RUNBIGFILE) {
-		tprintf("[BIGFILE] : Run #1\n");
+		printf("[BIGFILE] : Run #1\n");
 		big_file(BIGFILE_SIZE);
-		tprintf("[BIGFILE] : Run #2\n");
+		printf("[BIGFILE] : Run #2\n");
 		big_file(BIGFILE_SIZE);
 	}
 
 	if (tv & RUNDIRTEST) {
-		tprintf("[DIRTEST] : Run #1\n");
+		printf("[DIRTEST] : Run #1\n");
 		dir_test(DIR_DEPTH);
-		tprintf("[DIRTEST] : Run #2\n");
+		printf("[DIRTEST] : Run #2\n");
 		dir_test(DIR_DEPTH);
 	}
 
 	if (tv & RUNCONCUR) {
-		tprintf("[CONCUR]\n");
+		printf("[CONCUR]\n");
 		concur();
 	}
 	return 0;

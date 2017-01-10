@@ -77,7 +77,7 @@ geti(void)
 			break;
 		}
 		else if ((ch=='\b' || ch==127) && digits>0) {
-			tprintf("\b \b");
+			printf("\b \b");
 			val = val/10;
 			digits--;
 		}
@@ -117,11 +117,11 @@ markblock(volatile void *ptr, size_t size, unsigned bias, int doprint)
 		val = ((unsigned long)i ^ (unsigned long)bias);
 		pl[i] = val;
 		if (doprint && (i%64==63)) {
-			tprintf(".");
+			printf(".");
 		}
 	}
 	if (doprint) {
-		tprintf("\n");
+		printf("\n");
 	}
 }
 
@@ -143,9 +143,9 @@ checkblock(volatile void *ptr, size_t size, unsigned bias, int doprint)
 		val = ((unsigned long)i ^ (unsigned long)bias);
 		if (pl[i] != val) {
 			if (doprint) {
-				tprintf("\n");
+				printf("\n");
 			}
-			tprintf("FAILED: data mismatch at offset %lu of block "
+			printf("FAILED: data mismatch at offset %lu of block "
 			       "at 0x%lx: %lu vs. %lu\n",
 			       (unsigned long) (i*sizeof(unsigned long)),
 			       (unsigned long)(uintptr_t)pl,
@@ -153,11 +153,11 @@ checkblock(volatile void *ptr, size_t size, unsigned bias, int doprint)
 			return -1;
 		}
 		if (doprint && (i%64==63)) {
-			tprintf(".");
+			printf(".");
 		}
 	}
 	if (doprint) {
-		tprintf("\n");
+		printf("\n");
 	}
 
 	return 0;
@@ -178,23 +178,23 @@ test1(void)
 {
 	volatile unsigned *x;
 
-	tprintf("*** Malloc test 1 ***\n");
-	tprintf("Allocating %u bytes\n", BIGSIZE);
+	printf("*** Malloc test 1 ***\n");
+	printf("Allocating %u bytes\n", BIGSIZE);
 	x = malloc(BIGSIZE);
 	if (x==NULL) {
-		tprintf("FAILED: malloc failed\n");
+		printf("FAILED: malloc failed\n");
 		return;
 	}
 
 	markblock(x, BIGSIZE, 0, 0);
 	if (checkblock(x, BIGSIZE, 0, 0)) {
-		tprintf("FAILED: data corrupt\n");
+		printf("FAILED: data corrupt\n");
 		return;
 	}
 
 	free((void *)x);
 
-	tprintf("Passed malloc test 1.\n");
+	printf("Passed malloc test 1.\n");
 }
 
 
@@ -237,43 +237,43 @@ test2(void)
 	volatile unsigned *x;
 	size_t size;
 
-	tprintf("Entering malloc test 2.\n");
-	tprintf("Make sure you read and understand the comment in malloctest.c "
+	printf("Entering malloc test 2.\n");
+	printf("Make sure you read and understand the comment in malloctest.c "
 	       "that\nexplains the conditions this test assumes.\n\n");
 
-	tprintf("Testing how much memory we can allocate:\n");
+	printf("Testing how much memory we can allocate:\n");
 
 	for (size = HUGESIZE; (x = malloc(size))==NULL; size = size/2) {
-		tprintf("  %9lu bytes: failed\n", (unsigned long) size);
+		printf("  %9lu bytes: failed\n", (unsigned long) size);
 	}
-	tprintf("  %9lu bytes: succeeded\n", (unsigned long) size);
+	printf("  %9lu bytes: succeeded\n", (unsigned long) size);
 
-	tprintf("Passed part 1\n");
+	printf("Passed part 1\n");
 
-	tprintf("Touching all the words in the block.\n");
+	printf("Touching all the words in the block.\n");
 	markblock(x, size, 0, 1);
 
-	tprintf("Validating the words in the block.\n");
+	printf("Validating the words in the block.\n");
 	if (checkblock(x, size, 0, 1)) {
-		tprintf("FAILED: data corrupt\n");
+		printf("FAILED: data corrupt\n");
 		return;
 	}
-	tprintf("Passed part 2\n");
+	printf("Passed part 2\n");
 
 
-	tprintf("Freeing the block\n");
+	printf("Freeing the block\n");
 	free((void *)x);
-	tprintf("Passed part 3\n");
-	tprintf("Allocating another block\n");
+	printf("Passed part 3\n");
+	printf("Allocating another block\n");
 
 	x = malloc(size);
 	if (x==NULL) {
-		tprintf("FAILED: free didn't return the memory?\n");
+		printf("FAILED: free didn't return the memory?\n");
 		return;
 	}
 	free((void *)x);
 
-	tprintf("Passed malloc test 2.\n");
+	printf("Passed malloc test 2.\n");
 }
 
 
@@ -304,11 +304,11 @@ test3(void)
 	int ct=0, failed=0;
 	void *x;
 
-	tprintf("Entering malloc test 3.\n");
-	tprintf("Make sure you read and understand the comment in malloctest.c "
+	printf("Entering malloc test 3.\n");
+	printf("Make sure you read and understand the comment in malloctest.c "
 	       "that\nexplains the conditions this test assumes.\n\n");
 
-	tprintf("Testing how much memory we can allocate:\n");
+	printf("Testing how much memory we can allocate:\n");
 
 	while ((tmp = malloc(sizeof(struct test3))) != NULL) {
 
@@ -322,33 +322,33 @@ test3(void)
 
 		ct++;
 		if (ct%128==0) {
-			tprintf(".");
+			printf(".");
 		}
 	}
 
-	tprintf("Allocated %lu bytes\n", (unsigned long) tot);
+	printf("Allocated %lu bytes\n", (unsigned long) tot);
 
-	tprintf("Trying some more allocations which I expect to fail...\n");
+	printf("Trying some more allocations which I expect to fail...\n");
 
 	x = malloc(SMALLSIZE);
 	if (x != NULL) {
-		tprintf("FAILED: malloc(%u) succeeded\n", SMALLSIZE);
+		printf("FAILED: malloc(%u) succeeded\n", SMALLSIZE);
 		return;
 	}
 
 	x = malloc(MEDIUMSIZE);
 	if (x != NULL) {
-		tprintf("FAILED: malloc(%u) succeeded\n", MEDIUMSIZE);
+		printf("FAILED: malloc(%u) succeeded\n", MEDIUMSIZE);
 		return;
 	}
 
 	x = malloc(BIGSIZE);
 	if (x != NULL) {
-		tprintf("FAILED: malloc(%u) succeeded\n", BIGSIZE);
+		printf("FAILED: malloc(%u) succeeded\n", BIGSIZE);
 		return;
 	}
 
-	tprintf("Ok, now I'm going to free everything...\n");
+	printf("Ok, now I'm going to free everything...\n");
 
 	while (list != NULL) {
 		tmp = list->next;
@@ -363,20 +363,20 @@ test3(void)
 	}
 
 	if (failed) {
-		tprintf("FAILED: data corruption\n");
+		printf("FAILED: data corruption\n");
 		return;
 	}
 
-	tprintf("Let me see if I can allocate some more now...\n");
+	printf("Let me see if I can allocate some more now...\n");
 
 	x = malloc(MEDIUMSIZE);
 	if (x == NULL) {
-		tprintf("FAIL: Nope, I couldn't.\n");
+		printf("FAIL: Nope, I couldn't.\n");
 		return;
 	}
 	free(x);
 
-	tprintf("Passed malloc test 3\n");
+	printf("Passed malloc test 3\n");
 }
 
 ////////////////////////////////////////////////////////////
@@ -397,34 +397,34 @@ test4(void)
 	void *x, *y, *z;
 	unsigned long lx, ly, lz, overhead, zsize;
 
-	tprintf("Entering malloc test 4.\n");
-	tprintf("This test is intended for first/best-fit based mallocs.\n");
-	tprintf("This test may not work correctly if run after other tests.\n");
+	printf("Entering malloc test 4.\n");
+	printf("This test is intended for first/best-fit based mallocs.\n");
+	printf("This test may not work correctly if run after other tests.\n");
 
-	tprintf("Testing free list coalescing:\n");
+	printf("Testing free list coalescing:\n");
 
 	x = malloc(SMALLSIZE);
 	if (x==NULL) {
-		tprintf("FAILED: malloc(%u) failed\n", SMALLSIZE);
+		printf("FAILED: malloc(%u) failed\n", SMALLSIZE);
 		return;
 	}
 
 	y = malloc(MEDIUMSIZE);
 	if (y==NULL) {
-		tprintf("FAILED: malloc(%u) failed\n", MEDIUMSIZE);
+		printf("FAILED: malloc(%u) failed\n", MEDIUMSIZE);
 		return;
 	}
 
 	if (sizeof(unsigned long) < sizeof(void *)) {
-		tprintf("Buh? I can't fit a void * in an unsigned long\n");
-		tprintf("ENVIRONMENT FAILED...\n");
+		printf("Buh? I can't fit a void * in an unsigned long\n");
+		printf("ENVIRONMENT FAILED...\n");
 		return;
 	}
 
 	lx = (unsigned long)x;
 	ly = (unsigned long)y;
 
-	tprintf("x is 0x%lx; y is 0x%lx\n", lx, ly);
+	printf("x is 0x%lx; y is 0x%lx\n", lx, ly);
 
 	/*
 	 * The memory should look something like this:
@@ -436,7 +436,7 @@ test4(void)
 
 	/* This is obviously wrong. */
 	if (lx == ly) {
-		tprintf("FAIL: x == y\n");
+		printf("FAIL: x == y\n");
 		return;
 	}
 
@@ -447,11 +447,11 @@ test4(void)
 	 * or the other block's start is within the first block.)
 	 */
 	if (lx < ly && lx + SMALLSIZE > ly) {
-		tprintf("FAIL: y starts within x\n");
+		printf("FAIL: y starts within x\n");
 		return;
 	}
 	if (ly < lx && ly + MEDIUMSIZE > lx) {
-		tprintf("FAIL: x starts within y\n");
+		printf("FAIL: x starts within y\n");
 		return;
 	}
 
@@ -461,7 +461,7 @@ test4(void)
 	 * free list.
 	 */
 	if (ly < lx) {
-		tprintf("TEST UNSUITABLE: y is below x\n");
+		printf("TEST UNSUITABLE: y is below x\n");
 		return;
 	}
 
@@ -469,39 +469,39 @@ test4(void)
 	 * Compute the space used by index structures.
 	 */
 	overhead = ly - (lx + SMALLSIZE);
-	tprintf("Apparent block overhead: %lu\n", overhead);
+	printf("Apparent block overhead: %lu\n", overhead);
 
 	if (overhead > ABSURD_OVERHEAD) {
-		tprintf("TEST UNSUITABLE: block overhead absurdly large.\n");
+		printf("TEST UNSUITABLE: block overhead absurdly large.\n");
 		return;
 	}
 	if (overhead > OVERHEAD) {
-		tprintf("FAIL: block overhead is too large.\n");
+		printf("FAIL: block overhead is too large.\n");
 		return;
 	}
 
-	tprintf("Freeing blocks...\n");
+	printf("Freeing blocks...\n");
 	free(x);
 	free(y);
 
 	zsize = SMALLSIZE + MEDIUMSIZE + overhead;
 
-	tprintf("Now allocating %lu bytes... should reuse the space.\n", zsize);
+	printf("Now allocating %lu bytes... should reuse the space.\n", zsize);
 	z = malloc(zsize);
 	if (z == NULL) {
-		tprintf("FAIL: Allocation failed...\n");
+		printf("FAIL: Allocation failed...\n");
 		return;
 	}
 
 	lz = (unsigned long) z;
 
-	tprintf("z is 0x%lx (x was 0x%lx, y 0x%lx)\n", lz, lx, ly);
+	printf("z is 0x%lx (x was 0x%lx, y 0x%lx)\n", lz, lx, ly);
 
 	if (lz==lx) {
-		tprintf("Passed.\n");
+		printf("Passed.\n");
 	}
 	else {
-		tprintf("Failed.\n");
+		printf("Failed.\n");
 	}
 
 	free(z);
@@ -530,7 +530,7 @@ test567(int testno, unsigned long seed)
 	int i, n, size, failed=0;
 
 	srandom(seed);
-	tprintf("Seeded random number generator with %lu.\n", seed);
+	printf("Seeded random number generator with %lu.\n", seed);
 
 	for (i=0; i<32; i++) {
 		ptrs[i] = NULL;
@@ -544,7 +544,7 @@ test567(int testno, unsigned long seed)
 			ptrs[n] = malloc(size);
 			psizes[n] = size;
 			if (ptrs[n] == NULL) {
-				tprintf("\nmalloc %u failed\n", size);
+				printf("\nmalloc %u failed\n", size);
 				failed = 1;
 				break;
 			}
@@ -561,10 +561,10 @@ test567(int testno, unsigned long seed)
 			psizes[n] = 0;
 		}
 		if (i%256==0) {
-			tprintf(".");
+			printf(".");
 		}
 	}
-	tprintf("\n");
+	printf("\n");
 
 	for (i=0; i<32; i++) {
 		if (ptrs[i] != NULL) {
@@ -573,10 +573,10 @@ test567(int testno, unsigned long seed)
 	}
 
 	if (failed) {
-		tprintf("FAILED malloc test %d\n", testno);
+		printf("FAILED malloc test %d\n", testno);
 	}
 	else {
-		tprintf("Passed malloc test %d\n", testno);
+		printf("Passed malloc test %d\n", testno);
 	}
 }
 
@@ -584,7 +584,7 @@ static
 void
 test5(void)
 {
-	tprintf("Beginning malloc test 5\n");
+	printf("Beginning malloc test 5\n");
 	test567(5, 0);
 }
 
@@ -595,7 +595,7 @@ test6(void)
 	int fd, len;
 	unsigned long seed;
 
-	tprintf("Beginning malloc test 6\n");
+	printf("Beginning malloc test 6\n");
 
 	fd = open(_PATH_RANDOM, O_RDONLY);
 	if (fd < 0) {
@@ -619,9 +619,9 @@ test7(void)
 {
 	unsigned long seed;
 
-	tprintf("Beginning malloc test 7\n");
+	printf("Beginning malloc test 7\n");
 
-	tprintf("Enter random seed: ");
+	printf("Enter random seed: ");
 	seed = geti();
 
 	test567(7, seed);
@@ -673,12 +673,12 @@ main(int argc, char *argv[])
 	while (1) {
 		if (menu) {
 			for (i=0; tests[i].num>=0; i++) {
-				tprintf("  %2d  %s\n", tests[i].num,
+				printf("  %2d  %s\n", tests[i].num,
 				       tests[i].desc);
 			}
 			menu = 0;
 		}
-		tprintf("malloctest: ");
+		printf("malloctest: ");
 		tn = geti();
 		if (tn < 0) {
 			break;

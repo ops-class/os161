@@ -138,58 +138,46 @@ dup2_cleanup(void)
 ////////////////////////////////////////////////////////////
 
 static
-int
+void
 any_badfd(int (*func)(int fd), void (*cleanup)(void), const char *callname,
 	  int fd, const char *fddesc)
 {
 	int rv;
-	int result;
+
 	report_begin("%s using %s", callname, fddesc);
 	rv = func(fd);
-	result = report_check(rv, errno, EBADF);
+	report_check(rv, errno, EBADF);
 	if (cleanup) {
 		cleanup();
 	}
-	return result;
 }
 
 static
 void
 runtest(int (*func)(int fd), void (*cleanup)(void), const char *callname,
-	enum rwtestmodes rw, int *ntests, int *lost_points)
+	enum rwtestmodes rw)
 {
 	int fd;
-	int result;
 
 	/*
 	 * If adding cases, also see bad_dup2.c
 	 */
 
 	/* basic invalid case: fd -1 */
-	*ntests += 1;
-	result = any_badfd(func, cleanup, callname, -1, "fd -1");
-	handle_result(result, lost_points);
+	any_badfd(func, cleanup, callname, -1, "fd -1");
 
 	/* also try -5 in case -1 is special somehow */
-	*ntests += 1;
-	result = any_badfd(func, cleanup, callname, -5, "fd -5");
-	handle_result(result, lost_points);
+	any_badfd(func, cleanup, callname, -5, "fd -5");
 
 	/* try a fd we know is closed */
-	*ntests += 1;
-	result = any_badfd(func, cleanup, callname, CLOSED_FD, "closed fd");
-	handle_result(result, lost_points);
+	any_badfd(func, cleanup, callname, CLOSED_FD, "closed fd");
 
 	/* try a positive fd we know is out of range */
-	*ntests += 1;
-	result = any_badfd(func, cleanup, callname, IMPOSSIBLE_FD, "impossible fd");
-	handle_result(result, lost_points);
+	any_badfd(func, cleanup, callname, IMPOSSIBLE_FD, "impossible fd");
 
 	/* test for off-by-one errors */
 #ifdef OPEN_MAX
-	*ntests += 1;
-	result = any_badfd(func, cleanup, callname, OPEN_MAX, "fd OPEN_MAX");
-	handle_result(result, lost_points);
+	any_badfd(func, cleanup, callname, OPEN_MAX, "fd OPEN_MAX");
 #else
 	warnx("Warning: OPEN_MAX not defined, test skipped");
 #endif
@@ -200,10 +188,8 @@ runtest(int (*func)(int fd), void (*cleanup)(void), const char *callname,
 			/* already printed a message */
 		}
 		else {
-			*ntests += 1;
-			result = any_badfd(func, cleanup, callname, fd,
+			any_badfd(func, cleanup, callname, fd,
 				  "fd opened read-only");
-			handle_result(result, lost_points);
 		}
 		close(fd);
 	}
@@ -213,10 +199,8 @@ runtest(int (*func)(int fd), void (*cleanup)(void), const char *callname,
 			/* already printed a message */
 		}
 		else {
-			*ntests += 1;
-			result = any_badfd(func, cleanup, callname, fd,
+			any_badfd(func, cleanup, callname, fd,
 				  "fd opened write-only");
-			handle_result(result, lost_points);
 		}
 		close(fd);
 	}
@@ -224,18 +208,18 @@ runtest(int (*func)(int fd), void (*cleanup)(void), const char *callname,
 
 ////////////////////////////////////////////////////////////
 
-#define T(call, rw)                                                    \
-  void                                                                 \
-  test_##call##_fd(int *ntests, int *lost_points)                      \
-  {                                                                    \
-   	runtest(call##_badfd, NULL, #call, rw, ntests, lost_points);   \
+#define T(call, rw) \
+  void                                          \
+  test_##call##_fd(void)                        \
+  {                                             \
+   	runtest(call##_badfd, NULL, #call, rw); \
   }
 
-#define TC(call, rw)                                                           \
-  void                                                                         \
-  test_##call##_fd(int *ntests, int *lost_points)                              \
-  {                                                                            \
-   	runtest(call##_badfd, call##_cleanup, #call, rw, ntests, lost_points); \
+#define TC(call, rw) \
+  void                                          \
+  test_##call##_fd(void)                        \
+  {                                             \
+   	runtest(call##_badfd, call##_cleanup, #call, rw);\
   }
 
 T(read, RW_TEST_WRONLY);

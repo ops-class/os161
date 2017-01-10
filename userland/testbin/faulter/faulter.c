@@ -45,12 +45,12 @@ main(void)
 {
 	volatile int i;
 
-	tprintf("\nEntering the faulter program - I should die immediately\n");
+	printf("\nEntering the faulter program - I should die immediately\n");
 	i = *(int *)REALLY_BIG_ADDRESS;
 
 	// gcc 4.8 improperly demands this
 	(void)i;
 
-	tprintf("I didn't get killed!  Program has a bug\n");
+	printf("I didn't get killed!  Program has a bug\n");
 	return 0;
 }

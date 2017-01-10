@@ -37,47 +37,32 @@
 #include "test.h"
 
 static
-int
+void
 symlink_empty1(void)
 {
 	int rv;
-	int result;
 
 	report_begin("symlink -> empty string");
 	rv = symlink("", TESTLINK);
-	result = report_check2(rv, errno, 0, EINVAL);
+	report_check2(rv, errno, 0, EINVAL);
 	remove(TESTLINK);
-	return result;
 }
 
 static
-int
+void
 symlink_empty2(void)
 {
 	int rv;
 
 	report_begin("symlink named empty string");
 	rv = symlink("foo", "");
-	return report_check(rv, errno, EINVAL);
+	report_check(rv, errno, EINVAL);
 }
 
 void
 test_symlink(void)
 {
-	int ntests = 0, lost_points = 0;
-	int result;
-
-
-	test_symlink_paths(&ntests, &lost_points);
-
-	ntests++;
-	result = symlink_empty1();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = symlink_empty2();
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	test_symlink_paths();
+	symlink_empty1();
+	symlink_empty2();
 }

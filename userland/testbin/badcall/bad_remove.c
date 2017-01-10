@@ -44,83 +44,63 @@
 #include "test.h"
 
 static
-int
+void
 remove_dir(void)
 {
 	int rv;
-	int result = FAILED;
 
 	report_begin("remove() on a directory");
 
 	if (create_testdir() < 0) {
 		/*report_aborted();*/ /* XXX in create_testdir */
-		return result;
+		return;
 	}
 
 	rv = remove(TESTDIR);
-	result = report_check(rv, errno, EISDIR);
+	report_check(rv, errno, EISDIR);
 	rmdir(TESTDIR);
-
-	return result;
 }
 
 static
-int
+void
 remove_dot(void)
 {
 	int rv;
 
 	report_begin("remove() on .");
 	rv = remove(".");
-	return report_check2(rv, errno, EISDIR, EINVAL);
+	report_check2(rv, errno, EISDIR, EINVAL);
 }
 
 static
-int
+void
 remove_dotdot(void)
 {
 	int rv;
 
 	report_begin("remove() on ..");
 	rv = remove("..");
-	return report_check2(rv, errno, EISDIR, EINVAL);
+	report_check2(rv, errno, EISDIR, EINVAL);
 }
 
 static
-int
+void
 remove_empty(void)
 {
 	int rv;
 
 	report_begin("remove() on empty string");
 	rv = remove("");
-	return report_check2(rv, errno, EISDIR, EINVAL);
+	report_check2(rv, errno, EISDIR, EINVAL);
 }
 
 void
 test_remove(void)
 {
-	int ntests = 0, lost_points = 0;
-	int result;
+	test_remove_path();
 
-	test_remove_path(&ntests, &lost_points);
-
-	ntests++;
-	result = remove_dir();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_dot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_dotdot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = remove_empty();
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	remove_dir();
+	remove_dot();
+	remove_dotdot();
+	remove_empty();
 }

@@ -134,6 +134,7 @@ else
     HOST_CFLAGS="${HOST_CFLAGS} -DDECLARE_NTOHLL"
 fi
 
+
 ####################
 
 # Now generate defs.mk.

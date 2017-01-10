@@ -129,7 +129,8 @@ vnode_decref(struct vnode *vn)
 void
 vnode_check(struct vnode *v, const char *opstr)
 {
-	vfs_biglock_acquire();
+	/* not safe, and not really needed to check constant fields */
+	/*vfs_biglock_acquire();*/
 
 	if (v == NULL) {
 		panic("vnode_check: vop_%s: null vnode\n", opstr);
@@ -173,5 +174,5 @@ vnode_check(struct vnode *v, const char *opstr)
 	}
 
 	spinlock_release(&v->vn_countlock);
-	vfs_biglock_release();
+	/*vfs_biglock_release();*/
 }

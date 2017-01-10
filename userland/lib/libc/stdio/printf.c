@@ -31,8 +31,6 @@
 #include <stdarg.h>
 #include <unistd.h>
 #include <errno.h>
-#include <string.h>
-#include <kern/secret.h>
 
 /*
  * printf - C standard I/O function.

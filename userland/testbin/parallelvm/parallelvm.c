@@ -45,16 +45,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <err.h>
-#include <test/test.h>
-#include <test161/test161.h>
 
 #define NJOBS    24
 
 #define DIM      35
 #define NMATS    11
 #define JOBSIZE  ((NMATS+1)*DIM*DIM*sizeof(int))
-
-#define PROGRESS_INTERVAL 25000
 
 static const int right_answers[NJOBS] = {
         -1337312809,
@@ -91,20 +87,35 @@ struct matrix {
 
 ////////////////////////////////////////////////////////////
 
+/*
+ * Use this instead of just calling printf so we know each printout
+ * is atomic; this prevents the lines from getting intermingled.
+ */
+static
+void
+say(const char *fmt, ...)
+{
+	char buf[256];
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(buf, sizeof(buf), fmt, ap);
+	va_end(ap);
+	write(STDOUT_FILENO, buf, strlen(buf));
+}
+
+////////////////////////////////////////////////////////////
+
 static
 void
 multiply(struct matrix *res, const struct matrix *m1, const struct matrix *m2)
 {
-	int i, j, k, tot;
+	int i, j, k;
 
-	tot = 0;
 	for (i=0; i<DIM; i++) {
 		for (j=0; j<DIM; j++) {
 			int val=0;
 			for (k=0; k<DIM; k++) {
 				val += m1->m_data[i][k]*m2->m_data[k][j];
-				TEST161_LPROGRESS_N(tot, PROGRESS_INTERVAL);
-				tot++;
 			}
 			res->m_data[i][j] = val;
 		}
@@ -190,19 +201,18 @@ go(int mynum)
 {
 	int r;
 
-	lsay("Process %d (pid %d) starting computation...\n", mynum,
+	say("Process %d (pid %d) starting computation...\n", mynum,
 	    (int) getpid());
+
 	computeall(mynum);
 	r = answer();
 
 	if (r != right_answers[mynum]) {
-		tsay("Process %d answer %d: FAILED, should be %d\n",
+		say("Process %d answer %d: FAILED, should be %d\n",
 		    mynum, r, right_answers[mynum]);
-		success(TEST161_FAIL, SECRET, "/testbin/parallelvm");
 		exit(1);
 	}
-
-	lsay("\nProcess %d: OK\n", mynum, r);
+	say("Process %d answer %d: passed\n", mynum, r);
 	exit(0);
 }
 
@@ -319,8 +329,8 @@ makeprocs(bool dowait)
 		semcreate("2", &s2);
 	}
 
-	tprintf("Job size approximately %lu bytes\n", (unsigned long) JOBSIZE);
-	tprintf("Forking %d jobs; total load %luk\n", NJOBS,
+	printf("Job size approximately %lu bytes\n", (unsigned long) JOBSIZE);
+	printf("Forking %d jobs; total load %luk\n", NJOBS,
 	       (unsigned long) (NJOBS * JOBSIZE)/1024);
 
 	for (i=0; i<NJOBS; i++) {
@@ -331,7 +341,7 @@ makeprocs(bool dowait)
 		if (pids[i]==0) {
 			/* child */
 			if (dowait) {
-				//tsay("Process %d forked\n", i);
+				say("Process %d forked\n", i);
 				semopen(&s1);
 				semopen(&s2);
 				semV(&s1, 1);
@@ -346,9 +356,9 @@ makeprocs(bool dowait)
 	if (dowait) {
 		semopen(&s1);
 		semopen(&s2);
-		//tsay("Waiting for fork...\n");
+		say("Waiting for fork...\n");
 		semP(&s1, NJOBS);
-		//tsay("Starting computation.\n");
+		say("Starting computation.\n");
 		semV(&s2, NJOBS);
 	}
 
@@ -371,9 +381,7 @@ makeprocs(bool dowait)
 		printf("%d subprocesses failed\n", failcount);
 		exit(1);
 	}
-	nprintf("\n");
-	tprintf("Test complete\n");
-	success(TEST161_SUCCESS, SECRET, "/testbin/parallelvm");
+	printf("Test complete\n");
 
 	semclose(&s1);
 	semclose(&s2);
@@ -396,7 +404,7 @@ main(int argc, char *argv[])
 		dowait = true;
 	}
 	else {
-		tprintf("Usage: parallelvm [-w]\n");
+		printf("Usage: parallelvm [-w]\n");
 		return 1;
 	}
 	makeprocs(dowait);

@@ -79,7 +79,7 @@ subproc_read(void)
 	int fd;
 	int i, res;
 
-	tprintf("File Reader starting ...\n\n");
+	printf("File Reader starting ...\n\n");
 
 	fd = open(FNAME, O_RDONLY);
 	if (fd < 0) {
@@ -102,5 +102,5 @@ subproc_read(void)
 
 	close(fd);
 
-	tprintf("File Read exited successfully!\n");
+	printf("File Read exited successfully!\n");
 }

@@ -157,7 +157,7 @@ main(void)
 		err(1, "Unexpected error reopening the file");
 	}
 
-	tprintf("Succeeded!\n");
+	printf("Succeeded!\n");
 
 	return 0;
 }

@@ -44,83 +44,61 @@
 #include "test.h"
 
 static
-int
+void
 rmdir_file(void)
 {
 	int rv;
-	int result;
 
 	report_begin("rmdir a file");
 	if (create_testfile()<0) {
-		report_aborted(&result);
-		return result;
+		report_aborted();
+		return;
 	}
 	rv = rmdir(TESTFILE);
-	result = report_check(rv, errno, ENOTDIR);
+	report_check(rv, errno, ENOTDIR);
 	remove(TESTFILE);
-
-	return result;
 }
 
 static
-int
+void
 rmdir_dot(void)
 {
 	int rv;
-	int result;
 
 	report_begin("rmdir .");
 	rv = rmdir(".");
-	result = report_check(rv, errno, EINVAL);
-	return result;
+	report_check(rv, errno, EINVAL);
 }
 
 static
-int
+void
 rmdir_dotdot(void)
 {
 	int rv;
 
 	report_begin("rmdir ..");
 	rv = rmdir("..");
-	return report_check2(rv, errno, EINVAL, ENOTEMPTY);
+	report_check2(rv, errno, EINVAL, ENOTEMPTY);
 }
 
 static
-int
+void
 rmdir_empty(void)
 {
 	int rv;
 
 	report_begin("rmdir empty string");
 	rv = rmdir("");
-	return report_check(rv, errno, EINVAL);
+	report_check(rv, errno, EINVAL);
 }
 
 void
 test_rmdir(void)
 {
-	int ntests = 0, lost_points = 0;
-	int result;
+	test_rmdir_path();
 
-	test_rmdir_path(&ntests, &lost_points);
-
-	ntests++;
-	result = rmdir_file();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = rmdir_dot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = rmdir_dotdot();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = rmdir_empty();
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	rmdir_file();
+	rmdir_dot();
+	rmdir_dotdot();
+	rmdir_empty();
 }

@@ -36,9 +36,5 @@
 void
 test_getcwd(void)
 {
-	int ntests = 0, lost_points = 0;
-	test_getcwd_buf(&ntests, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	test_getcwd_buf();
 }

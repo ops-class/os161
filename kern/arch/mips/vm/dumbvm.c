@@ -126,21 +126,6 @@ free_kpages(vaddr_t addr)
 	(void)addr;
 }
 
-unsigned
-int
-coremap_used_bytes() {
-
-	/* dumbvm doesn't track page allocations. Return 0 so that khu works. */
-
-	return 0;
-}
-
-void
-vm_tlbshootdown_all(void)
-{
-	panic("dumbvm tried to do tlb shootdown?!\n");
-}
-
 void
 vm_tlbshootdown(const struct tlbshootdown *ts)
 {

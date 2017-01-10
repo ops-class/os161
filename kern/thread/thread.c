@@ -65,15 +65,9 @@ struct wchan {
 DECLARRAY(cpu, static __UNUSED inline);
 DEFARRAY(cpu, static __UNUSED inline);
 static struct cpuarray allcpus;
-unsigned num_cpus;
 
 /* Used to wait for secondary CPUs to come online. */
 static struct semaphore *cpu_startup_sem;
-
-/* Used to synchronize exit cleanup. */
-unsigned thread_count = 0;
-static struct spinlock thread_count_lock = SPINLOCK_INITIALIZER;
-static struct wchan *thread_count_wchan;
 
 ////////////////////////////////////////////////////////////
 
@@ -125,16 +119,17 @@ thread_create(const char *name)
 	struct thread *thread;
 
 	DEBUGASSERT(name != NULL);
-	if (strlen(name) > MAX_NAME_LENGTH) {
-		return NULL;
-	}
 
 	thread = kmalloc(sizeof(*thread));
 	if (thread == NULL) {
 		return NULL;
 	}
 
-	strcpy(thread->t_name, name);
+	thread->t_name = kstrdup(name);
+	if (thread->t_name == NULL) {
+		kfree(thread);
+		return NULL;
+	}
 	thread->t_wchan_name = "NEW";
 	thread->t_state = S_READY;
 
@@ -261,9 +256,6 @@ cpu_create(unsigned hardware_number)
  * Nor can it be called on a running thread.
  *
  * (Freeing the stack you're actually using to run is ... inadvisable.)
- *
- * Thread destroy should finish the process of cleaning up a thread started by
- * thread_exit.
  */
 static
 void
@@ -271,6 +263,11 @@ thread_destroy(struct thread *thread)
 {
 	KASSERT(thread != curthread);
 	KASSERT(thread->t_state != S_RUN);
+
+	/*
+	 * If you add things to struct thread, be sure to clean them up
+	 * either here or in thread_exit(). (And not both...)
+	 */
 
 	/* Thread subsystem fields */
 	KASSERT(thread->t_proc == NULL);
@@ -283,6 +280,7 @@ thread_destroy(struct thread *thread)
 	/* sheer paranoia */
 	thread->t_wchan_name = "DESTROYED";
 
+	kfree(thread->t_name);
 	kfree(thread);
 }
 
@@ -413,6 +411,8 @@ cpu_hatch(unsigned software_number)
 	spl0();
 	cpu_identify(buf, sizeof(buf));
 
+	kprintf("cpu%u: %s\n", software_number, buf);
+
 	V(cpu_startup_sem);
 	thread_exit();
 }
@@ -430,26 +430,13 @@ thread_start_cpus(void)
 	kprintf("cpu0: %s\n", buf);
 
 	cpu_startup_sem = sem_create("cpu_hatch", 0);
-	thread_count_wchan = wchan_create("thread_count");
 	mainbus_start_cpus();
 
-	num_cpus = cpuarray_num(&allcpus);
-	for (i=0; i<num_cpus - 1; i++) {
+	for (i=0; i<cpuarray_num(&allcpus) - 1; i++) {
 		P(cpu_startup_sem);
 	}
 	sem_destroy(cpu_startup_sem);
-	if (i == 0) {
-		kprintf("1 CPU online\n");
-	} else {
-		kprintf("%d CPUs online\n", i + 1);
-	}
 	cpu_startup_sem = NULL;
-
-	// Gross hack to deal with os/161 "idle" threads. Hardcode the thread count
-	// to 1 so the inc/dec properly works in thread_[fork/exit]. The one thread
-	// is the cpu0 boot thread (menu), which is the only thread that hasn't
-	// exited yet.
-	thread_count = 1;
 }
 
 /*
@@ -478,7 +465,7 @@ thread_make_runnable(struct thread *target, bool already_have_lock)
 	target->t_state = S_READY;
 	threadlist_addtail(&targetcpu->c_runqueue, target);
 
-	if (targetcpu->c_isidle) {
+	if (targetcpu->c_isidle && targetcpu != curcpu->c_self) {
 		/*
 		 * Other processor is idle; send interrupt to make
 		 * sure it unidles.
@@ -547,11 +534,6 @@ thread_fork(const char *name,
 	 * for the spllower() that will be done releasing it.
 	 */
 	newthread->t_iplhigh_count++;
-
-	spinlock_acquire(&thread_count_lock);
-	++thread_count;
-	wchan_wakeall(thread_count_wchan, &thread_count_lock);
-	spinlock_release(&thread_count_lock);
 
 	/* Set up the switchframe so entrypoint() gets called */
 	switchframe_init(newthread, entrypoint, data1, data2);
@@ -788,13 +770,6 @@ thread_startup(void (*entrypoint)(void *data1, unsigned long data2),
  * should be cleaned up right away. The rest has to wait until
  * thread_destroy is called from exorcise().
  *
- * Note that any dynamically-allocated structures that can vary in size from
- * thread to thread should be cleaned up here, not in thread_destroy. This is
- * because the last thread left on each core runs the idle loop and does not
- * get cleaned up until new threads are created. Differences in the amount of
- * memory used by different threads after thread_exit will make it look like
- * your kernel in leaking memory and cause some of the test161 checks to fail.
- *
  * Does not return.
  */
 void
@@ -816,16 +791,8 @@ thread_exit(void)
 	/* Check the stack guard band. */
 	thread_checkstack(cur);
 
-	// Decrement the thread count and notify anyone interested.
-	if (thread_count) {
-		spinlock_acquire(&thread_count_lock);
-		--thread_count;
-		wchan_wakeall(thread_count_wchan, &thread_count_lock);
-		spinlock_release(&thread_count_lock);
-	}
-
 	/* Interrupts off on this processor */
-	splhigh();
+        splhigh();
 	thread_switch(S_ZOMBIE, NULL, NULL);
 	panic("braaaaaaaiiiiiiiiiiinssssss\n");
 }
@@ -1139,6 +1106,9 @@ ipi_send(struct cpu *target, int code)
 	spinlock_release(&target->c_ipi_lock);
 }
 
+/*
+ * Send an IPI to all CPUs.
+ */
 void
 ipi_broadcast(int code)
 {
@@ -1153,16 +1123,28 @@ ipi_broadcast(int code)
 	}
 }
 
+/*
+ * Send a TLB shootdown IPI to the specified CPU.
+ */
 void
 ipi_tlbshootdown(struct cpu *target, const struct tlbshootdown *mapping)
 {
-	int n;
+	unsigned n;
 
 	spinlock_acquire(&target->c_ipi_lock);
 
 	n = target->c_numshootdown;
 	if (n == TLBSHOOTDOWN_MAX) {
-		target->c_numshootdown = TLBSHOOTDOWN_ALL;
+		/*
+		 * If you have problems with this panic going off,
+		 * consider: (1) increasing the maximum, (2) putting
+		 * logic here to sleep until space appears (may
+		 * interact awkwardly with VM system locking), (3)
+		 * putting logic here to coalesce requests together,
+		 * and/or (4) improving VM system state tracking to
+		 * reduce the number of unnecessary shootdowns.
+		 */
+		panic("ipi_tlbshootdown: Too many shootdowns queued\n");
 	}
 	else {
 		target->c_shootdown[n] = *mapping;
@@ -1175,11 +1157,14 @@ ipi_tlbshootdown(struct cpu *target, const struct tlbshootdown *mapping)
 	spinlock_release(&target->c_ipi_lock);
 }
 
+/*
+ * Handle an incoming interprocessor interrupt.
+ */
 void
 interprocessor_interrupt(void)
 {
 	uint32_t bits;
-	int i;
+	unsigned i;
 
 	spinlock_acquire(&curcpu->c_ipi_lock);
 	bits = curcpu->c_ipi_pending;
@@ -1198,6 +1183,7 @@ interprocessor_interrupt(void)
 				curcpu->c_number);
 		}
 		spinlock_release(&curcpu->c_runqueue_lock);
+		kprintf("cpu%d: offline.\n", curcpu->c_number);
 		cpu_halt();
 	}
 	if (bits & (1U << IPI_UNIDLE)) {
@@ -1207,29 +1193,17 @@ interprocessor_interrupt(void)
 		 */
 	}
 	if (bits & (1U << IPI_TLBSHOOTDOWN)) {
-		if (curcpu->c_numshootdown == TLBSHOOTDOWN_ALL) {
-			vm_tlbshootdown_all();
-		}
-		else {
-			for (i=0; i<curcpu->c_numshootdown; i++) {
-				vm_tlbshootdown(&curcpu->c_shootdown[i]);
-			}
+		/*
+		 * Note: depending on your VM system locking you might
+		 * need to release the ipi lock while calling
+		 * vm_tlbshootdown.
+		 */
+		for (i=0; i<curcpu->c_numshootdown; i++) {
+			vm_tlbshootdown(&curcpu->c_shootdown[i]);
 		}
 		curcpu->c_numshootdown = 0;
 	}
 
 	curcpu->c_ipi_pending = 0;
 	spinlock_release(&curcpu->c_ipi_lock);
-}
-
-/*
- * Wait for the thread count to equal tc.
- */
-void thread_wait_for_count(unsigned tc)
-{
-	spinlock_acquire(&thread_count_lock);
-	while (thread_count != tc) {
-		wchan_sleep(thread_count_wchan, &thread_count_lock);
-	}
-	spinlock_release(&thread_count_lock);
 }

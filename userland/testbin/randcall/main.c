@@ -30,7 +30,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <test161/test161.h>
 
 #include "extern.h"
 
@@ -114,10 +113,10 @@ static
 void
 usage(void)
 {
-	tprintf("Usage: randcall [-f] [-c count] [-r seed] 2|3|4|all\n");
-	tprintf("   -f   suppress forking\n");
-	tprintf("   -c   set iteration count (default 100)\n");
-	tprintf("   -r   set pseudorandom seed (default 0)\n");
+	printf("Usage: randcall [-f] [-c count] [-r seed] 2|3|4|all\n");
+	printf("   -f   suppress forking\n");
+	printf("   -c   set iteration count (default 100)\n");
+	printf("   -r   set pseudorandom seed (default 0)\n");
 	exit(1);
 }
 
@@ -158,11 +157,10 @@ main(int argc, char *argv[])
 		}
 	}
 
-	tprintf("Seed: %d  Count: %d\n", seed, count);
+	printf("Seed: %d  Count: %d\n", seed, count);
 
 	srandom(seed);
 	trycalls(an, dofork, count);
 
-	success(TEST161_SUCCESS, SECRET, "/testbin/randcall");
 	return 0;
 }

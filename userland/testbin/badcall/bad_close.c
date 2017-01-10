@@ -36,9 +36,5 @@
 void
 test_close(void)
 {
-	int ntests = 0, lost_points = 0;
-	test_close_fd(&ntests, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	test_close_fd();
 }

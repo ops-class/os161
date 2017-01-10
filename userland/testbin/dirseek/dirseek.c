@@ -205,7 +205,7 @@ firstread(void)
 		errx(1, ".: File position after open not 0");
 	}
 
-	tprintf("Scanning directory...\n");
+	printf("Scanning directory...\n");
 
 	readit();
 }
@@ -216,7 +216,7 @@ doreadat0(void)
 {
 	off_t pos;
 
-	tprintf("Rewinding directory and reading it again...\n");
+	printf("Rewinding directory and reading it again...\n");
 
 	pos = lseek(dirfd, 0, SEEK_SET);
 	if (pos < 0) {
@@ -274,7 +274,7 @@ readallonebyone(void)
 {
 	int i;
 
-	tprintf("Trying to read each entry again...\n");
+	printf("Trying to read each entry again...\n");
 	for (i=0; testfiles[i].name; i++) {
 		doreadone(i);
 	}
@@ -286,7 +286,7 @@ readallrandomly(void)
 {
 	int n, i, x;
 
-	tprintf("Trying to read a bunch of entries randomly...\n");
+	printf("Trying to read a bunch of entries randomly...\n");
 
 	for (i=0; testfiles[i].name; i++);
 	n = i;
@@ -327,7 +327,7 @@ doreadateof(void)
 	off_t pos;
 	int i;
 
-	tprintf("Trying to read after going to EOF...\n");
+	printf("Trying to read after going to EOF...\n");
 
 	pos = lseek(dirfd, 0, SEEK_END);
 	if (pos<0) {
@@ -364,7 +364,7 @@ dobadreads(void)
 	off_t pos, pos2, eof;
 	int valid, i, k=0;
 
-	tprintf("Trying some possibly invalid reads...\n");
+	printf("Trying some possibly invalid reads...\n");
 
 	eof = lseek(dirfd, 0, SEEK_END);
 	if (eof < 0) {
@@ -394,13 +394,13 @@ dobadreads(void)
 	}
 
 	if (k>0) {
-		tprintf("Survived %d invalid reads...\n", k);
+		printf("Survived %d invalid reads...\n", k);
 	}
 	else {
-		tprintf("Couldn't find any invalid offsets to try...\n");
+		printf("Couldn't find any invalid offsets to try...\n");
 	}
 
-	tprintf("Trying to read beyond EOF...\n");
+	printf("Trying to read beyond EOF...\n");
 	pos2 = lseek(dirfd, eof + 1000, SEEK_SET);
 	if (pos2 < 0) {
 		/* this is ok */
@@ -414,10 +414,10 @@ static
 void
 dotest(void)
 {
-	tprintf("Opening directory...\n");
+	printf("Opening directory...\n");
 	openit();
 
-	tprintf("Running tests...\n");
+	printf("Running tests...\n");
 
 	/* read the whole directory */
 	firstread();
@@ -443,7 +443,7 @@ dotest(void)
 	/* rewind again to make sure the invalid attempts didn't break it */
 	doreadat0();
 
-	tprintf("Closing directory...\n");
+	printf("Closing directory...\n");
 	closeit();
 }
 
@@ -489,7 +489,7 @@ setup(void)
 {
 	int i;
 
-	tprintf("Making directory %s...\n", TESTDIR);
+	printf("Making directory %s...\n", TESTDIR);
 
 	/* Create a directory */
 	if (mkdir(TESTDIR, 0775)<0) {
@@ -501,7 +501,7 @@ setup(void)
 		err(1, "%s: chdir", TESTDIR);
 	}
 
-	tprintf("Making some files...\n");
+	printf("Making some files...\n");
 
 	/* Populate it */
 	for (i=0; testfiles[i].name; i++) {
@@ -518,7 +518,7 @@ cleanup(void)
 {
 	int i;
 
-	tprintf("Cleaning up...\n");
+	printf("Cleaning up...\n");
 
 	/* Remove the files */
 	for (i=0; testfiles[i].name; i++) {

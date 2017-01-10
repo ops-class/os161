@@ -10,8 +10,7 @@ COMMON=$(TOP)/common/libc
 # printf
 SRCS+=\
 	$(COMMON)/printf/__printf.c \
-	$(COMMON)/printf/snprintf.c \
-	$(COMMON)/printf/tprintf.c
+	$(COMMON)/printf/snprintf.c
 
 # stdio
 SRCS+=\

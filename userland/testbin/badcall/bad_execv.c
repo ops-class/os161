@@ -32,7 +32,6 @@
  */
 
 #include <sys/types.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
@@ -43,7 +42,7 @@
 
 static
 int
-exec_common_fork(int *result)
+exec_common_fork(void)
 {
 	int pid, rv, status, err;
 
@@ -57,7 +56,7 @@ exec_common_fork(int *result)
 		err = errno;
 		report_begin("forking for test");
 		report_result(pid, err);
-		report_aborted(result);
+		report_aborted();
 		return -1;
 	}
 
@@ -71,11 +70,10 @@ exec_common_fork(int *result)
 		err = errno;
 		report_begin("waiting for test subprocess");
 		report_result(rv, err);
-		report_failure(result);
+		report_failure();
 		return -1;
 	}
 	if (WIFEXITED(status) && WEXITSTATUS(status) == MAGIC_STATUS) {
-		*result = SUCCESS;
 		return 1;
 	}
 	/* Oops... */
@@ -86,134 +84,98 @@ exec_common_fork(int *result)
 	else {
 		report_warnx("exit %d", WEXITSTATUS(status));
 	}
-	report_failure(result);
+	report_failure();
 	return -1;
 }
 
 static
-int
+void
 exec_badprog(const void *prog, const char *desc)
 {
 	int rv;
-	int result;
 	char *args[2];
 	args[0] = (char *)"foo";
 	args[1] = NULL;
 
-	if (exec_common_fork(&result) != 0) {
-		return result;
+	if (exec_common_fork() != 0) {
+		return;
 	}
 
 	report_begin(desc);
 	rv = execv(prog, args);
-	result = report_check(rv, errno, EFAULT);
-	int code = result ? result : MAGIC_STATUS;
-	exit(code);
+	report_check(rv, errno, EFAULT);
+	exit(MAGIC_STATUS);
 }
 
 static
-int
+void
 exec_emptyprog(void)
 {
 	int rv;
-	int result;
 	char *args[2];
 	args[0] = (char *)"foo";
 	args[1] = NULL;
 
-	if (exec_common_fork(&result) != 0) {
-		return result;
+	if (exec_common_fork() != 0) {
+		return;
 	}
 
 	report_begin("exec the empty string");
 	rv = execv("", args);
-	result = report_check2(rv, errno, EINVAL, EISDIR);
-	int code = result ? result : MAGIC_STATUS;
-	exit(code);
+	report_check2(rv, errno, EINVAL, EISDIR);
+	exit(MAGIC_STATUS);
 }
 
 static
-int
+void
 exec_badargs(void *args, const char *desc)
 {
 	int rv;
-	int result;
-	if (exec_common_fork(&result) != 0) {
-		return result;
+
+	if (exec_common_fork() != 0) {
+		return;
 	}
 
 	report_begin(desc);
 	rv = execv("/bin/true", args);
-	result = report_check(rv, errno, EFAULT);
-	int code = result ? result : MAGIC_STATUS;
-	exit(code);
+	report_check(rv, errno, EFAULT);
+	exit(MAGIC_STATUS);
 }
 
 static
-int
+void
 exec_onearg(void *ptr, const char *desc)
 {
 	int rv;
-	int result;
 
 	char *args[3];
 	args[0] = (char *)"foo";
 	args[1] = (char *)ptr;
 	args[2] = NULL;
 
-	if (exec_common_fork(&result) != 0) {
-		return result;
+	if (exec_common_fork() != 0) {
+		return;
 	}
 
 	report_begin(desc);
 	rv = execv("/bin/true", args);
-	result = report_check(rv, errno, EFAULT);
-	int code = result ? result : MAGIC_STATUS;
-	exit(code);
-
+	report_check(rv, errno, EFAULT);
+	exit(MAGIC_STATUS);
 }
 
 void
 test_execv(void)
 {
-	int ntests = 0, result = 0, lost_points = 0;
-	ntests++;
-	result = exec_badprog(NULL, "exec with NULL program");
-	handle_result(result, &lost_points);
+	exec_badprog(NULL, "exec with NULL program");
+	exec_badprog(INVAL_PTR, "exec with invalid pointer program");
+	exec_badprog(KERN_PTR, "exec with kernel pointer program");
 
-	ntests++;
-	result = exec_badprog(INVAL_PTR, "exec with invalid pointer program");
-	handle_result(result, &lost_points);
+	exec_emptyprog();
 
-	ntests++;
-	result = exec_badprog(KERN_PTR, "exec with kernel pointer program");
-	handle_result(result, &lost_points);
+	exec_badargs(NULL, "exec with NULL arglist");
+	exec_badargs(INVAL_PTR, "exec with invalid pointer arglist");
+	exec_badargs(KERN_PTR, "exec with kernel pointer arglist");
 
-	ntests++;
-	result = exec_emptyprog();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = exec_badargs(NULL, "exec with NULL arglist");
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = exec_badargs(INVAL_PTR, "exec with invalid pointer arglist");
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = exec_badargs(KERN_PTR, "exec with kernel pointer arglist");
-	handle_result(result, &lost_points);
-
-
-	ntests++;
-	result = exec_onearg(INVAL_PTR, "exec with invalid pointer arg");
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = exec_onearg(KERN_PTR, "exec with kernel pointer arg");
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	exec_onearg(INVAL_PTR, "exec with invalid pointer arg");
+	exec_onearg(KERN_PTR, "exec with kernel pointer arg");
 }

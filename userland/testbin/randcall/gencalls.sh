@@ -34,7 +34,6 @@ awk < $1 '
 	printf "#include <stdlib.h>\n";
 	printf "#include <errno.h>\n";
 	printf "#include <err.h>\n";
-	printf "#include <test161/test161.h>\n";
 	printf "\n";
 	printf "#include \"extern.h\"\n";
 	printf "\n";
@@ -68,7 +67,7 @@ awk < $1 '
 	    if (i<NF) printf ", ";
 	}
 	printf ");\n";
-	printf"\ttprintf(\"%%-47s\", buf);\n";
+	printf"\tprintf(\"%%-47s\", buf);\n";
 	#printf "\tfflush(stdout);\n";
 	printf "\n";
 
@@ -89,7 +88,7 @@ awk < $1 '
 	}
 	printf ");\n";
 
-	printf "\ttprintf(\" result %%d, errno %%d\\n\", result, errno);\n";
+	printf "\tprintf(\" result %%d, errno %%d\\n\", result, errno);\n";
 	printf "\tif (dofork) {\n";
 	printf "\t\texit(0);\n";
 	printf "\t}\n";
@@ -135,11 +134,9 @@ awk < $1 '
 
 	printf "\tfor (i=0; i<count; i++) {\n";
 	printf "\t\tfor (j=0; list[j]; j++) {\n";
-	printf "\t\t\tnprintf(\".\");\n";
 	printf "\t\t\t(*list[j])(dofork);\n";
 	printf "\t\t}\n";
 	printf "\t}\n";
-	printf "nprintf(\"\\n\");\n";
 	printf "}\n";
 	printf "\n";
     }

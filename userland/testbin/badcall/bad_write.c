@@ -36,11 +36,6 @@
 void
 test_write(void)
 {
-	int ntests = 0, lost_points = 0;
-
-	test_write_fd(&ntests, &lost_points);
-	test_write_buf(&ntests, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	test_write_fd();
+	test_write_buf();
 }

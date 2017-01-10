@@ -58,7 +58,7 @@ main(void)
 	strcpy(dirname, onename);
 
 	for (i=0; i<MAXLEVELS; i++) {
-		tprintf("Creating directory: %s\n", dirname);
+		printf("Creating directory: %s\n", dirname);
 
 		if (mkdir(dirname, 0755)) {
 			err(1, "%s: mkdir", dirname);
@@ -68,18 +68,18 @@ main(void)
 		strcat(dirname, onename);
 	}
 
-	tprintf("Passed directory creation test.\n");
+	printf("Passed directory creation test.\n");
 
 	for (i=0; i<MAXLEVELS; i++) {
 		dirname[strlen(dirname) - strlen(onename) - 1] = 0;
 
-		tprintf("Removing directory: %s\n", dirname);
+		printf("Removing directory: %s\n", dirname);
 
 		if (rmdir(dirname)) {
 			err(1, "%s: rmdir", dirname);
 		}
 	}
-	tprintf("Passed directory removal test.\n");
+	printf("Passed directory removal test.\n");
 
 	return 0;
 }

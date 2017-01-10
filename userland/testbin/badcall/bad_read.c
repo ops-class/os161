@@ -36,13 +36,7 @@
 void
 test_read(void)
 {
-	int ntests = 0, lost_points = 0;
-
-	test_read_fd(&ntests, &lost_points);
-	test_read_buf(&ntests, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
-
+	test_read_fd();
+	test_read_buf();
 }
 

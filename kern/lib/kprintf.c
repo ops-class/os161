@@ -39,8 +39,6 @@
 #include <mainbus.h>
 #include <vfs.h>          // for vfs_sync()
 #include <lamebus/ltrace.h> // for ltrace_stop()
-#include <kern/secret.h>
-#include <test.h>
 
 
 /* Flags word for DEBUG() macro. */
@@ -92,14 +90,13 @@ console_send(void *junk, const char *data, size_t len)
 }
 
 /*
- * kprintf and tprintf helper function.
+ * Printf to the console.
  */
-static
-inline
 int
-__kprintf(const char *fmt, va_list ap)
+kprintf(const char *fmt, ...)
 {
 	int chars;
+	va_list ap;
 	bool dolock;
 
 	dolock = kprintf_lock != NULL
@@ -114,7 +111,9 @@ __kprintf(const char *fmt, va_list ap)
 		spinlock_acquire(&kprintf_spinlock);
 	}
 
+	va_start(ap, fmt);
 	chars = __vprintf(console_send, NULL, fmt, ap);
+	va_end(ap);
 
 	if (dolock) {
 		lock_release(kprintf_lock);
@@ -122,22 +121,6 @@ __kprintf(const char *fmt, va_list ap)
 	else {
 		spinlock_release(&kprintf_spinlock);
 	}
-
-	return chars;
-}
-
-/*
- * Printf to the console.
- */
-int
-kprintf(const char *fmt, ...)
-{
-	int chars;
-	va_list ap;
-
-	va_start(ap, fmt);
-	chars = __kprintf(fmt, ap);
-	va_end(ap);
 
 	return chars;
 }

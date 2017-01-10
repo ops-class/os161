@@ -84,7 +84,7 @@ choose_name(char *buf, size_t len)
 
 /*
  * The purpose of this is to be atomic. In our world, straight
- * tprintf tends not to be.
+ * printf tends not to be.
  */
 static
 void

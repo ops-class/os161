@@ -206,7 +206,7 @@ echo "$CONFNAME" $CONFTMP | awk '
 #
 
 if [ ! -d "$COMPILEDIR" ]; then
-    mkdir -p $COMPILEDIR
+    mkdir $COMPILEDIR
 fi
 
 echo -n 'Generating files...'

@@ -77,7 +77,7 @@ main(int argc, char *argv[])
 
 	close(fd);
 
-	tprintf("Hash : %d\n", j);
+	printf("Hash : %d\n", j);
 
 	return 0;
 }

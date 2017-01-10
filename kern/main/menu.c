@@ -41,11 +41,8 @@
 #include <sfs.h>
 #include <syscall.h>
 #include <test.h>
-#include <prompt.h>
 #include "opt-sfs.h"
 #include "opt-net.h"
-#include "opt-synchprobs.h"
-#include "opt-automationtest.h"
 
 /*
  * In-kernel menu and command dispatcher.
@@ -117,15 +114,12 @@ common_prog(int nargs, char **args)
 {
 	struct proc *proc;
 	int result;
-	unsigned tc;
 
 	/* Create a process for the new program to run in. */
 	proc = proc_create_runprogram(args[0] /* name */);
 	if (proc == NULL) {
 		return ENOMEM;
 	}
-
-	tc = thread_count;
 
 	result = thread_fork(args[0] /* thread name */,
 			proc /* new process */,
@@ -141,10 +135,6 @@ common_prog(int nargs, char **args)
 	 * The new process will be destroyed when the program exits...
 	 * once you write the code for handling that.
 	 */
-
-	// Wait for all threads to finish cleanup, otherwise khu be a bit behind,
-	// especially once swapping is enabled.
-	thread_wait_for_count(tc);
 
 	return 0;
 }
@@ -385,18 +375,6 @@ cmd_kheapstats(int nargs, char **args)
 
 static
 int
-cmd_kheapused(int nargs, char **args)
-{
-	(void)nargs;
-	(void)args;
-
-	kheap_printused();
-
-	return 0;
-}
-
-static
-int
 cmd_kheapgeneration(int nargs, char **args)
 {
 	(void)nargs;
@@ -488,31 +466,16 @@ static const char *testmenu[] = {
 	"[km2] kmalloc stress test           ",
 	"[km3] Large kmalloc test            ",
 	"[km4] Multipage kmalloc test        ",
-	"[km5] kmalloc coremap alloc test    ",
 	"[tt1] Thread test 1                 ",
 	"[tt2] Thread test 2                 ",
 	"[tt3] Thread test 3                 ",
 #if OPT_NET
 	"[net] Network test                  ",
 #endif
-	"[sem1] Semaphore test               ",
-	"[lt1]  Lock test 1           (1)    ",
-	"[lt2]  Lock test 2           (1*)   ",
-	"[lt3]  Lock test 3           (1*)   ",
-	"[cvt1] CV test 1             (1)    ",
-	"[cvt2] CV test 2             (1)    ",
-	"[cvt3] CV test 3             (1*)   ",
-	"[cvt4] CV test 4             (1*)   ",
-	"[cvt5] CV test 5             (1)    ",
-	"[rwt1] RW lock test          (1?)   ",
-	"[rwt2] RW lock test 2        (1?)   ",
-	"[rwt3] RW lock test 3        (1?)   ",
-	"[rwt4] RW lock test 4        (1?)   ",
-	"[rwt5] RW lock test 5        (1?)   ",
-#if OPT_SYNCHPROBS
-	"[sp1] Whalemating test       (1)    ",
-	"[sp2] Stoplight test         (1)    ",
-#endif
+	"[sy1] Semaphore test                ",
+	"[sy2] Lock test             (1)     ",
+	"[sy3] CV test               (1)     ",
+	"[sy4] CV test #2            (1)     ",
 	"[semu1-22] Semaphore unit tests     ",
 	"[fs1] Filesystem test               ",
 	"[fs2] FS read stress                ",
@@ -520,7 +483,6 @@ static const char *testmenu[] = {
 	"[fs4] FS write stress 2             ",
 	"[fs5] FS long stress                ",
 	"[fs6] FS create stress              ",
-	"[hm1] HMAC unit test                ",
 	NULL
 };
 
@@ -534,41 +496,15 @@ cmd_testmenu(int n, char **a)
 	showmenu("OS/161 tests menu", testmenu);
 	kprintf("    (1) These tests will fail until you finish the "
 		"synch assignment.\n");
-	kprintf("    (*) These tests will panic on success.\n");
-	kprintf("    (?) These tests are left to you to implement.\n");
 	kprintf("\n");
 
 	return 0;
 }
-
-#if OPT_AUTOMATIONTEST
-static const char *automationmenu[] = {
-	"[dl]   Deadlock test (*)             ",
-	"[ll1]  Livelock test (1 thread)      ",
-	"[ll16] Livelock test (16 threads)     ",
-	NULL
-};
-
-static
-int
-cmd_automationmenu(int n, char **a)
-{
-	(void)n;
-	(void)a;
-
-	showmenu("OS/161 automation tests menu", automationmenu);
-	kprintf("    (*) These tests require locks.\n");
-	kprintf("\n");
-
-	return 0;
-}
-#endif
 
 static const char *mainmenu[] = {
 	"[?o] Operations menu                ",
 	"[?t] Tests menu                     ",
 	"[kh] Kernel heap stats              ",
-	"[khu] Kernel heap usage             ",
 	"[khgen] Next kernel heap generation ",
 	"[khdump] Dump kernel heap           ",
 	"[q] Quit and shut down              ",
@@ -600,9 +536,6 @@ static struct {
 	{ "help",	cmd_mainmenu },
 	{ "?o",		cmd_opsmenu },
 	{ "?t",		cmd_testmenu },
-#if OPT_AUTOMATIONTEST
-	{ "?a",		cmd_automationmenu },
-#endif
 
 	/* operations */
 	{ "s",		cmd_shell },
@@ -621,7 +554,6 @@ static struct {
 
 	/* stats */
 	{ "kh",         cmd_kheapstats },
-	{ "khu",        cmd_kheapused },
 	{ "khgen",      cmd_kheapgeneration },
 	{ "khdump",     cmd_kheapdump },
 
@@ -634,33 +566,18 @@ static struct {
 	{ "km2",	kmallocstress },
 	{ "km3",	kmalloctest3 },
 	{ "km4",	kmalloctest4 },
-	{ "km5",	kmalloctest5 },
 #if OPT_NET
 	{ "net",	nettest },
 #endif
 	{ "tt1",	threadtest },
 	{ "tt2",	threadtest2 },
 	{ "tt3",	threadtest3 },
+	{ "sy1",	semtest },
 
 	/* synchronization assignment tests */
-	{ "sem1",	semtest },
-	{ "lt1",	locktest },
-	{ "lt2",	locktest2 },
-	{ "lt3",	locktest3 },
-	{ "cvt1",	cvtest },
-	{ "cvt2",	cvtest2 },
-	{ "cvt3",	cvtest3 },
-	{ "cvt4",	cvtest4 },
-	{ "cvt5",	cvtest5 },
-	{ "rwt1",	rwtest },
-	{ "rwt2",	rwtest2 },
-	{ "rwt3",	rwtest3 },
-	{ "rwt4",	rwtest4 },
-	{ "rwt5",	rwtest5 },
-#if OPT_SYNCHPROBS
-	{ "sp1",	whalemating },
-	{ "sp2",	stoplight },
-#endif
+	{ "sy2",	locktest },
+	{ "sy3",	cvtest },
+	{ "sy4",	cvtest2 },
 
 	/* semaphore unit tests */
 	{ "semu1",	semu1 },
@@ -693,16 +610,6 @@ static struct {
 	{ "fs4",	writestress2 },
 	{ "fs5",	longstress },
 	{ "fs6",	createstress },
-
-	/* HMAC unit tests */
-	{ "hm1",	hmacu1 },
-
-#if OPT_AUTOMATIONTEST
-	/* automation tests */
-	{ "dl",	dltest },
-	{ "ll1",	ll1test },
-	{ "ll16",	ll16test },
-#endif
 
 	{ NULL, NULL }
 };
@@ -817,11 +724,7 @@ menu(char *args)
 	menu_execute(args, 1);
 
 	while (1) {
-		/*
-		 * Defined in overwrite.h. If you want to change the kernel prompt, please
-		 * do it in that file. Otherwise automated test testing will break.
-		 */
-		kprintf(KERNEL_PROMPT);
+		kprintf("OS/161 kernel [? for menu]: ");
 		kgets(buf, sizeof(buf));
 		menu_execute(buf, 0);
 	}

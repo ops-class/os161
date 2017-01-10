@@ -182,7 +182,7 @@ static
 void
 try_seeking(int fd, off_t pos, off_t cursize)
 {
-	tprintf("Seeking to (and near) 0x%llx\n", pos);
+	printf("Seeking to (and near) 0x%llx\n", pos);
 
 	/* Go to the place. */
 	dolseek(fd, pos, SEEK_SET, "SEEK_SET", pos);
@@ -215,30 +215,30 @@ main(void)
 	off_t cursize;
 	int fd;
 
-	tprintf("Creating file...\n");
+	printf("Creating file...\n");
 	fd = open(TESTFILE, O_RDWR|O_CREAT|O_TRUNC, 0664);
 	if (fd < 0) {
 		err(1, "%s", TESTFILE);
 	}
 
-	tprintf("Writing something at offset 0\n");
+	printf("Writing something at offset 0\n");
 	write_slogan(fd, 0, false);
 	cursize = strlen(slogans[0]);
 
 	try_seeking(fd, (off_t)0x1000LL, cursize);
 
-	tprintf("Writing something else\n");
+	printf("Writing something else\n");
 	write_slogan(fd, 1, false);
 	cursize = (off_t)0x1000LL + strlen(slogans[1]);
 
 	try_seeking(fd, (off_t)0, cursize);
 
 	/* If seek is totally bust, this will fail. */
-	tprintf("Checking what we wrote\n");
+	printf("Checking what we wrote\n");
 	check_slogan(fd, 0);
 
 	try_seeking(fd, (off_t)0x1000LL, cursize);
-	tprintf("Checking the other thing we wrote\n");
+	printf("Checking the other thing we wrote\n");
 	check_slogan(fd, 1);
 
 	try_seeking(fd, (off_t)0x20LL, cursize);
@@ -250,19 +250,19 @@ main(void)
 	try_seeking(fd, (off_t)0x180000000LL, cursize);
 	try_seeking(fd, (off_t)0x180000020LL, cursize);
 
-	tprintf("Now trying to read (should get EOF)\n");
+	printf("Now trying to read (should get EOF)\n");
 	try_reading(fd);
 
-	tprintf("Now trying to write (should get EFBIG)\n");
+	printf("Now trying to write (should get EFBIG)\n");
 	try_writing(fd);
 
 	try_seeking(fd, (off_t)0x100000000LL, cursize);
 
 	/* If seek truncates to 32 bits, this might read the slogan instead */
-	tprintf("Trying to read again (should get EOF)\n");
+	printf("Trying to read again (should get EOF)\n");
 	try_reading(fd);
 
-	tprintf("Passed.\n");
+	printf("Passed.\n");
 
 	close(fd);
 	remove(TESTFILE);

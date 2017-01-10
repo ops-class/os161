@@ -100,7 +100,7 @@ pong_cyclic(unsigned id)
 			P(&sems[id]);
 		}
 #ifdef VERBOSE_PONG
-		tprintf(" %u", id);
+		printf(" %u", id);
 #else
 		if (nextid == 0 && i % 16 == 0) {
 			putchar('.');
@@ -151,7 +151,7 @@ pong_reciprocating(unsigned id)
 			P(&sems[id]);
 		}
 #ifdef VERBOSE_PONG
-		tprintf(" %u", id);
+		printf(" %u", id);
 #else
 		if (id == 0 && i % 16 == 0) {
 			putchar('.');
@@ -197,11 +197,11 @@ pong(unsigned groupid, unsigned id)
 	waitstart();
 	pong_cyclic(id);
 #ifdef VERBOSE_PONG
-	tprintf("--------------------------------\n");
+	printf("--------------------------------\n");
 #endif
 	pong_reciprocating(id);
 #ifdef VERBOSE_PONG
-	tprintf("--------------------------------\n");
+	printf("--------------------------------\n");
 #endif
 	pong_cyclic(id);
 

@@ -103,6 +103,6 @@ main(int argc, char *argv[])
 	if (rv<0) {
 		err(1, "%s: remove", file);
 	}
-	tprintf("Passed filetest.\n");
+	printf("Passed filetest.\n");
 	return 0;
 }

@@ -41,7 +41,6 @@
 
 #include <unistd.h>
 #include <stdio.h>
-#include <test161/test161.h>
 
 #define Dim 	72	/* sum total of the arrays doesn't fit in
 			 * physical memory
@@ -59,49 +58,33 @@ main(void)
 {
     int i, j, k, r;
 
-    for (i = 0; i < Dim; i++) {		/* first initialize the matrices */
-		for (j = 0; j < Dim; j++) {
-			TEST161_LPROGRESS_N(i*Dim + j, 1000);
-			A[i][j] = i;
-			B[i][j] = j;
-			C[i][j] = 0;
-		}
+    for (i = 0; i < Dim; i++)		/* first initialize the matrices */
+	for (j = 0; j < Dim; j++) {
+	     A[i][j] = i;
+	     B[i][j] = j;
+	     C[i][j] = 0;
 	}
-	nprintf("\n");
 
-    for (i = 0; i < Dim; i++) {		/* then multiply them together */
-		for (j = 0; j < Dim; j++) {
-            for (k = 0; k < Dim; k++) {
-				TEST161_LPROGRESS_N(i*j*Dim*Dim + k, 50000);
-				T[i][j][k] = A[i][k] * B[k][j];
-			}
-		}
-	}
-	nprintf("\n");
+    for (i = 0; i < Dim; i++)		/* then multiply them together */
+	for (j = 0; j < Dim; j++)
+            for (k = 0; k < Dim; k++)
+		T[i][j][k] = A[i][k] * B[k][j];
 
-    for (i = 0; i < Dim; i++) {
-		for (j = 0; j < Dim; j++) {
-            for (k = 0; k < Dim; k++) {
-				TEST161_LPROGRESS_N(i*j*Dim*Dim + k, 50000);
-				C[i][j] += T[i][j][k];
-			}
-		}
-	}
-	nprintf("\n");
+    for (i = 0; i < Dim; i++)
+	for (j = 0; j < Dim; j++)
+            for (k = 0; k < Dim; k++)
+		C[i][j] += T[i][j][k];
 
     r = 0;
     for (i = 0; i < Dim; i++)
 	    r += C[i][i];
 
-    nprintf("matmult finished.\n");
-    nprintf("answer is: %d (should be %d)\n", r, RIGHT);
+    printf("matmult finished.\n");
+    printf("answer is: %d (should be %d)\n", r, RIGHT);
     if (r != RIGHT) {
-	    nprintf("FAILED\n");
-		success(TEST161_FAIL, SECRET, "/testbin/matmult");
+	    printf("FAILED\n");
 	    return 1;
     }
-
-    nprintf("Passed.\n");
-	success(TEST161_SUCCESS, SECRET, "/testbin/matmult");
+    printf("Passed.\n");
     return 0;
 }

@@ -44,58 +44,44 @@
 #include "test.h"
 
 static
-int
+void
 mkdir_dot(void)
 {
 	int rv;
 
 	report_begin("mkdir .");
 	rv = mkdir(".", 0775);
-	return report_check(rv, errno, EEXIST);
+	report_check(rv, errno, EEXIST);
 }
 
 static
-int
+void
 mkdir_dotdot(void)
 {
 	int rv;
 
 	report_begin("mkdir ..");
 	rv = mkdir("..", 0775);
-	return report_check(rv, errno, EEXIST);
+	report_check(rv, errno, EEXIST);
 }
 
 static
-int
+void
 mkdir_empty(void)
 {
 	int rv;
 
 	report_begin("mkdir of empty string");
 	rv = mkdir("", 0775);
-	return report_check(rv, errno, EINVAL);
+	report_check(rv, errno, EINVAL);
 }
 
 void
 test_mkdir(void)
 {
-	int ntests = 0, lost_points = 0;
-	int result;
+	test_mkdir_path();
 
-	test_mkdir_path(&ntests, &lost_points);
-
-	ntests++;
-	result = mkdir_dot();
-	handle_result(result, &lost_points);
-
-	ntests++;
+	mkdir_dot();
 	mkdir_dotdot();
-	handle_result(result, &lost_points);
-
-	ntests++;
 	mkdir_empty();
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

@@ -41,34 +41,30 @@
 #include "test.h"
 
 static
-int
+void
 one_ioctl_badbuf(int fd, int code, const char *codename,
 		 void *ptr, const char *ptrdesc)
 {
 	int rv;
-	int result;
 
 	report_begin("ioctl %s with %s", codename, ptrdesc);
 	rv = ioctl(fd, code, ptr);
-	result = report_check(rv, errno, EFAULT);
-	return result;
+	report_check(rv, errno, EFAULT);
 }
 
 static
-int
+void
 any_ioctl_badbuf(int fd, int code, const char *codename)
 {
-	int result;
-	result = one_ioctl_badbuf(fd, code, codename, NULL, "NULL pointer");
-	result |= one_ioctl_badbuf(fd, code, codename, INVAL_PTR, "invalid pointer");
-	result |= one_ioctl_badbuf(fd, code, codename, KERN_PTR, "kernel pointer");
-	return result;
+	one_ioctl_badbuf(fd, code, codename, NULL, "NULL pointer");
+	one_ioctl_badbuf(fd, code, codename, INVAL_PTR, "invalid pointer");
+	one_ioctl_badbuf(fd, code, codename, KERN_PTR, "kernel pointer");
 }
 
 #define IOCTL(fd, sym) any_ioctl_badbuf(fd, sym, #sym)
 
 static
-int
+void
 ioctl_badbuf(void)
 {
 	/*
@@ -83,39 +79,25 @@ ioctl_badbuf(void)
 
 	/* suppress gcc warning */
 	(void)any_ioctl_badbuf;
-	return 0;
 }
 
 static
-int
+void
 ioctl_badcode(void)
 {
 	int rv;
-	int result;
 
 	report_begin("invalid ioctl");
 	rv = ioctl(STDIN_FILENO, NONEXIST_IOCTL, NULL);
-	result = report_check(rv, errno, EIOCTL);
-	return result;
+	report_check(rv, errno, EIOCTL);
 }
 
 void
 test_ioctl(void)
 {
-	int ntests = 0, lost_points = 0;
-	int result;
-
-	test_ioctl_fd(&ntests, &lost_points);
+	test_ioctl_fd();
 
 	/* Since we don't actually define any ioctls, this is not meaningful */
-	ntests++;
-	result = ioctl_badcode();
-	handle_result(result, &lost_points);
-
-	ntests++;
-	result = ioctl_badbuf();
-	handle_result(result, &lost_points);
-
-	if(!lost_points)
-		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
+	ioctl_badcode();
+	ioctl_badbuf();
 }
