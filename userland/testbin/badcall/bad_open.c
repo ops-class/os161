@@ -44,35 +44,48 @@
 #include "test.h"
 
 static
-void
+int
 open_badflags(void)
 {
 	int fd;
 
 	report_begin("open null: with bad flags");
 	fd = open("null:", 309842);
-	report_check(fd, errno, EINVAL);
+	return report_check(fd, errno, EINVAL);
 }
 
 static
-void
+int
 open_empty(void)
 {
 	int rv;
+	int result;
 
 	report_begin("open empty string");
 	rv = open("", O_RDONLY);
-	report_check2(rv, errno, 0, EINVAL);
+	result = report_check2(rv, errno, 0, EINVAL);
 	if (rv>=0) {
 		close(rv);
 	}
+	return result;
 }
 
 void
 test_open(void)
 {
-	test_open_path();
+	int ntests = 0, lost_points = 0;
+	int result;
 
-	open_badflags();
-	open_empty();
+	test_open_path(&ntests, &lost_points);
+
+	ntests++;
+	result = open_badflags();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = open_empty();
+	handle_result(result, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

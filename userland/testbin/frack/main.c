@@ -132,13 +132,13 @@ printworkloads(void)
 {
 	unsigned i;
 
-	printf("Supported workloads:\n");
+	tprintf("Supported workloads:\n");
 	for (i=0; i<numworkloads; i++) {
-		printf("   %s", workloads[i].name);
+		tprintf("   %s", workloads[i].name);
 		if (workloads[i].argname) {
-			printf(" %s", workloads[i].argname);
+			tprintf(" %s", workloads[i].argname);
 		}
-		printf("\n");
+		tprintf("\n");
 	}
 }
 

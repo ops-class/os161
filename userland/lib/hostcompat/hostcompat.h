@@ -35,6 +35,11 @@ void hostcompat_init(int argc, char **argv);
 
 time_t __time(time_t *secs, unsigned long *nsecs);
 
+/* Automated testing extensions. */
+
+int tprintf(const char *fmt, ...);
+int nprintf(const char *fmt, ...);
+
 #ifdef DECLARE_NTOHLL
 uint64_t ntohll(uint64_t);
 #define htonll(x) (ntohll(x))

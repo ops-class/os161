@@ -27,6 +27,8 @@
  * SUCH DAMAGE.
  */
 
+#include <test161/test161.h>
+
 #define TESTFILE "badcallfile"
 #define TESTDIR  "badcalldir"
 #define TESTLINK "badcalllink"
@@ -36,6 +38,11 @@
 #else
 #define PF(a, b)
 #endif
+
+#define SUCCESS 0
+#define SKIPPED	1
+#define FAILED	2
+#define ABORTED	3
 
 /* driver.c */
 int open_testfile(const char *str);
@@ -52,46 +59,46 @@ PF(1, 2) void report_warn(const char *fmt, ...);
 PF(1, 2) void report_warnx(const char *fmt, ...);
 void report_result(int rv, int error);
 void report_saw_enosys(void);
-void report_passed(void);
-void report_failure(void);
-void report_skipped(void);
-void report_aborted(void);
-void report_survival(int rv, int error);
-void report_check(int rv, int error, int right_error);
-void report_check2(int rv, int error, int okerr1, int okerr2);
-void report_check3(int rv, int error, int okerr1, int okerr2, int okerr3);
+void report_passed(int *result);
+void report_failure(int *result);
+void report_skipped(int *result);
+void report_aborted(int *result);
+void report_survival(int rv, int error, int *result);
+int  report_check(int rv, int error, int right_error);
+int  report_check2(int rv, int error, int okerr1, int okerr2);
+int  report_check3(int rv, int error, int okerr1, int okerr2, int okerr3);
 
 /* common_buf.c */
-void test_read_buf(void);
-void test_write_buf(void);
-void test_getdirentry_buf(void);
-void test_getcwd_buf(void);
-void test_readlink_buf(void);
+void test_read_buf(int *ntests, int *lost_points);
+void test_write_buf(int *ntests, int *lost_points);
+void test_getdirentry_buf(int *ntests, int *lost_points);
+void test_getcwd_buf(int *ntests, int *lost_points);
+void test_readlink_buf(int *ntests, int *lost_points);
 
 /* common_fds.c */
-void test_read_fd(void);
-void test_write_fd(void);
-void test_close_fd(void);
-void test_ioctl_fd(void);
-void test_lseek_fd(void);
-void test_fsync_fd(void);
-void test_ftruncate_fd(void);
-void test_fstat_fd(void);
-void test_getdirentry_fd(void);
-void test_dup2_fd(void);
+void test_read_fd(int *ntests, int *lost_points);
+void test_write_fd(int *ntests, int *lost_points);
+void test_close_fd(int *ntests, int *lost_points);
+void test_ioctl_fd(int *ntests, int *lost_points);
+void test_lseek_fd(int *ntests, int *lost_points);
+void test_fsync_fd(int *ntests, int *lost_points);
+void test_ftruncate_fd(int *ntests, int *lost_points);
+void test_fstat_fd(int *ntests, int *lost_points);
+void test_getdirentry_fd(int *ntests, int *lost_points);
+void test_dup2_fd(int *ntests, int *lost_points);
 
 /* common_path.c */
-void test_open_path(void);
-void test_remove_path(void);
-void test_rename_paths(void);
-void test_link_paths(void);
-void test_mkdir_path(void);
-void test_rmdir_path(void);
-void test_chdir_path(void);
-void test_symlink_paths(void);
-void test_readlink_path(void);
-void test_stat_path(void);
-void test_lstat_path(void);
+void test_open_path(int *ntests, int *lost_points);
+void test_remove_path(int *ntests, int *lost_points);
+void test_rename_paths(int *ntests, int *lost_points);
+void test_link_paths(int *ntests, int *lost_points);
+void test_mkdir_path(int *ntests, int *lost_points);
+void test_rmdir_path(int *ntests, int *lost_points);
+void test_chdir_path(int *ntests, int *lost_points);
+void test_symlink_paths(int *ntests, int *lost_points);
+void test_readlink_path(int *ntests, int *lost_points);
+void test_stat_path(int *ntests, int *lost_points);
+void test_lstat_path(int *ntests, int *lost_points);
 
 /* bad_*.c */
 void test_execv(void);
@@ -122,3 +129,6 @@ void test_time(void);
 void test_getcwd(void);
 void test_stat(void);
 void test_lstat(void);		/* in bad_stat.c */
+
+void handle_result(int result, int *lost_points);
+

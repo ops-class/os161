@@ -46,7 +46,6 @@ tools:
 build:
 	(cd userland && $(MAKE) build)
 	(cd man && $(MAKE) install-staging)
-	(cd testscripts && $(MAKE) build)
 
 includes tags depend:
 	(cd kern && $(MAKE) $@)

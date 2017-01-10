@@ -12,6 +12,7 @@ INCLUDES=\
 	include include \
 	include/sys include/sys \
 	include/test include/test \
+	include/test161 include/test161 \
 	include/types include/types
 
 INCLUDELINKS=\

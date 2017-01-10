@@ -309,6 +309,14 @@ file      ../common/libc/string/strlen.c
 file      ../common/libc/string/strrchr.c
 file      ../common/libc/string/strtok_r.c
 
+#
+# libtest161 shared code and security functions
+#
+
+file      ../common/libtest161/test161.c
+file      ../common/libtest161/secure.c
+file      ../common/libtest161/sha256.c
+
 ########################################
 #                                      #
 #       Core kernel source files       #
@@ -434,7 +442,19 @@ file		test/threadlisttest.c
 file		test/threadtest.c
 file		test/tt3.c
 file		test/synchtest.c
+file		test/rwtest.c
 file		test/semunit.c
+file		test/hmacunit.c
 file		test/kmalloctest.c
 file		test/fstest.c
+file		test/lib.c
+
 optfile net	test/nettest.c
+
+defoption synchprobs
+optfile   synchprobs  synchprobs/whalemating.c
+optfile   synchprobs  synchprobs/stoplight.c
+optfile   synchprobs  test/synchprobs.c
+
+defoption automationtest
+optfile automationtest	test/automationtest.c

@@ -82,9 +82,6 @@ struct knowndev {
 	struct fs *kd_fs;
 };
 
-/* A placeholder for kd_fs for devices used as swap */
-#define SWAP_FS	((struct fs *)-1)
-
 DECLARRAY(knowndev, static __UNUSED inline);
 DEFARRAY(knowndev, static __UNUSED inline);
 
@@ -163,7 +160,7 @@ vfs_sync(void)
 	num = knowndevarray_num(knowndevs);
 	for (i=0; i<num; i++) {
 		dev = knowndevarray_get(knowndevs, i);
-		if (dev->kd_fs != NULL && dev->kd_fs != SWAP_FS) {
+		if (dev->kd_fs != NULL) {
 			/*result =*/ FSOP_SYNC(dev->kd_fs);
 		}
 	}
@@ -198,7 +195,7 @@ vfs_getroot(const char *devname, struct vnode **ret)
 		 * and DEVNAME names the device, return ENXIO.
 		 */
 
-		if (kd->kd_fs != NULL && kd->kd_fs != SWAP_FS) {
+		if (kd->kd_fs!=NULL) {
 			const char *volname;
 			volname = FSOP_GETVOLNAME(kd->kd_fs);
 
@@ -347,7 +344,7 @@ badnames(const char *n1, const char *n2, const char *n3)
 	for (i=0; i<num; i++) {
 		kd = knowndevarray_get(knowndevs, i);
 
-		if (kd->kd_fs != NULL && kd->kd_fs != SWAP_FS) {
+		if (kd->kd_fs) {
 			volname = FSOP_GETVOLNAME(kd->kd_fs);
 			if (samestring3(volname, n1, n2, n3)) {
 				return 1;
@@ -545,7 +542,6 @@ vfs_mount(const char *devname, void *data,
 	}
 
 	KASSERT(fs != NULL);
-	KASSERT(fs != SWAP_FS); 
 
 	kd->kd_fs = fs;
 
@@ -555,59 +551,6 @@ vfs_mount(const char *devname, void *data,
 
 	vfs_biglock_release();
 	return 0;
-}
-
-/*
- * Like mount, but for attaching swap. Hands back the raw device
- * vnode. Unlike mount tolerates a trailing colon on the device name,
- * to avoid student-facing confusion.
- */
-int
-vfs_swapon(const char *devname, struct vnode **ret)
-{
-	char *myname = NULL;
-	size_t len;
-	struct knowndev *kd;
-	int result;
-
-	len = strlen(devname);
-	if (len > 0 && devname[len - 1] == ':') {
-		/* tolerate trailing :, e.g. lhd0: rather than lhd0 */
-		myname = kstrdup(devname);
-		if (myname == NULL) {
-			return ENOMEM;
-		}
-		myname[len - 1] = 0;
-		devname = myname;
-	}
-
-	vfs_biglock_acquire();
-
-	result = findmount(devname, &kd);
-	if (result) {
-		goto out;
-	}
-
-	if (kd->kd_fs != NULL) {
-		result = EBUSY;
-		goto out;
-	}
-	KASSERT(kd->kd_rawname != NULL);
-	KASSERT(kd->kd_device != NULL);
-
-	kprintf("vfs: Swap attached to %s\n", kd->kd_name);
-
-	kd->kd_fs = SWAP_FS;
-	VOP_INCREF(kd->kd_vnode);
-	*ret = kd->kd_vnode;
-
- out:
-	vfs_biglock_release();
-	if (myname != NULL) {
-		kfree(myname);
-	}
-
-	return result;
 }
 
 /*
@@ -627,7 +570,7 @@ vfs_unmount(const char *devname)
 		goto fail;
 	}
 
-	if (kd->kd_fs == NULL || kd->kd_fs == SWAP_FS) {
+	if (kd->kd_fs == NULL) {
 		result = EINVAL;
 		goto fail;
 	}
@@ -658,43 +601,6 @@ vfs_unmount(const char *devname)
 }
 
 /*
- * Detach swap. Like unmount.
- *
- * (Provided for completeness; there is no real need to remove swap
- * explicitly prior to shutting down, except perhaps when swapping to
- * things that themselves want a clean shutdown, like RAIDs.)
- */
-int
-vfs_swapoff(const char *devname)
-{
-	struct knowndev *kd;
-	int result;
-
-	vfs_biglock_acquire();
-
-	result = findmount(devname, &kd);
-	if (result) {
-		goto fail;
-	}
-
-	if (kd->kd_fs != SWAP_FS) {
-		result = EINVAL;
-		goto fail;
-	}
-
-	kprintf("vfs: Swap detached from %s:\n", kd->kd_name);
-
-	/* drop it */
-	kd->kd_fs = NULL;
-
-	KASSERT(result==0);
-
- fail:
-	vfs_biglock_release();
-	return result;
-}
-
-/*
  * Global unmount function.
  */
 int
@@ -715,11 +621,6 @@ vfs_unmountall(void)
 		}
 		if (dev->kd_fs == NULL) {
 			/* not mounted */
-			continue;
-		}
-		if (dev->kd_fs == SWAP_FS) {
-			/* just drop it */
-			dev->kd_fs = NULL;
 			continue;
 		}
 

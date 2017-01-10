@@ -36,6 +36,7 @@
  */
 
 #include <stdio.h>
+#include <test161/test161.h>
 
 int
 main(int argc, char *argv[])
@@ -43,14 +44,18 @@ main(int argc, char *argv[])
 	const char *tmp;
 	int i;
 
-	printf("argc: %d\n", argc);
+	tprintf("argc: %d\n", argc);
+	char buf[16];
+	snprintf(buf, 16, "argc: %d", argc);
+	secprintf(SECRET, buf, "/testbin/argtest");
 
 	for (i=0; i<=argc; i++) {
 		tmp = argv[i];
 		if (tmp==NULL) {
 			tmp = "[NULL]";
 		}
-		printf("argv[%d]: %s\n", i, tmp);
+		tprintf("argv[%d]: %s\n", i, tmp);
+		secprintf(SECRET, tmp, "/testbin/argtest");
 	}
 
 	return 0;

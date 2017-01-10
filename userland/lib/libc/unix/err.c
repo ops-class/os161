@@ -139,6 +139,7 @@ verr(int exitcode, const char *fmt, va_list ap)
 {
 	__printerr(1, fmt, ap);
 	exit(exitcode);
+	// exit() didn't work.
 }
 
 /* errx/verrx: don't use errno, but do then exit */
@@ -147,6 +148,7 @@ verrx(int exitcode, const char *fmt, va_list ap)
 {
 	__printerr(0, fmt, ap);
 	exit(exitcode);
+	// exit() didn't work.
 }
 
 /*

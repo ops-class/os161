@@ -229,7 +229,7 @@ runit(unsigned numthinkers, unsigned numgrinders,
 	char buf[32];
 	unsigned i;
 
-	printf("Running with %u thinkers, %u grinders, and %u pong groups "
+	tprintf("Running with %u thinkers, %u grinders, and %u pong groups "
 	       "of size %u each.\n", numthinkers, numgrinders, numponggroups,
 	       ponggroupsize);
 
@@ -242,7 +242,7 @@ runit(unsigned numthinkers, unsigned numgrinders,
 		       &pids[i+2]);
 	}
 	usem_open(&startsem);
-	printf("Forking done; starting the workload.\n");
+	tprintf("Forking done; starting the workload.\n");
 	__time(&startsecs, &startnsecs);
 	Vn(&startsem, numthinkers + numgrinders +
 	   numponggroups * ponggroupsize);
@@ -252,20 +252,20 @@ runit(unsigned numthinkers, unsigned numgrinders,
 
 	openresultsfile(O_RDONLY);
 
-	printf("--- Timings ---\n");
+	tprintf("--- Timings ---\n");
 	if (numthinkers > 0) {
 		calcresult(0, startsecs, startnsecs, buf, sizeof(buf));
-		printf("Thinkers: %s\n", buf);
+		tprintf("Thinkers: %s\n", buf);
 	}
 
 	if (numgrinders > 0) {
 		calcresult(1, startsecs, startnsecs, buf, sizeof(buf));
-		printf("Grinders: %s\n", buf);
+		tprintf("Grinders: %s\n", buf);
 	}
 
 	for (i=0; i<numponggroups; i++) {
 		calcresult(i+2, startsecs, startnsecs, buf, sizeof(buf));
-		printf("Pong group %u: %s\n", i, buf);
+		tprintf("Pong group %u: %s\n", i, buf);
 	}
 
 	closeresultsfile();

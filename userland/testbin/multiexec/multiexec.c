@@ -169,16 +169,13 @@ spawn(int njobs)
 	semcreate("1", &s1);
 	semcreate("2", &s2);
 
-	printf("Forking %d child processes...\n", njobs);
+	tprintf("Forking %d child processes...\n", njobs);
 
 	for (i=0; i<njobs; i++) {
 		pids[i] = fork();
 		if (pids[i] == -1) {
-			/* continue with the procs we have; cannot kill them */
-			warn("fork");
-			warnx("*** Only started %u processes ***", i);
-			njobs = i;
-			break;
+			/* abandon the other procs; no way to kill them */
+			err(1, "fork");
 		}
 		if (pids[i] == 0) {
 			/* child */
@@ -196,9 +193,9 @@ spawn(int njobs)
 
 	semopen(&s1);
 	semopen(&s2);
-	printf("Waiting for fork...\n");
+	tprintf("Waiting for fork...\n");
 	semP(&s1, njobs);
-	printf("Starting the execs...\n");
+	tprintf("Starting the execs...\n");
 	semV(&s2, njobs);
 
 	failed = 0;
@@ -222,7 +219,7 @@ spawn(int njobs)
 		warnx("%d children failed", failed);
 	}
 	else {
-		printf("Succeeded\n");
+		tprintf("Succeeded\n");
 	}
 
 	semclose(&s1);

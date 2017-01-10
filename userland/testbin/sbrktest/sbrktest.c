@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <err.h>
 #include <errno.h>
+#include <test161/test161.h>
 
 #define _PATH_RANDOM   "random:"
 
@@ -62,7 +63,7 @@ geti(void)
 			break;
 		}
 		else if ((ch=='\b' || ch==127) && digits>0) {
-			printf("\b \b");
+			tprintf("\b \b");
 			val = val/10;
 			digits--;
 		}
@@ -141,7 +142,7 @@ static
 void
 say(const char *msg)
 {
-	/* Use one write so it's atomic (printf usually won't be) */
+	/* Use one write so it's atomic (tprintf usually won't be) */
 	write(STDOUT_FILENO, msg, strlen(msg));
 }
 
@@ -194,9 +195,9 @@ checkpage(volatile void *baseptr, unsigned pageoffset, bool neednl)
 		val = ((unsigned long)i ^ (unsigned long)pageoffset);
 		if (pl[i] != val) {
 			if (neednl) {
-				printf("\n");
+				tprintf("\n");
 			}
-			printf("FAILED: data mismatch at offset %lu of page "
+			tprintf("FAILED: data mismatch at offset %lu of page "
 			       "at 0x%lx: %lu vs. %lu\n",
 			       (unsigned long) (i*sizeof(unsigned long)),
 			       (unsigned long)(uintptr_t)pl,
@@ -241,9 +242,9 @@ checkpagelight(volatile void *baseptr, unsigned pageoffset, bool neednl)
 	pl = (volatile unsigned long *)pageptr;
 	if (pl[0] != pageoffset) {
 		if (neednl) {
-			printf("\n");
+			tprintf("\n");
 		}
-		printf("FAILED: data mismatch at offset 0 of page "
+		tprintf("FAILED: data mismatch at offset 0 of page "
 		       "at 0x%lx: %lu vs. %u\n",
 		       (unsigned long)(uintptr_t)pl,
 		       pl[0], pageoffset);
@@ -269,6 +270,37 @@ dosbrk(ssize_t size)
 		errx(1, "FAILED: sbrk returned NULL, which is illegal");
 	}
 	return p;
+}
+
+////////////////////////////////////////////////////////////
+// fork a child that segfaults
+
+typedef void (*segfault_fn)(void);
+
+static
+void
+expect_segfault(segfault_fn func)
+{
+	int status;
+	int result;
+	pid_t pid = dofork();
+
+	if (pid == 0) {
+		func();	// This exits
+	} else {
+		result = waitpid(pid, &status, 0);
+		if (result == -1) {
+			err(1, "waitpid");
+		}
+		else if (WIFSIGNALED(status)) {
+			if (WTERMSIG(status) != 11) {
+				errx(1, "child: Signal %d", WTERMSIG(status));
+			}
+		}
+		else  {
+			errx(1, "child exited, expected segfault");
+		}
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -317,14 +349,13 @@ test1(void)
 {
 	void *p;
 
-	printf("Allocating a page...\n");
+	tprintf("Allocating a page...\n");
 	p = dosbrk(PAGE_SIZE);
 	markpage(p, 0);
 	if (checkpage(p, 0, false)) {
 		errx(1, "FAILED: data corrupt");
 	}
-
-	printf("Passed sbrk test 1.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -338,7 +369,7 @@ test2(void)
 
 	op = dosbrk(0);
 
-	printf("Allocating a page...\n");
+	tprintf("Allocating a page...\n");
 	p = dosbrk(PAGE_SIZE);
 	if (p != op) {
 		errx(1, "FAILED: sbrk grow didn't return the old break "
@@ -351,7 +382,7 @@ test2(void)
 
 	p = dosbrk(0);
 
-	printf("Freeing the page...\n");
+	tprintf("Freeing the page...\n");
 	q = dosbrk(-PAGE_SIZE);
 	if (q != p) {
 		errx(1, "FAILED: sbrk shrink didn't return the old break "
@@ -362,8 +393,7 @@ test2(void)
 		errx(1, "FAILED: sbrk shrink didn't restore the heap "
 		     "(got %p, expected %p", q, op);
 	}
-
-	printf("Passed sbrk test 2.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -382,7 +412,7 @@ test3(void)
 
 	op = dosbrk(0);
 
-	printf("Allocating %u pages...\n", num);
+	tprintf("Allocating %u pages...\n", num);
 	p = dosbrk(PAGE_SIZE * num);
 	if (p != op) {
 		errx(1, "FAILED: sbrk grow didn't return the old break "
@@ -403,7 +433,7 @@ test3(void)
 
 	p = dosbrk(0);
 
-	printf("Freeing the pages...\n");
+	tprintf("Freeing the pages...\n");
 	q = dosbrk(-PAGE_SIZE * num);
 	if (q != p) {
 		errx(1, "FAILED: sbrk shrink didn't return the old break "
@@ -414,8 +444,7 @@ test3(void)
 		errx(1, "FAILED: sbrk shrink didn't restore the heap "
 		     "(got %p, expected %p", q, op);
 	}
-
-	printf("Passed sbrk test 3.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -435,7 +464,7 @@ test4(void)
 
 	op = dosbrk(0);
 
-	printf("Allocating %u pages...\n", num);
+	tprintf("Allocating %u pages...\n", num);
 	p = dosbrk(PAGE_SIZE * num);
 	if (p != op) {
 		errx(1, "FAILED: sbrk grow didn't return the old break "
@@ -454,7 +483,7 @@ test4(void)
 		exit(1);
 	}
 
-	printf("Freeing the pages one at a time...\n");
+	tprintf("Freeing the pages one at a time...\n");
 	for (i=num; i-- > 0; ) {
 		(void)dosbrk(-PAGE_SIZE);
 		for (j=0; j<i; j++) {
@@ -474,8 +503,7 @@ test4(void)
 		errx(1, "FAILED: sbrk shrink didn't restore the heap "
 		     "(got %p, expected %p", q, op);
 	}
-
-	printf("Passed sbrk test 4.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 ////////////////////////////////////////////////////////////
@@ -487,14 +515,22 @@ test4(void)
  */
 static
 void
-test5(void)
+test5_helper(void)
 {
 	void *p;
 
 	p = dosbrk(0);
-	printf("This should produce fatal signal 11 (SIGSEGV).\n");
+	tprintf("This should produce fatal signal 11 (SIGSEGV).\n");
 	((long *)p)[10] = 0;
 	errx(1, "FAILED: I didn't crash");
+}
+
+static
+void
+test5(void)
+{
+	expect_segfault(test5_helper);
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -503,15 +539,23 @@ test5(void)
  */
 static
 void
-test6(void)
+test6_helper(void)
 {
 	void *p;
 
 	(void)dosbrk(PAGE_SIZE);
 	p = dosbrk(0);
-	printf("This should produce fatal signal 11 (SIGSEGV).\n");
+	tprintf("This should produce fatal signal 11 (SIGSEGV).\n");
 	((long *)p)[10] = 0;
 	errx(1, "FAILED: I didn't crash");
+}
+
+static
+void
+test6(void)
+{
+	expect_segfault(test6_helper);
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -520,16 +564,24 @@ test6(void)
  */
 static
 void
-test7(void)
+test7_helper(void)
 {
 	void *p;
 
 	(void)dosbrk(PAGE_SIZE);
 	(void)dosbrk(-PAGE_SIZE);
 	p = dosbrk(0);
-	printf("This should produce fatal signal 11 (SIGSEGV).\n");
+	tprintf("This should produce fatal signal 11 (SIGSEGV).\n");
 	((long *)p)[10] = 0;
 	errx(1, "FAILED: I didn't crash");
+}
+
+static
+void
+test7(void)
+{
+	expect_segfault(test7_helper);
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -539,16 +591,24 @@ test7(void)
  */
 static
 void
-test8(void)
+test8_helper(void)
 {
 	void *p;
 
 	(void)dosbrk(PAGE_SIZE * 12);
 	(void)dosbrk(-PAGE_SIZE * 6);
 	p = dosbrk(0);
-	printf("This should produce fatal signal 11 (SIGSEGV).\n");
+	tprintf("This should produce fatal signal 11 (SIGSEGV).\n");
 	((long *)p)[10] = 0;
 	errx(1, "FAILED: I didn't crash");
+}
+
+static
+void
+test8(void)
+{
+	expect_segfault(test8_helper);
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 ////////////////////////////////////////////////////////////
@@ -588,38 +648,38 @@ test9(void)
 
 #define HUGESIZE (1024 * 1024 * 1024)	/* 1G */
 
-	printf("Checking how much memory we can allocate:\n");
+	tprintf("Checking how much memory we can allocate:\n");
 	for (size = HUGESIZE; (p = sbrk(size)) == (void *)-1; size = size/2) {
-		printf("  %9lu bytes: failed\n", (unsigned long) size);
+		tprintf("  %9lu bytes: failed\n", (unsigned long) size);
 	}
-	printf("  %9lu bytes: succeeded\n", (unsigned long) size);
-	printf("Passed sbrk test 9 (part 1/5)\n");
+	tprintf("  %9lu bytes: succeeded\n", (unsigned long) size);
+	tprintf("Passed sbrk test 9 (part 1/5)\n");
 
-	printf("Touching each page.\n");
+	tprintf("Touching each page.\n");
 	pages = size / PAGE_SIZE;
 	dot = pages / 64;
 	for (i=0; i<pages; i++) {
 		markpagelight(p, i);
-		if (dot > 0 && i % dot == 0) {
-			printf(".");
+		if (dot > 0) {
+			TEST161_LPROGRESS_N(i, dot);
 		}
 	}
 	if (dot > 0) {
 		printf("\n");
 	}
 
-	printf("Testing each page.\n");
+	tprintf("Testing each page.\n");
 	bad = false;
 	for (i=0; i<pages; i++) {
 		if (checkpagelight(p, i, dot > 0)) {
 			if (dot > 0) {
-				printf("\n");
+				tprintf("\n");
 			}
 			warnx("FAILED: data corrupt");
 			bad = true;
 		}
-		if (dot > 0 && i % dot == 0) {
-			printf(".");
+		if (dot > 0) {
+			TEST161_LPROGRESS_N(i, dot);
 		}
 	}
 	if (dot > 0) {
@@ -628,19 +688,20 @@ test9(void)
 	if (bad) {
 		exit(1);
 	}
-	printf("Passed sbrk test 9 (part 2/5)\n");
+	tprintf("Passed sbrk test 9 (part 2/5)\n");
 
-	printf("Freeing the memory.\n");
+	tprintf("Freeing the memory.\n");
 	(void)dosbrk(-size);
-	printf("Passed sbrk test 9 (part 3/5)\n");
+	tprintf("Passed sbrk test 9 (part 3/5)\n");
 
-	printf("Allocating the memory again.\n");
+	tprintf("Allocating the memory again.\n");
 	(void)dosbrk(size);
-	printf("Passed sbrk test 9 (part 4/5)\n");
+	tprintf("Passed sbrk test 9 (part 4/5)\n");
 
-	printf("And really freeing it.\n");
+	tprintf("And really freeing it.\n");
 	(void)dosbrk(-size);
-	printf("Passed sbrk test 9 (all)\n");
+	tprintf("Passed sbrk test 9 (all)\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -655,16 +716,16 @@ test10(void)
 	unsigned i, n;
 	bool bad;
 
-	printf("Allocating all of memory one page at a time:\n");
+	tprintf("Allocating all of memory one page at a time:\n");
 	op = dosbrk(0);
 	n = 0;
 	while ((p = sbrk(PAGE_SIZE)) != (void *)-1) {
 		markpagelight(op, n);
 		n++;
 	}
-	printf("Got %u pages (%zu bytes).\n", n, (size_t)PAGE_SIZE * n);
+	tprintf("Got %u pages (%zu bytes).\n", n, (size_t)PAGE_SIZE * n);
 
-	printf("Now freeing them.\n");
+	tprintf("Now freeing them.\n");
 	bad = false;
 	for (i=0; i<n; i++) {
 		if (checkpagelight(op, n - i - 1, false)) {
@@ -676,14 +737,14 @@ test10(void)
 	if (bad) {
 		exit(1);
 	}
-	printf("Freed %u pages.\n", n);
+	tprintf("Freed %u pages.\n", n);
 
 	p = dosbrk(0);
 	if (p != op) {
 		errx(1, "FAILURE: break did not return to original value");
 	}
 
-	printf("Now let's see if I can allocate another page.\n");
+	tprintf("Now let's see if I can allocate another page.\n");
 	p = dosbrk(PAGE_SIZE);
 	markpage(p, 0);
 	if (checkpage(p, 0, false)) {
@@ -691,7 +752,8 @@ test10(void)
 	}
 	(void)dosbrk(-PAGE_SIZE);
 
-	printf("Passed sbrk test 10.\n");
+	tprintf("Passed sbrk test 10.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 ////////////////////////////////////////////////////////////
@@ -707,37 +769,34 @@ test11(void)
 	unsigned i;
 	bool bad;
 
-	printf("Allocating %u pages (%zu bytes).\n", num,
+	tprintf("Allocating %u pages (%zu bytes).\n", num,
 	       (size_t)PAGE_SIZE * num);
 	p = dosbrk(num * PAGE_SIZE);
 
-	printf("Touching the pages.\n");
+	tprintf("Touching the pages.\n");
 	for (i=0; i<num; i++) {
 		markpagelight(p, i);
-		if (i % 4 == 0) {
-			printf(".");
-		}
+		TEST161_LPROGRESS_N(i, 4);
 	}
-	printf("\n");
+	tprintf("\n");
 
-	printf("Checking the pages.\n");
+	tprintf("Checking the pages.\n");
 	bad = false;
 	for (i=0; i<num; i++) {
 		if (checkpagelight(p, i, true)) {
 			warnx("FAILED: data corrupt");
 			bad = true;
 		}
-		if (i % 4 == 0) {
-			printf(".");
-		}
+		TEST161_LPROGRESS_N(i, 4);
 	}
 	printf("\n");
 	if (bad) {
 		exit(1);
 	}
 
-	printf("Now NOT freeing the pages. They should get freed on exit.\n");
-	printf("If not, you'll notice pretty quickly.\n");
+	tprintf("Now NOT freeing the pages. They should get freed on exit.\n");
+	tprintf("If not, you'll notice pretty quickly.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 ////////////////////////////////////////////////////////////
@@ -756,7 +815,7 @@ test12(void)
 	pid_t pid;
 	void *p;
 
-	printf("Forking...\n");
+	tprintf("Forking...\n");
 	pid = dofork();
 	if (pid == 0) {
 		/* child */
@@ -778,7 +837,8 @@ test12(void)
 	}
 	say("Parent done.\n");
 	dowait(pid);
-	printf("Passed sbrk test 12.\n");
+	tprintf("Passed sbrk test 12.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -791,14 +851,14 @@ test13(void)
 	pid_t pid;
 	void *p;
 
-	printf("Allocating a page...\n");
+	tprintf("Allocating a page...\n");
 	p = dosbrk(PAGE_SIZE);
 	markpage(p, 0);
 	if (checkpage(p, 0, false)) {
 		errx(1, "FAILED: data corrupt before forking");
 	}
 
-	printf("Forking...\n");
+	tprintf("Forking...\n");
 	pid = dofork();
 	if (pid == 0) {
 		/* child */
@@ -811,7 +871,8 @@ test13(void)
 		errx(1, "FAILED: data corrupt in parent");
 	}
 	dowait(pid);
-	printf("Passed sbrk test 13.\n");
+	tprintf("Passed sbrk test 13.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -824,21 +885,21 @@ test14(void)
 	pid_t pid;
 	void *p;
 
-	printf("Allocating a page...\n");
+	tprintf("Allocating a page...\n");
 	p = dosbrk(PAGE_SIZE);
 	markpage(p, 0);
 	if (checkpage(p, 0, false)) {
 		errx(1, "FAILED: data corrupt before forking");
 	}
 
-	printf("Forking...\n");
+	tprintf("Forking...\n");
 	pid = dofork();
 	if (pid == 0) {
 		/* child */
 		if (checkpage(p, 0, false)) {
 			errx(1, "FAILED: data corrupt in child");
 		}
-		printf("Child freeing a page...\n");
+		tprintf("Child freeing a page...\n");
 		dosbrk(-PAGE_SIZE);
 		exit(0);
 	}
@@ -846,7 +907,8 @@ test14(void)
 	if (checkpage(p, 0, false)) {
 		errx(1, "FAILED: data corrupt in parent after child ran");
 	}
-	printf("Passed sbrk test 14.\n");
+	tprintf("Passed sbrk test 14.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 /*
@@ -863,7 +925,7 @@ test15(void)
 	unsigned i;
 	void *p;
 
-	printf("Allocating %u pages...\n", num);
+	tprintf("Allocating %u pages...\n", num);
 	p = dosbrk(PAGE_SIZE * num);
 	for (i=0; i<num; i++) {
 		markpage(p, i);
@@ -874,7 +936,7 @@ test15(void)
 		}
 	}
 
-	printf("Freeing one page...\n");
+	tprintf("Freeing one page...\n");
 	(void)dosbrk(-PAGE_SIZE);
 	num--;
 	for (i=0; i<num; i++) {
@@ -883,7 +945,7 @@ test15(void)
 		}
 	}
 
-	printf("Allocating two pages...\n");
+	tprintf("Allocating two pages...\n");
 	(void)dosbrk(PAGE_SIZE * 2);
 	markpage(p, num++);
 	markpage(p, num++);
@@ -893,7 +955,7 @@ test15(void)
 		}
 	}
 
-	printf("Forking...\n");
+	tprintf("Forking...\n");
 	pid = dofork();
 	if (pid == 0) {
 		/* child */
@@ -947,7 +1009,9 @@ test15(void)
 	}
 
 	(void)dosbrk(-PAGE_SIZE * num);
-	printf("Passed sbrk test 15.\n");
+	tprintf("Passed sbrk test 15.\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
+
 }
 
 ////////////////////////////////////////////////////////////
@@ -967,7 +1031,7 @@ stresstest(unsigned long seed, bool large)
 	bool bad, neg;
 
 	srandom(seed);
-	printf("Seeded random number generator with %lu.\n", seed);
+	tprintf("Seeded random number generator with %lu.\n", seed);
 
 	op = dosbrk(0);
 
@@ -999,14 +1063,12 @@ stresstest(unsigned long seed, bool large)
 		}
 		for (j=0; j<num; j++) {
 			if (checkpagelight(op, j, true)) {
-				printf("\n");
+				tprintf("\n");
 				warnx("FAILED: data corrupt on page %u", j);
 				bad = true;
 			}
 		}
-		if (i % dot == 0) {
-			printf(".");
-		}
+		TEST161_LPROGRESS_N(i, dot);
 	}
 	printf("\n");
 	if (bad) {
@@ -1015,7 +1077,8 @@ stresstest(unsigned long seed, bool large)
 	}
 
 	dosbrk(-(num * PAGE_SIZE));
-	printf("Passed sbrk %s stress test.\n", large ? "large" : "small");
+	tprintf("Passed sbrk %s stress test.\n", large ? "large" : "small");
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 static
@@ -1036,7 +1099,7 @@ static
 void
 test18(void)
 {
-	printf("Enter random seed: ");
+	tprintf("Enter random seed: ");
 	stresstest(geti(), false);
 }
 
@@ -1058,8 +1121,63 @@ static
 void
 test21(void)
 {
-	printf("Enter random seed: ");
+	tprintf("Enter random seed: ");
 	stresstest(geti(), true);
+}
+
+static
+void
+test22(void)
+{
+	int i;
+	void *p, *q;
+	int num = 10;
+	int num_pages = 5 * 1024;	// 20MB
+
+	p = dosbrk(num_pages * PAGE_SIZE);
+	q = dosbrk(0);
+
+	if ((unsigned int)q - (unsigned int)p != (unsigned int)(num_pages*PAGE_SIZE)) {
+		errx(1, "Heap size not equal to expected size: p=0x%x q=0x%x", (unsigned int)p, (unsigned int)q);
+	}
+
+	// Just touch the last 10 pages
+	for (i = 0; i < num; i++) {
+		markpage(p, num_pages-(i+1));
+	}
+
+	// Check the last 10 pages
+	for (i = 0; i < num; i++) {
+		if (checkpage(p, num_pages-(i+1), false)) {
+			errx(1, "FAILED: data corrupt");
+		}
+	}
+
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
+}
+
+static
+void
+test23(void)
+{
+	// Make sure sbrk is freeing memory. This allocates, in total, just over 4M
+	// of memory, but moves the heap breakpoint in such a way that only one page
+	// should ever be required. This test doesn't make much sense to run with
+	// more than 4M or with swap enabled.
+	void *start;
+	int num_pages = 1030;
+	int num;
+
+	start = dosbrk(PAGE_SIZE);
+
+	for (num = 1; num <= num_pages; num++) {
+		TEST161_LPROGRESS(num);
+		start = dosbrk(num*PAGE_SIZE);
+		markpagelight(start, num-1);
+		checkpagelight(start, num-1, true);
+		dosbrk(-(num*PAGE_SIZE));
+	}
+	success(TEST161_SUCCESS, SECRET, "/testbin/sbrktest");
 }
 
 ////////////////////////////////////////////////////////////
@@ -1091,6 +1209,8 @@ static const struct {
 	{ 19, "Large stress test", test19 },
 	{ 20, "Randomized large stress test", test20 },
 	{ 21, "Large stress test with particular seed", test21 },
+	{ 22, "Large sbrk test", test22 },
+	{ 23, "Allocate 4MB in total, but free pages in between", test23 },
 };
 static const unsigned numtests = sizeof(tests) / sizeof(tests[0]);
 
@@ -1128,12 +1248,12 @@ main(int argc, char *argv[])
 	while (1) {
 		if (menu) {
 			for (j=0; j<numtests; j++) {
-				printf("  %2d  %s\n", tests[j].num,
+				tprintf("  %2d  %s\n", tests[j].num,
 				       tests[j].desc);
 			}
 			menu = false;
 		}
-		printf("sbrktest: ");
+		tprintf("sbrktest: ");
 		tn = geti();
 		if (tn < 0) {
 			break;

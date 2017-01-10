@@ -44,6 +44,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <err.h>
+#include <test/test.h>
+#include <test161/test161.h>
 
 #define BRANCHES 6
 
@@ -53,6 +55,8 @@
  * 64K. Which is 16384 ints, or four 64x64 matrixes.
  */
 #define DIM 64
+
+#define PROGRESS_INTERVAL 25000
 
 static int m1[DIM*DIM], m2[DIM*DIM], m3[DIM*DIM], m4[DIM*DIM];
 static const int right[BRANCHES] = {
@@ -76,7 +80,9 @@ init(void)
 		for (j=0; j<DIM; j++) {
 			m1[i*DIM+j] = random() % 11 - 5;
 		}
+		TEST161_LPROGRESS(0);
 	}
+	nprintf("\n");
 }
 
 static
@@ -96,12 +102,15 @@ static
 void
 mul(int *x, const int *a, const int *b)
 {
-	unsigned i, j, k;
+	unsigned i, j, k, tot;
 
+	tot = 0;
 	for (i=0; i<DIM; i++) {
 		for (j=0; j<DIM; j++) {
 			x[i*DIM+j] = 0;
 			for (k=0; k<DIM; k++) {
+				TEST161_LPROGRESS_N(tot, PROGRESS_INTERVAL);
+				tot++;
 				x[i*DIM+j] += a[i*DIM+k] * b[k*DIM+j]; 
 			}
 		}
@@ -177,11 +186,15 @@ dowait(pid_t pid)
 		exit(failures);
 	}
 	else {
+		// If the child crashes or waitpid returns -1, we don't know how many errors
+		// resulted (if any), but it's an error if we can't tell.
 		if (waitpid(pid, &status, 0) < 0) {
 			warn("waitpid(%d)", pid);
+			failures += 1;
 		}
 		else if (WIFSIGNALED(status)) {
 			warnx("pid %d: signal %d", pid, WTERMSIG(status));
+			failures += 1;
 		}
 		else if (WEXITSTATUS(status) > 0) {
 			failures += WEXITSTATUS(status);
@@ -196,7 +209,6 @@ dotest(void)
 	unsigned i, me;
 	pid_t pids[BRANCHES];
 	int t;
-	char msg[128];
 
 	me = 0;
 	for (i=0; i<BRANCHES; i++) {
@@ -207,26 +219,28 @@ dotest(void)
 		grind();
 		t = trace();
 		if (t == right[i]) {
-			snprintf(msg, sizeof(msg),
-				 "Stage %u #%u done: %d\n", i, me, trace());
+			lsay("\nStage %u #%u done: %d\n", i, me, trace());
 		}
 		else {
-			snprintf(msg, sizeof(msg),
-				 "Stage %u #%u FAILED: got %d, expected %d\n",
+			lsay("Stage %u #%u FAILED: got %d, expected %d\n",
 				 i, me, t, right[i]);
+			success(TEST161_FAIL, SECRET, "/testbin/bigfork");
 			failures++;
 		}
-		(void)write(STDOUT_FILENO, msg, strlen(msg));
+		TEST161_LPROGRESS(0);
 	}
 
 	for (i=BRANCHES; i-- > 0; ) {
 		dowait(pids[i]);
 	}
+
 	if (failures > 0) {
-		printf("%u failures.\n", failures);
+		tprintf("%u failures.\n", failures);
+		success(TEST161_FAIL, SECRET, "/testbin/bigfork");
 	}
 	else {
-		printf("Done.\n");
+		tprintf("Done.\n");
+		success(TEST161_SUCCESS, SECRET, "/testbin/bigfork");
 	}
 }
 

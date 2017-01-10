@@ -148,46 +148,58 @@ stat_badpath(const char *name)
 ////////////////////////////////////////////////////////////
 
 static
-void
+int
 common_badpath(int (*func)(const char *path), int mk, int rm, const char *path,
 	       const char *call, const char *pathdesc)
 {
 	int rv;
+	int result;
 
 	report_begin("%s with %s path", call, pathdesc);
 
 	if (mk) {
 		if (create_testfile()<0) {
-			report_aborted();
-			return;
+			report_aborted(&result);
+			return result;
 		}
 	}
 
 	rv = func(path);
-	report_check(rv, errno, EFAULT);
+	result = report_check(rv, errno, EFAULT);
 
 	if (mk || rm) {
 		remove(TESTFILE);
 	}
+	return result;
 }
 
 static
 void
-any_badpath(int (*func)(const char *path), const char *call, int mk, int rm)
+any_badpath(int (*func)(const char *path), const char *call, int mk, int rm,
+		int *ntests, int *lost_points)
 {
-	common_badpath(func, mk, rm, NULL, call, "NULL");
-	common_badpath(func, mk, rm, INVAL_PTR, call, "invalid-pointer");
-	common_badpath(func, mk, rm, KERN_PTR, call, "kernel-pointer");
+	int result;
+	// We have a total of 3 tests
+	*ntests = *ntests + 3;
+
+	result = common_badpath(func, mk, rm, NULL, call, "NULL");
+	handle_result(result, lost_points);
+
+	result = common_badpath(func, mk, rm, INVAL_PTR, call, "invalid-pointer");
+	handle_result(result, lost_points);
+
+	result = common_badpath(func, mk, rm, KERN_PTR, call, "kernel-pointer");
+	handle_result(result, lost_points);
 }
 
 ////////////////////////////////////////////////////////////
 
 /* functions with one pathname */
-#define T(call) \
-  void                                  \
-  test_##call##_path(void)              \
-  {                                     \
-   	any_badpath(call##_badpath, #call, 0, 0); \
+#define T(call)                                                        \
+  void                                                                 \
+  test_##call##_path(int *ntests, int *lost_points)                    \
+  {                                                                    \
+   	any_badpath(call##_badpath, #call, 0, 0, ntests, lost_points); \
   }
 
 T(open);
@@ -200,12 +212,12 @@ T(stat);
 T(lstat);
 
 /* functions with two pathnames */
-#define T2(call) \
-  void                                  \
-  test_##call##_paths(void)             \
-  {                                     \
-   	any_badpath(call##_badpath1, #call "(arg1)", 0, 1); \
-   	any_badpath(call##_badpath2, #call "(arg2)", 1, 1); \
+#define T2(call)                                                                 \
+  void                                                                           \
+  test_##call##_paths(int *ntests, int *lost_points)                             \
+  {                                                                              \
+   	any_badpath(call##_badpath1, #call "(arg1)", 0, 1, ntests, lost_points); \
+   	any_badpath(call##_badpath2, #call "(arg2)", 1, 1, ntests, lost_points); \
   }
 
 T2(rename);

@@ -44,24 +44,21 @@ install-staging-local: $(INSTALLTOP)$(MANDIR) .WAIT
 install-staging-local: $(INSTALLTOP)$(MANDIR)/$(_F_)
 $(INSTALLTOP)$(MANDIR)/$(_F_): $(_F_)
 	rm -f $(.TARGET)
-	ln $(_F_) $(.TARGET) || cp $(_F_) $(.TARGET)
+	ln $(_F_) $(.TARGET) >/dev/null 2>&1 || cp $(_F_) $(.TARGET)
 .endfor
 
 install-local: $(OSTREE)$(MANDIR) .WAIT installmanpages
 installmanpages:
 .for _F_ in $(MANFILES)
 	rm -f $(OSTREE)$(MANDIR)/$(_F_)
-	ln $(_F_) $(OSTREE)$(MANDIR)/$(_F_) || \
+	ln $(_F_) $(OSTREE)$(MANDIR)/$(_F_) >/dev/null 2>&1 || \
 	  cp $(_F_) $(OSTREE)$(MANDIR)/$(_F_)
 .endfor
 
-# clean: remove build products (nothing to do)
-clean-local: ;
 
 # Mark targets that don't represent files PHONY, to prevent various
 # lossage if files by those names appear.
 .PHONY: all all-local install-staging-local install-local installmanpages
-.PHONY: clean-local
 
 # Finally, get the shared definitions for the most basic rules.
 .include "$(TOP)/mk/os161.baserules.mk"

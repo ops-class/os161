@@ -37,52 +37,70 @@
 #include "test.h"
 
 static
-void
+int
 link_dir(void)
 {
 	int rv;
+	int result;
 
 	report_begin("hard link of .");
 	rv = link(".", TESTDIR);
-	report_check(rv, errno, EINVAL);
+	result = report_check(rv, errno, EINVAL);
 	if (rv==0) {
 		/* this might help recover... maybe */
 		remove(TESTDIR);
 	}
+	return result;
 }
 
 static
-void
+int
 link_empty1(void)
 {
 	int rv;
 
 	report_begin("hard link of empty string");
 	rv = link("", TESTDIR);
-	report_check(rv, errno, EINVAL);
+	return report_check(rv, errno, EINVAL);
 }
 
 static
-void
+int
 link_empty2(void)
 {
 	int rv;
-
+	int result = FAILED;
 	report_begin("hard link to empty string");
 	if (create_testdir()<0) {
 		/*report_aborted();*/ /* XXX in create_testdir */
-		return;
+		return result;
 	}
 	rv = link(TESTDIR, "");
-	report_check(rv, errno, EINVAL);
+	result = report_check(rv, errno, EINVAL);
 	rmdir(TESTDIR);
+	return result;
 }
 
 void
 test_link(void)
 {
-	test_link_paths();
-	link_dir();
-	link_empty1();
-	link_empty2();
+	int ntests = 0, lost_points = 0;
+	int result;
+
+	test_link_paths(&ntests, &lost_points);
+
+	ntests++;
+	result = link_dir();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = link_empty1();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = link_empty2();
+	handle_result(result, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

@@ -43,6 +43,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <err.h>
+#include <test161/test161.h>
 
 #define PATH_CAT "/bin/cat"
 #define INFILE "redirect.in"
@@ -181,16 +182,23 @@ cat(void)
 int
 main(void)
 {
-	printf("Creating %s...\n", INFILE);
+	tprintf("Creating %s...\n", INFILE);
 	mkfile();
+	nprintf(".");
 
-	printf("Running cat < %s > %s\n", INFILE, OUTFILE);
+	tprintf("Running cat < %s > %s\n", INFILE, OUTFILE);
 	cat();
+	nprintf(".");
 
-	printf("Checking %s...\n", OUTFILE);
+	tprintf("Checking %s...\n", OUTFILE);
 	chkfile();
+	nprintf(".");
 
-	printf("Passed.\n");
+	tprintf("Passed.\n");
+	nprintf(".");
+	nprintf("\n");
+
+	success(TEST161_SUCCESS, SECRET, "/testbin/redirect");
 	(void)remove(INFILE);
 	(void)remove(OUTFILE);
 	return 0;

@@ -38,6 +38,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <test161/test161.h>
 
 /*
  * SIZE is the amount of memory used.
@@ -64,12 +65,12 @@ main(int argc, char **argv)
 		stride = atoi(argv[1]);
 	}
 	if (stride <= 0 || argc > 2) {
-		printf("Usage: ctest [stridesize]\n");
-		printf("   stridesize should not be a multiple of 2.\n");
+		tprintf("Usage: ctest [stridesize]\n");
+		tprintf("   stridesize should not be a multiple of 2.\n");
 		return 1;
 	}
 
-	printf("Starting ctest: stride %d\n", stride);
+	tprintf("Starting ctest: stride %d\n", stride);
 
 	/*
 	 * Generate a huge linked list, with each entry pointing to
@@ -90,12 +91,11 @@ main(int argc, char **argv)
 	 */
 	e = &array[0];
 	for (i=0; i<SIZE; i++) {
-		if (i % stride == 0) {
-			putchar('.');
-		}
+		TEST161_LPROGRESS_N(i, stride);
 		e = e->e;
 	}
 
-	printf("\nDone!\n");
+	// Success is not crashing
+	success(TEST161_SUCCESS, SECRET, "/testbin/ctest");
 	return 0;
 }

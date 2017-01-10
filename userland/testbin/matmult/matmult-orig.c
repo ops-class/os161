@@ -75,14 +75,14 @@ main(void)
             for (k = 0; k < Dim; k++)
 		 C[i][j] += A[i][k] * B[k][j];
 
-    printf("matmult-orig finished.\n");
+    tprintf("matmult-orig finished.\n");
     r = C[Dim-1][Dim-1];
-    printf("answer is: %d (should be %d)\n", r, RIGHT);
+    tprintf("answer is: %d (should be %d)\n", r, RIGHT);
     if (r != RIGHT) {
-	    printf("FAILED\n");
+	    tprintf("FAILED\n");
     }
     else {
-	    printf("Passed.\n");
+	    tprintf("Passed.\n");
     }
     return 0;
 }

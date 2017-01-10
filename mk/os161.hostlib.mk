@@ -56,7 +56,7 @@ all-local: $(MYBUILDDIR) .WAIT $(MYBUILDDIR)/$(_LIB_)
 install-staging-local: $(TOOLDIR)/hostlib .WAIT $(TOOLDIR)/hostlib/$(_LIB_)
 $(TOOLDIR)/hostlib/$(_LIB_): $(MYBUILDDIR)/$(_LIB_)
 	rm -f $(.TARGET)
-	ln $(MYBUILDDIR)/$(_LIB_) $(.TARGET) || \
+	ln $(MYBUILDDIR)/$(_LIB_) $(.TARGET) >/dev/null 2>&1 || \
 	  cp $(MYBUILDDIR)/$(_LIB_) $(.TARGET)
 
 install-local:

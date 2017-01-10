@@ -44,33 +44,49 @@
 #include "test.h"
 
 static
-void
+int
 time_badsecs(void *ptr, const char *desc)
 {
 	int rv;
 
 	report_begin("%s", desc);
 	rv = __time(ptr, NULL);
-	report_check(rv, errno, EFAULT);
+	return report_check(rv, errno, EFAULT);
 }
 
 static
-void
+int
 time_badnsecs(void *ptr, const char *desc)
 {
 	int rv;
 
 	report_begin("%s", desc);
 	rv = __time(NULL, ptr);
-	report_check(rv, errno, EFAULT);
+	return report_check(rv, errno, EFAULT);
 }
 
 void
 test_time(void)
 {
-	time_badsecs(INVAL_PTR, "__time with invalid seconds pointer");
-	time_badsecs(KERN_PTR, "__time with kernel seconds pointer");
+	int ntests = 0, lost_points = 0;
+	int result;
 
-	time_badnsecs(INVAL_PTR, "__time with invalid nsecs pointer");
-	time_badnsecs(KERN_PTR, "__time with kernel nsecs pointer");
+	ntests++;
+	result = time_badsecs(INVAL_PTR, "__time with invalid seconds pointer");
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = time_badsecs(KERN_PTR, "__time with kernel seconds pointer");
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = time_badnsecs(INVAL_PTR, "__time with invalid nsecs pointer");
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = time_badnsecs(KERN_PTR, "__time with kernel nsecs pointer");
+	handle_result(result, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

@@ -131,11 +131,11 @@ static
 void
 printsettings(void)
 {
-	printf("Page size: %u\n", PAGE_SIZE);
-	printf("Allocating %u pages and touching %u pages on each cycle.\n",
+	tprintf("Page size: %u\n", PAGE_SIZE);
+	tprintf("Allocating %u pages and touching %u pages on each cycle.\n",
 	       allocs, touchpages);
-	printf("Page selection bias: %u\n", bias);
-	printf("\n");
+	tprintf("Page selection bias: %u\n", bias);
+	tprintf("\n");
 }
 
 static

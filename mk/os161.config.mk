@@ -87,15 +87,6 @@
 # These build variables can be set explicitly for further control if
 # desired, but should in general not need attention.
 #
-# (Tools.)
-#
-# PYTHON_INTERPRETER		Location of Python interpreter.
-#				Default is "/usr/bin/env python".
-#
-# This may need to be changed on some platforms; but the configure
-# script is supposed to take care of it for you. If that fails, or
-# picks the wrong thing, please file a bug report.
-#
 # (Locations.)
 #
 # BUILDTOP			Top of tree where .o files go.
@@ -105,7 +96,7 @@
 #				the build. Default is $(WORKDIR)/tooldir.
 #
 # INSTALLTOP			Staging directory for installation.
-#				Default is $(WORKDIR)/install.
+#				Default is $(WORKDIR)/install
 #
 # Probably the only reason to change these would be if you're short on
 # diskspace in $(WORKDIR).
@@ -479,7 +470,7 @@ MORECFLAGS+=-I$(INSTALLTOP)/include
 LDFLAGS+=-nostdlib -L$(INSTALLTOP)/lib $(INSTALLTOP)/lib/crt0.o
 MORELIBS+=-lc
 LIBDEPS+=$(INSTALLTOP)/lib/crt0.o $(INSTALLTOP)/lib/libc.a
-
+LIBS+=-ltest161
 ############################################################
 
 # end.

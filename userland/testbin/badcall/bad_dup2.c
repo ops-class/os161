@@ -45,27 +45,29 @@
 #include "test.h"
 
 static
-void
+int
 dup2_fd2(int fd, const char *desc)
 {
-	int rv;
+	int rv, failure;
 
 	report_begin("%s", desc);
 	rv = dup2(STDIN_FILENO, fd);
-	report_check(rv, errno, EBADF);
+	failure = report_check(rv, errno, EBADF);
 
 	if (rv != -1) {
 		close(fd);	/* just in case */
 	}
+	return failure;
 }
 
 static
-void
+int
 dup2_self(void)
 {
 	struct stat sb;
 	int rv;
 	int testfd;
+	int failure;
 
 	/* use fd that isn't in use */
 	testfd = CLOSED_FD;
@@ -75,22 +77,23 @@ dup2_self(void)
 	rv = dup2(STDIN_FILENO, testfd);
 	if (rv == -1) {
 		report_result(rv, errno);
-		report_aborted();
-		return;
+		report_aborted(&failure);
+		return failure;
 	}
 
 	report_begin("dup2 to same fd");
 	rv = dup2(testfd, testfd);
 	if (rv == testfd) {
-		report_passed();
+		report_passed(&failure);
 	}
 	else if (rv<0) {
 		report_result(rv, errno);
-		report_failure();
+		report_failure(&failure);
 	}
 	else {
 		report_warnx("returned %d instead", rv);
-		report_failure();
+		report_failure(&failure);
+		failure = FAILED;
 	}
 
 	report_begin("fstat fd after dup2 to itself");
@@ -100,43 +103,60 @@ dup2_self(void)
 	}
 	report_result(rv, errno);
 	if (rv==0) {
-		report_passed();
+		report_passed(&failure);
 	}
 	else if (errno != ENOSYS) {
-		report_failure();
+		report_failure(&failure);
 	}
 	else {
-		report_skipped();
+		report_skipped(&failure);
 		/* no support for fstat; try lseek */
 		report_begin("lseek fd after dup2 to itself");
 		rv = lseek(testfd, 0, SEEK_CUR);
 		report_result(rv, errno);
 		if (rv==0 || (rv==-1 && errno==ESPIPE)) {
-			report_passed();
+			report_passed(&failure);
 		}
 		else {
-			report_failure();
+			report_failure(&failure);
 		}
 	}
 
 	close(testfd);
+	return failure;
 }
 
 void
 test_dup2(void)
 {
+	int ntests = 0, failure, lost_points = 0;
 	/* This does the first fd. */
-	test_dup2_fd();
+	test_dup2_fd(&ntests, &lost_points);
 
 	/* Any interesting cases added here should also go in common_fds.c */
-	dup2_fd2(-1, "dup2 to -1");
-	dup2_fd2(-5, "dup2 to -5");
-	dup2_fd2(IMPOSSIBLE_FD, "dup2 to impossible fd");
+	ntests++;
+	failure = dup2_fd2(-1, "dup2 to -1");
+	handle_result(failure, &lost_points);
+
+	ntests++;
+	failure = dup2_fd2(-5, "dup2 to -5");
+	handle_result(failure, &lost_points);
+
+	ntests++;
+	failure = dup2_fd2(IMPOSSIBLE_FD, "dup2 to impossible fd");
+	handle_result(failure, &lost_points);
 #ifdef OPEN_MAX
-	dup2_fd2(OPEN_MAX, "dup2 to OPEN_MAX");
+	ntests++;
+	failure = dup2_fd2(OPEN_MAX, "dup2 to OPEN_MAX");
+	handle_result(failure, &lost_points);
 #else
 	warnx("Warning: OPEN_MAX not defined - test skipped");
 #endif
 
-	dup2_self();
+	ntests++;
+	failure = dup2_self();
+	handle_result(failure, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

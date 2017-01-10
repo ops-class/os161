@@ -7,11 +7,12 @@ TOP=../..
 
 SUBDIRS=add argtest badcall bigexec bigfile bigfork bigseek bloat conman \
 	crash ctest dirconc dirseek dirtest f_test factorial farm faulter \
-	filetest forkbomb forktest frack guzzle hash hog huge kitchen \
+	filetest fileonlytest forkbomb forktest frack guzzle hash hog huge kitchen \
 	malloctest matmult multiexec palin parallelvm poisondisk psort \
 	quinthuge quintmat quintsort randcall redirect rmdirtest rmtest \
-	sbrktest schedpong sink sort sparsefile sty tail tictac triplehuge \
-	triplemat triplesort usemtest zero
+	sbrktest schedpong shll sink sort sparsefile spinner sty tail tictac \
+	triplehuge triplemat triplesort usemtest waiter zero \
+	consoletest shelltest opentest readwritetest closetest stacktest
 
 # But not:
 #    userthreads    (no support in kernel API in base system)

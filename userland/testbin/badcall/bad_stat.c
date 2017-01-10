@@ -67,7 +67,7 @@ badbuf_stat(struct stat *sb)
 }
 
 static
-void
+int
 common_badbuf(int (*statfunc)(struct stat *), void *ptr,
 	      const char *call, const char *ptrdesc)
 {
@@ -75,22 +75,24 @@ common_badbuf(int (*statfunc)(struct stat *), void *ptr,
 
 	report_begin("%s with %s buf", call, ptrdesc);
 	rv = statfunc(ptr);
-	report_check(rv, errno, EFAULT);
+	return report_check(rv, errno, EFAULT);
 }
 
 static
-void
+int
 any_badbuf(int (*statfunc)(struct stat *), const char *call)
 {
-	common_badbuf(statfunc, NULL, call, "NULL");
-	common_badbuf(statfunc, INVAL_PTR, call, "invalid pointer");
-	common_badbuf(statfunc, KERN_PTR, call, "kernel pointer");
+	int result;
+	result = common_badbuf(statfunc, NULL, call, "NULL");
+	result |= common_badbuf(statfunc, INVAL_PTR, call, "invalid pointer");
+	result |= common_badbuf(statfunc, KERN_PTR, call, "kernel pointer");
+	return result;
 }
 
 ////////////////////////////////////////////////////////////
 
 static
-void
+int
 any_empty(int (*statfunc)(const char *, struct stat *), const char *call)
 {
 	struct stat sb;
@@ -98,7 +100,7 @@ any_empty(int (*statfunc)(const char *, struct stat *), const char *call)
 
 	report_begin("%s on empty string", call);
 	rv = statfunc("", &sb);
-	report_check2(rv, errno, 0, EINVAL);
+	return report_check2(rv, errno, 0, EINVAL);
 }
 
 ////////////////////////////////////////////////////////////
@@ -106,23 +108,56 @@ any_empty(int (*statfunc)(const char *, struct stat *), const char *call)
 void
 test_fstat(void)
 {
-	test_fstat_fd();
-	any_badbuf(badbuf_fstat, "fstat");
+	int ntests = 0, lost_points = 0;
+	int result;
+
+	test_fstat_fd(&ntests, &lost_points);
+
+	ntests++;
+	result = any_badbuf(badbuf_fstat, "fstat");
+	handle_result(result, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 
 void
 test_lstat(void)
 {
-	test_lstat_path();
-	any_empty(lstat, "lstat");
-	any_badbuf(badbuf_lstat, "lstat");
+	int ntests = 0, lost_points = 0;
+	int result;
+
+	test_lstat_path(&ntests, &lost_points);
+
+	ntests++;
+	result = any_empty(lstat, "lstat");
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = any_badbuf(badbuf_lstat, "lstat");
+	handle_result(result, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 
 void
 test_stat(void)
 {
-	test_stat_path();
-	any_empty(stat, "stat");
-	any_badbuf(badbuf_stat, "stat");
+	int ntests = 0, lost_points = 0;
+	int result;
+
+	test_stat_path(&ntests, &lost_points);
+
+	ntests++;
+	result = any_empty(stat, "stat");
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = any_badbuf(badbuf_stat, "stat");
+	handle_result(result, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 

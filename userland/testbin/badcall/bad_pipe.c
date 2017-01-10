@@ -44,22 +44,23 @@
 #include "test.h"
 
 static
-void
+int
 pipe_badptr(void *ptr, const char *desc)
 {
 	int rv;
 
 	report_begin("%s", desc);
 	rv = pipe(ptr);
-	report_check(rv, errno, EFAULT);
+	return report_check(rv, errno, EFAULT);
 }
 
 static
-void
+int
 pipe_unaligned(void)
 {
 	int fds[3], rv;
 	char *ptr;
+	int result;
 
 	report_begin("pipe with unaligned pointer");
 
@@ -67,15 +68,32 @@ pipe_unaligned(void)
 	ptr++;
 
 	rv = pipe((int *)ptr);
-	report_survival(rv, errno);
+	report_survival(rv, errno, &result);
+	return result;
 }
 
 void
 test_pipe(void)
 {
-	pipe_badptr(NULL, "pipe with NULL pointer");
-	pipe_badptr(INVAL_PTR, "pipe with invalid pointer");
-	pipe_badptr(KERN_PTR, "pipe with kernel pointer");
+	int ntests = 0, lost_points = 0;
+	int result;
 
-	pipe_unaligned();
+	ntests++;
+	result = pipe_badptr(NULL, "pipe with NULL pointer");
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = pipe_badptr(INVAL_PTR, "pipe with invalid pointer");
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = pipe_badptr(KERN_PTR, "pipe with kernel pointer");
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = pipe_unaligned();
+	handle_result(result, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }

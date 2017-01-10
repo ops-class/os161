@@ -39,6 +39,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <err.h>
+#include <test161/test161.h>
 
 /*
  * Some initialized data. This is here to increase the chance that
@@ -78,6 +79,7 @@ check_data(void)
 	if (k != SUM_OF_DATA_STUFF) {
 		warnx("My initialized data sums to the wrong value!");
 		warnx("Got: %u  Expected: %u", k, SUM_OF_DATA_STUFF);
+		success(TEST161_FAIL, SECRET, "/testbin/zero");
 		errx(1, "FAILED");
 	}
 }
@@ -94,6 +96,7 @@ check_bss(void)
 			warnx("BSS entry at index %u (address %p) not zero!",
 			      i, &bss_stuff[i]);
 			warnx("Found: 0x%x", bss_stuff[i]);
+			success(TEST161_FAIL, SECRET, "/testbin/zero");
 			errx(1, "FAILED");
 		}
 	}
@@ -112,9 +115,10 @@ check_sbrk(void)
 	base = sbrk(SBRK_SIZE);
 	if (base == (void *)-1) {
 		if (errno == ENOSYS) {
-			printf("I guess you haven't implemented sbrk yet.\n");
+			tprintf("I guess you haven't implemented sbrk yet.\n");
 			return;
 		}
+		success(TEST161_FAIL, SECRET, "/testbin/zero");
 		err(1, "sbrk");
 	}
 
@@ -124,6 +128,7 @@ check_sbrk(void)
 			      i, &base[i]);
 			warnx("Got: 0x%x", (unsigned char)base[i]);
 			warnx("Base of sbrk region: %p", base);
+			success(TEST161_FAIL, SECRET, "/testbin/zero");
 			errx(1, "FAILED");
 		}
 	}
@@ -133,13 +138,13 @@ check_sbrk(void)
 int
 main(void)
 {
-	printf("zero: phase 1: checking .bss\n");
+	tprintf("zero: phase 1: checking .bss\n");
 	check_data();
 	check_bss();
 
-	printf("zero: phase 2: checking sbrk()\n");
+	tprintf("zero: phase 2: checking sbrk()\n");
 	check_sbrk();
 
-	printf("zero: passed\n");
+	success(TEST161_SUCCESS, SECRET, "/testbin/zero");
 	return 0;
 }

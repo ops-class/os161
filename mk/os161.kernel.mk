@@ -163,6 +163,9 @@ includelinks:
 clean:
 	rm -f *.o *.a tags $(KERNEL)
 	rm -rf includelinks
+	@ABSTOP=$$(readlink -f $(TOP))
+	rm -f $(OSTREE)/.src
+	rm -f $(TOP)/.root
 
 distclean cleandir: clean
 	rm -f .depend
@@ -188,6 +191,9 @@ install:
 	cp $(KERNEL) $(OSTREE)/$(KERNEL)-$(CONFNAME)
 	-rm -f $(OSTREE)/$(KERNEL)
 	ln -s $(KERNEL)-$(CONFNAME) $(OSTREE)/$(KERNEL)
+	@ABSTOP=$$(readlink -f $(TOP))
+	ln -Tsf $(ABSTOP) $(OSTREE)/.src
+	ln -Tsf $(OSTREE) $(ABSTOP)/.root
 
 #
 # Run tags on all the sources and header files. This is probably not

@@ -37,75 +37,100 @@
 #include "test.h"
 
 static
-void
+int
 rename_dot(void)
 {
 	int rv;
+	int result;
 
 	report_begin("rename .");
 
 	rv = rename(".", TESTDIR);
-	report_check(rv, errno, EINVAL);
+	result = report_check(rv, errno, EINVAL);
 	if (rv==0) {
 		/* oops... put it back */
 		rename(TESTDIR, ".");
 	}
+	return result;
 }
 
 static
-void
+int
 rename_dotdot(void)
 {
 	int rv;
+	int result;
 
 	report_begin("rename ..");
 	rv = rename("..", TESTDIR);
-	report_check(rv, errno, EINVAL);
+	result = report_check(rv, errno, EINVAL);
 	if (rv==0) {
 		/* oops... put it back */
 		rename(TESTDIR, "..");
 	}
+	return result;
 }
 
 static
-void
+int
 rename_empty1(void)
 {
 	int rv;
+	int result;
 
 	report_begin("rename empty string");
 	rv = rename("", TESTDIR);
-	report_check2(rv, errno, EISDIR, EINVAL);
+	result = report_check2(rv, errno, EISDIR, EINVAL);
 	if (rv==0) {
 		/* don't try to remove it */
 		rename(TESTDIR, TESTDIR "-foo");
 	}
+	return result;
 }
 
 static
-void
+int
 rename_empty2(void)
 {
 	int rv;
+	int result = FAILED;
 
 	report_begin("rename to empty string");
 	if (create_testdir()<0) {
 		/*report_aborted();*/ /* XXX in create_testdir */
-		return;
+		return result;
 	}
 	rv = rename(TESTDIR, "");
-	report_check2(rv, errno, EISDIR, EINVAL);
+	result = report_check2(rv, errno, EISDIR, EINVAL);
 	rmdir(TESTDIR);
+	return result;
 }
 
 void
 test_rename(void)
 {
-	test_rename_paths();
+	int ntests = 0, lost_points = 0;
+	int result;
 
-	rename_dot();
-	rename_dotdot();
-	rename_empty1();
-	rename_empty2();
+	test_rename_paths(&ntests, &lost_points);
+
+	ntests++;
+	result = rename_dot();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = rename_dotdot();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = rename_empty1();
+	handle_result(result, &lost_points);
+
+	ntests++;
+	result = rename_empty2();
+	handle_result(result, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 

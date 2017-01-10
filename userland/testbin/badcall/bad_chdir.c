@@ -38,7 +38,7 @@
 #include "test.h"
 
 static
-void
+int
 chdir_empty(void)
 {
 	int rv;
@@ -49,13 +49,20 @@ chdir_empty(void)
 
 	report_begin("chdir to empty string");
 	rv = chdir("");
-	report_check2(rv, errno, EINVAL, 0);
+	return report_check2(rv, errno, EINVAL, 0);
 }
 
 void
 test_chdir(void)
 {
-	test_chdir_path();
-	chdir_empty();
+	int ntests = 0, result = 0, lost_points = 0;
+	test_chdir_path(&ntests, &lost_points);
+
+	ntests++;
+	result = chdir_empty();
+	handle_result(result, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
 

@@ -8,6 +8,6 @@
 TOP=../..
 .include "$(TOP)/mk/os161.config.mk"
 
-SUBDIRS=crt0 libc libtest hostcompat
+SUBDIRS=crt0 libc libtest libtest161 hostcompat
 
 .include "$(TOP)/mk/os161.subdir.mk"

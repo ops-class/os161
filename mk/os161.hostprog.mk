@@ -76,14 +76,14 @@ cleanhostprog:
 install-staging-local: $(_INSTALLDIR_) .WAIT $(_INSTALLDIR_)/$(_PROG_)
 $(_INSTALLDIR_)/$(_PROG_): $(MYBUILDDIR)/$(_PROG_)
 	rm -f $(.TARGET)
-	ln $(MYBUILDDIR)/$(_PROG_) $(.TARGET) || \
+	ln $(MYBUILDDIR)/$(_PROG_) $(.TARGET) >/dev/null 2>&1 || \
 	  cp $(MYBUILDDIR)/$(_PROG_) $(.TARGET)
 
 .if defined(HOSTBINDIR)
 install-local: install-hostprog
 install-hostprog: $(OSTREE)$(HOSTBINDIR) $(MYBUILDDIR)/$(_PROG_)
 	rm -f $(OSTREE)$(HOSTBINDIR)/$(_PROG_)
-	ln $(MYBUILDDIR)/$(_PROG_) $(OSTREE)$(HOSTBINDIR)/$(_PROG_) || \
+	ln $(MYBUILDDIR)/$(_PROG_) $(OSTREE)$(HOSTBINDIR)/$(_PROG_) >/dev/null 2>&1 || \
 	  cp $(MYBUILDDIR)/$(_PROG_) $(OSTREE)$(HOSTBINDIR)/$(_PROG_)
 .else
 install-local:

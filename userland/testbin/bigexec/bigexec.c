@@ -36,11 +36,13 @@
 
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
 #include <assert.h>
 #include <err.h>
+#include <test161/test161.h>
 
 #define _PATH_MYSELF "/testbin/bigexec"
 
@@ -110,6 +112,7 @@ try(const char *first, ...)
 	va_list ap;
 	int num;
 
+	nprintf(".");
 	assert(first != NULL);
 	args[0] = _PATH_MYSELF;
 	args[1] = first;
@@ -124,6 +127,7 @@ try(const char *first, ...)
 		assert(num < 20);
 		args[num++] = s;
 	}
+	nprintf("\n");
 	assert(num < 20);
 	args[num] = NULL;
 	execv(_PATH_MYSELF, (char **)args);
@@ -137,9 +141,12 @@ trymany(int num, const char *word)
 	const char *args[num+2];
 	int i;
 
+	nprintf(".");
 	args[0] = _PATH_MYSELF;
 	for (i=0; i<num; i++) {
 		args[i+1] = word;
+		if(i%10)
+			nprintf(".");
 	}
 	args[num+1] = NULL;
 	execv(_PATH_MYSELF, (char **)args);
@@ -376,7 +383,9 @@ main(int argc, char *argv[])
 	}
 	else if (checkmany(argc, argv, 1000, word8)) {
 #endif
+		nprintf("\n");
 		warnx("Complete.");
+		success(TEST161_SUCCESS, SECRET, "/testbin/bigexec");
 		return 0;
 	}
 	else {
@@ -384,4 +393,5 @@ main(int argc, char *argv[])
 		dumpargs(argc, argv);
 		return 1;
 	}
+	success(TEST161_SUCCESS, SECRET, "/testbin/bigexec");
 }

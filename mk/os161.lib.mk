@@ -59,13 +59,13 @@ all-local: $(MYBUILDDIR) .WAIT $(MYBUILDDIR)/$(_LIB_)
 install-staging-local: $(INSTALLTOP)$(LIBDIR) .WAIT $(INSTALLTOP)$(LIBDIR)/$(_LIB_)
 $(INSTALLTOP)$(LIBDIR)/$(_LIB_): $(MYBUILDDIR)/$(_LIB_)
 	rm -f $(.TARGET)
-	ln $(MYBUILDDIR)/$(_LIB_) $(.TARGET) || \
+	ln $(MYBUILDDIR)/$(_LIB_) $(.TARGET) >/dev/null 2>&1 || \
 	  cp $(MYBUILDDIR)/$(_LIB_) $(.TARGET)
 
 install-local: $(OSTREE)$(LIBDIR) $(MYBUILDDIR)/$(_LIB_)
 	@echo "Warning: manually installing library without relinking anything"
 	rm -f $(OSTREE)$(LIBDIR)/$(_LIB_)
-	ln $(MYBUILDDIR)/$(_LIB_) $(OSTREE)$(LIBDIR)/$(_LIB_) || \
+	ln $(MYBUILDDIR)/$(_LIB_) $(OSTREE)$(LIBDIR)/$(_LIB_) >/dev/null 2>&1 || \
 	  cp $(MYBUILDDIR)/$(_LIB_) $(OSTREE)$(LIBDIR)/$(_LIB_)
 
 # Build the library.

@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
+#include <test161/test161.h>
 
 int
 main(int argc, char *argv[])
@@ -51,7 +52,9 @@ main(int argc, char *argv[])
 	i = atoi(argv[1]);
 	j = atoi(argv[2]);
 
-	printf("Answer: %d\n", i+j);
-
+	tprintf("Answer: %d\n", i+j);
+	char buf[16];
+	snprintf(buf, 16, "%d", i+j);
+	secprintf(SECRET, buf, "/testbin/add");
 	return 0;
 }

@@ -36,6 +36,11 @@
 void
 test_getdirentry(void)
 {
-	test_getdirentry_fd();
-	test_getdirentry_buf();
+	int ntests = 0, lost_points = 0;
+
+	test_getdirentry_fd(&ntests, &lost_points);
+	test_getdirentry_buf(&ntests, &lost_points);
+
+	if(!lost_points)
+		success(TEST161_SUCCESS, SECRET, "/testbin/badcall");
 }
