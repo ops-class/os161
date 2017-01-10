@@ -19,7 +19,7 @@ tprintf(const char *fmt, ...)
 #ifdef SECRET_TESTING
 	return 0;
 #endif
-	
+
 	va_start(ap, fmt);
 	chars = vprintf(fmt, ap);
 	va_end(ap);
@@ -37,7 +37,7 @@ nprintf(const char *fmt, ...)
 #ifndef SECRET_TESTING
 	return 0;
 #endif
-	
+
 	va_start(ap, fmt);
 	chars = vprintf(fmt, ap);
 	va_end(ap);
