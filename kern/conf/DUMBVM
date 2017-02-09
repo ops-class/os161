@@ -3,7 +3,9 @@
 
 include conf/conf.kern		# get definitions of available options
 
-debug				# Compile with debug info.
+debug				# Compile with debug info and -Og.
+#debugonly			# Compile with debug info only (no -Og).
+#options hangman 		# Deadlock detection. (off by default)
 
 #
 # Device drivers for hardware.

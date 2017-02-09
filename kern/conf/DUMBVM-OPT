@@ -7,6 +7,7 @@
 include conf/conf.kern		# get definitions of available options
 
 #debug				# Optimizing compile (no debug).
+#debugonly
 options noasserts		# Disable assertions.
 
 #
