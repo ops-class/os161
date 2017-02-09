@@ -1,0 +1,34 @@
+# These commands expect no output, but must not panic
+templates:
+  - name: tt1
+    output:
+      - text: ""
+
+  - name: tt2
+    output:
+      - text: ""
+
+  - name: tt3
+    output:
+      - text: ""
+
+  - name: khu
+    output:
+      - text: ""
+
+  - name: q 
+    output:
+      - text: ""
+
+  - name: s 
+    output:
+      - text: ""
+
+  - name: boot
+    output:
+      - text:
+
+  - name: exit
+    output:
+      - text: ""
+
