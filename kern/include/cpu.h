@@ -87,6 +87,11 @@ struct cpu {
 	struct tlbshootdown c_shootdown[TLBSHOOTDOWN_MAX];
 	unsigned c_numshootdown;
 	struct spinlock c_ipi_lock;
+
+	/*
+	 * Accessed by other cpus. Protected inside hangman.c.
+	 */
+	HANGMAN_ACTOR(c_hangman);
 };
 
 /*

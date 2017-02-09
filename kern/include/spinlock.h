@@ -36,6 +36,7 @@
  */
 
 #include <cdefs.h>
+#include <hangman.h>
 
 /* Inlining support - for making sure an out-of-line copy gets built */
 #ifndef SPINLOCK_INLINE
@@ -57,12 +58,18 @@
 struct spinlock {
 	volatile spinlock_data_t splk_lock; /* Memory word where we spin. */
 	struct cpu *splk_holder;	    /* CPU holding this lock. */
+	HANGMAN_LOCKABLE(splk_hangman);     /* Deadlock detector hook. */
 };
 
 /*
  * Initializer for cases where a spinlock needs to be static or global.
  */
+#ifdef OPT_HANGMAN
+#define SPINLOCK_INITIALIZER	{ SPINLOCK_DATA_INITIALIZER, NULL, \
+				  HANGMAN_LOCKABLE_INITIALIZER }
+#else
 #define SPINLOCK_INITIALIZER	{ SPINLOCK_DATA_INITIALIZER, NULL }
+#endif
 
 /*
  * Spinlock functions.
