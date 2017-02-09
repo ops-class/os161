@@ -140,6 +140,7 @@ thread_create(const char *name)
 	thread->t_context = NULL;
 	thread->t_cpu = NULL;
 	thread->t_proc = NULL;
+	HANGMAN_ACTORINIT(&thread->t_hangman, thread->t_name);
 
 	/* Interrupt state fields */
 	thread->t_in_interrupt = false;
@@ -238,6 +239,8 @@ cpu_create(unsigned hardware_number)
 		curthread->t_cpu = curcpu;
 		curcpu->c_curthread = curthread;
 	}
+
+	HANGMAN_ACTORINIT(&c->c_hangman, "cpu");
 
 	result = proc_addthread(kproc, c->c_curthread);
 	if (result) {
