@@ -130,8 +130,8 @@ mips_trap(struct trapframe *tf)
 	bool iskern;
 	int spl;
 
-	/* The trap frame is supposed to be 37 registers long. */
-	KASSERT(sizeof(struct trapframe)==(37*4));
+	/* The trap frame is supposed to be 35 registers long. */
+	KASSERT(sizeof(struct trapframe)==(35*4));
 
 	/*
 	 * Extract the exception code info from the register fields.

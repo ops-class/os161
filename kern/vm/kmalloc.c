@@ -1113,6 +1113,10 @@ subpage_kfree(void *ptr)
 
 	checksubpages();
 
+	/* Silence warnings with gcc 4.8 -Og (but not -O2) */
+	prpage = 0;
+	blktype = 0;
+
 	for (pr = allbase; pr; pr = pr->next_all) {
 		prpage = PR_PAGEADDR(pr);
 		blktype = PR_BLOCKTYPE(pr);

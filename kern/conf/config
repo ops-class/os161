@@ -12,7 +12,8 @@
 # Recognized directives:
 #
 #    file <filename>          use source file
-#    debug                    turn on debug info
+#    debug                    turn on debug info and -Og
+#    debugonly                turn on debug info without -Og
 #    defoption <sym>          define an option
 #    optfile <sym> <file>     if option <sym> is enabled, use file <file>
 #    optofffile <sym> <file>  if option <sym> is disabled, use file <file>
@@ -97,6 +98,7 @@ echo "$CONFNAME" $CONFTMP | awk '
 	nfields["include"] = 2;
 	nfields["file"] = 2;
 	nfields["debug"] = 1;
+	nfields["debugonly"] = 1;
 	nfields["defoption"] = 2;
 	nfields["optfile"] = 3;
 	nfields["optofffile"] = 3;
@@ -776,6 +778,9 @@ echo -n ' files.mk'
 	# Default: optimize.
 	BEGIN { debugflags="-O2"; }
 	$1=="debug" {
+	    debugflags="-g -Og";
+	}
+	$1=="debugonly" {
 	    debugflags="-g";
 	}
 

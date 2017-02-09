@@ -93,6 +93,7 @@ struct thread {
 	struct switchframe *t_context;	/* Saved register context (on stack) */
 	struct cpu *t_cpu;		/* CPU thread runs on */
 	struct proc *t_proc;		/* Process thread belongs to */
+	HANGMAN_ACTOR(t_hangman);	/* Deadlock detector hook */
 
 	/*
 	 * Interrupt state fields.

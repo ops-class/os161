@@ -69,8 +69,6 @@ struct trapframe {
 	uint32_t tf_s7;
 	uint32_t tf_t8;
 	uint32_t tf_t9;
-	uint32_t tf_k0;		/* dummy (see exception-mips1.S comments) */
-	uint32_t tf_k1;		/* dummy */
 	uint32_t tf_gp;
 	uint32_t tf_sp;
 	uint32_t tf_s8;

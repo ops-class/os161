@@ -101,6 +101,8 @@ mips_general_end:
    .text
    .type common_exception,@function
    .ent common_exception
+   .cfi_startproc
+   .cfi_signal_frame
 common_exception:
    mfc0 k0, c0_status		/* Get status register */
    andi k0, k0, CST_KUp		/* Check the we-were-in-user-mode bit */
@@ -130,11 +132,12 @@ common_exception:
     */
 
    /*
-    * Allocate stack space for 37 words to hold the trap frame,
+    * Allocate stack space for 35 words to hold the trap frame,
     * plus four more words for a minimal argument block, plus
     * one more for proper (64-bit) stack alignment.
     */
-   addi sp, sp, -168
+   addi sp, sp, -160
+   .cfi_def_cfa sp, 0
 
    /*
     * Save general registers.
@@ -143,70 +146,89 @@ common_exception:
     *
     * The order here must match mips/include/trapframe.h.
     *
-    * gdb disassembles this code to try to figure out what registers
-    * are where, and it isn't very bright. So in order to make gdb be
-    * able to trace the stack back through here, we play some silly
-    * games.
+    * gdb uses the .cfi_offset assembler directives inserted below to
+    * to figure out where each register is stored. Since we've marked
+    * this function as a "signal handler" with the .cfi_signal_frame
+    * directive, gdb won't complain about the fact that the stack
+    * is noncontiguous (if we're coming from userland).
     *
-    * In particular:
-    *    (1) We store the return address register into the epc slot,
-    *        which makes gdb think it's the return address slot. Then
-    *        we store the real epc value over that.
-    *    (2) We store the current sp into the sp slot, which makes gdb
-    *        think it's the stack pointer slot. Then we store the real
-    *        value.
-    *    (3) gdb also assumes that saved registers in a function are
-    *        saved in order. This is why we put epc where it is, and
-    *        handle the real value of ra afterwards.
-    *    (4) Because gdb will think we're saving k0 and k1, we need to
-    *        leave slots for them in the trap frame, even though the
-    *        stuff we save there is useless.
+    * We also play a trick with the return address: we mark the ra
+    * register as stored to the stack normally and then mark the
+    * return address for *this* function as being in the k1 register
+    * using the .cfi_return_column directive. gdb is then able to
+    * recognize that the ra we've stored here is the return address
+    * for the function that was executing when this exception was
+    * taken.
     *
-    * This logic has not been tested against a recent gdb and has
-    * probably bitrotted. Someone(TM) should figure out what gdb
-    * currently expects -- or maybe even patch gdb to understand a
-    * better form of this that doesn't waste so many cycles.
+    * All of the cfi (call frame information) material is compiled
+    * into the .eh_frame section of the compiled kernel.
     */
-   sw ra, 160(sp)	/* dummy for gdb */
-   sw s8, 156(sp)	/* save s8 */
-   sw sp, 152(sp)	/* dummy for gdb */
-   sw gp, 148(sp)	/* save gp */
-   sw k1, 144(sp)	/* dummy for gdb */
-   sw k0, 140(sp)	/* dummy for gdb */
-
-   sw k1, 152(sp)	/* real saved sp */
+   sw s8, 148(sp)	/* save s8 */
+   .cfi_offset s8, 148
+   sw k1, 144(sp)	/* real saved sp */
+   .cfi_offset sp, 144
+   sw gp, 140(sp)	/* save gp */
    nop			/* delay slot for store */
+   .cfi_offset gp, 140
 
+   .cfi_return_column k1
    mfc0 k1, c0_epc	/* Copr.0 reg 13 == PC for exception */
-   sw k1, 160(sp)	/* real saved PC */
+   sw k1, 152(sp)	/* real saved PC */
+   .cfi_offset k1, 152
 
    sw t9, 136(sp)
+   .cfi_offset t9, 136
    sw t8, 132(sp)
+   .cfi_offset t8, 132
    sw s7, 128(sp)
+   .cfi_offset s7, 128
    sw s6, 124(sp)
+   .cfi_offset s6, 124
    sw s5, 120(sp)
+   .cfi_offset s5, 120
    sw s4, 116(sp)
+   .cfi_offset s4, 116
    sw s3, 112(sp)
+   .cfi_offset s3, 112
    sw s2, 108(sp)
+   .cfi_offset s2, 108
    sw s1, 104(sp)
+   .cfi_offset s1, 104
    sw s0, 100(sp)
+   .cfi_offset s0, 100
    sw t7, 96(sp)
+   .cfi_offset t7, 96
    sw t6, 92(sp)
+   .cfi_offset t6, 92
    sw t5, 88(sp)
+   .cfi_offset t5, 88
    sw t4, 84(sp)
+   .cfi_offset t4, 84
    sw t3, 80(sp)
+   .cfi_offset t3, 80
    sw t2, 76(sp)
+   .cfi_offset t2, 76
    sw t1, 72(sp)
+   .cfi_offset t1, 72
    sw t0, 68(sp)
+   .cfi_offset t0, 68
    sw a3, 64(sp)
+   .cfi_offset a3, 64
    sw a2, 60(sp)
+   .cfi_offset a2, 60
    sw a1, 56(sp)
+   .cfi_offset a1, 56
    sw a0, 52(sp)
+   .cfi_offset a0, 52
    sw v1, 48(sp)
+   .cfi_offset v1, 48
    sw v0, 44(sp)
+   .cfi_offset v0, 44
    sw AT, 40(sp)
+   .cfi_offset AT, 40
 
    sw ra, 36(sp)
+   .cfi_offset ra, 36
 
    /*
     * Save special registers.
@@ -226,11 +248,6 @@ common_exception:
    sw   t3, 16(sp)
    mfc0 t4, c0_cause
    sw   t4, 24(sp)               /* Copr.0 reg 13 == exception cause */
-
-   /*
-    * Pretend to save $0 for gdb's benefit.
-    */
-   sw $0, 12(sp)
 
    /*
     * Load the curthread register if coming from user mode.
@@ -259,9 +276,6 @@ common_exception:
    addiu a0, sp, 16             /* set argument - pointer to the trapframe */
    jal mips_trap		/* call it */
    nop				/* delay slot */
-
-   /* Something must be here or gdb doesn't find the stack frame. */
-   nop
 
    /*
     * Now restore stuff and return from the exception.
@@ -309,20 +323,17 @@ exception_return:
    lw s7, 128(sp)
    lw t8, 132(sp)
    lw t9, 136(sp)
+   lw gp, 140(sp)		/* restore gp */
+   /*     144(sp)		   stack pointer - below */
+   lw s8, 148(sp)		/* restore s8 */
+   lw k1, 152(sp)		/* fetch exception return PC into k1 */
 
-   /*     140(sp)		   "saved" k0 was dummy garbage anyway */
-   /*     144(sp)		   "saved" k1 was dummy garbage anyway */
-
-   lw gp, 148(sp)		/* restore gp */
-   /*     152(sp)		   stack pointer - below */
-   lw s8, 156(sp)		/* restore s8 */
-   lw k0, 160(sp)		/* fetch exception return PC into k0 */
-
-   lw sp, 152(sp)		/* fetch saved sp (must be last) */
+   lw sp, 144(sp)		/* fetch saved sp (must be last) */
 
    /* done */
-   jr k0			/* jump back */
+   jr k1			/* jump back */
    rfe				/* in delay slot */
+   .cfi_endproc
    .end common_exception
 
 /*

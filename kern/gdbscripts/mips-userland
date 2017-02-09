@@ -1,0 +1,40 @@
+# commands to interact with userland
+
+define load-userprogram
+    init-if-undefined $userprog_loaded = 0
+    if !$userprog_loaded || !$_streq($arg0, $cur_userprog)
+        add-symbol-file $arg0 0x4000b0
+        # remove after adding the new file in case add-symbol-file fails
+        if $userprog_loaded
+            remove-symbol-file -a 0x4000b0
+        end
+        set $userprog_loaded = 1
+        set $cur_userprog = $arg0
+    end
+end
+document load-userprogram
+Loads a single user program into gdb's symbol table, removing
+the previous user program loaded if one exists.
+Usage: load-userprogram <path-to-prog>
+end
+alias -a lu = load-userprogram
+
+define auto-userprogram
+    set $pname = curthread->t_proc->p_name
+    if $pname != 0 && $pname[0] != 0 && !$_streq($pname, "[kernel]")
+        if $pname[0] == '/'
+            set $pname = $pname + 1
+        end
+        # This dumbness works around the fact that gdb doesn't
+        # expand convenience variables when you execute commands.
+        # And setting the third parameter to True silences the command.
+        python gdb.execute("load-userprogram " + str(gdb.parse_and_eval("$pname")).split()[1], False, True)
+    end
+end
+document auto-userprogram
+Calls load-userprogram on whatever is curproc->p_name. It is meant
+to work with kernels that set p_name to an absolute path to the
+program, and it is designed to be called from hook-stop.
+Usage: auto-userprogram
+end
+

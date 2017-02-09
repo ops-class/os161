@@ -156,6 +156,9 @@ arraytest2(int nargs, char **args)
 	(void)nargs;
 	(void)args;
 
+	/* Silence warning with gcc 4.8 -Og (but not -O2) */
+	x = 0;
+
 	kprintf("Beginning large array test...\n");
 	a = array_create();
 	KASSERT(a != NULL);

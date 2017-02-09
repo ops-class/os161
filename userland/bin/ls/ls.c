@@ -177,7 +177,7 @@ print(const char *path)
 			typech = '?';
 		}
 
-		printf("%crwx------ %2d root  %-8llu",
+		printf("%crwx------ %2d root  %-7llu ",
 		       typech,
 		       statbuf.st_nlink,
 		       statbuf.st_size);

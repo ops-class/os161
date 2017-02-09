@@ -334,6 +334,9 @@ file      thread/synch.c
 file      thread/thread.c
 file      thread/threadlist.c
 
+defoption hangman
+optfile   hangman thread/hangman.c
+
 #
 # Process system
 #

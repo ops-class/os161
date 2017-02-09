@@ -136,6 +136,13 @@ getdevice(char *path, char **subpath, struct vnode **startvn)
 	KASSERT(vfs_biglock_do_i_hold());
 
 	/*
+	 * Entirely empty filenames aren't legal.
+	 */
+	if (path[0] == 0) {
+		return EINVAL;
+	}
+
+	/*
 	 * Locate the first colon or slash.
 	 */
 

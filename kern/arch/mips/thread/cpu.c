@@ -54,6 +54,14 @@
  *
  * These arrays are also used to start up new CPUs, for roughly the
  * same reasons.
+ *
+ * The values in the current cpu's slots in these arrays are updated
+ * with the current thread's information in trap.c before heading to
+ * userlevel, as well as being initialized in cpu_machdep_init below.
+ * This means that (unless something really horrible happens) on entry
+ * to the kernel, and when a new CPU starts up in cpu_start_secondary,
+ * they will have the information needed to figure out who we are and
+ * proceed.
  */
 
 vaddr_t cpustacks[MAXCPUS];

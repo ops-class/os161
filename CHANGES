@@ -12,6 +12,96 @@ various other people, all of whom are (hopefully) listed below.
 ------------------------------------------------------------
 
 
+OS/161 2.0.3 released 20160124
+------------------------------
+
+20170124 dholland in base
+   - Remove obsolete, redundant, or not useful test programs:
+	guzzle (same as hog)
+	kitchen (equivalent to multiexec -n 4 sink)
+	sink (same as conman)
+	sty (equivalent to multiexec -n 6 hog)
+	quinthuge (offers little over triplehuge, can be done with multiexec)
+	quintmat, quintsort (ditto)
+
+20170118 dholland in base
+   - Make -g -Og the flags when "debug" is enabled in a kernel config
+     (which it is in the non-OPT ones) and add an additional kernel
+     config verb "debugonly" to get just -g in case that becomes
+     necessary. This should significantly improve the output code
+     quality from gcc without compromising debugging. (However, gcc
+     being gcc, it also sometimes leads to additional spurious
+     warnings that don't occur with either -g or -O2.)
+
+20170118 dholland in base
+   - Add a MI mainbus_debugger() function that goes through the right
+     MD paths to trigger the debugger hook in the ltrace device. Also
+     add a menu function "debug" to trigger it.
+
+20170118 dholland in base
+   - Add some bits to forktest to try to catch the case where the fork
+     child returns from the next system call instead of from fork.
+     (Which is a moderately common bug, caused by races copying the
+     trapframe information in the kernel.)
+
+20170117 dholland in base
+   - Add a menu command "deadlock" to intentionally deadlock.
+
+20170117 dholland in base, from Sam Fishman
+   - Fix parallelvm -w so that if one of the forks fails the whole
+     thing doesn't wedge.
+
+20170117 dholland in base, reported by Sam Fishman
+   - Don't do semfs I/O from NULL, or from/to insufficiently sized
+     buffers. Like the 20150615 change, except covering the rest of
+     the tests that use the semaphores that were doing it wrong:
+     multiexec, parallelvm, and schedpong.
+
+20170117 dholland in base, from Sam Fishman
+   - Add assembler directives to exception-mips1.S that tell gdb how
+     to read trap frames correctly. Garbage-collect old stuff left
+     over from making it work with a (much) older version of gdb a
+     long time back. This also usually makes it possible to trace back
+     through a syscall into a userlevel process; include a gdb script
+     with tools for making this useful.
+
+20170117 dholland in base
+   - Merge the deadlock detector into base. It was a success last year.
+   - Mention in the comments that the hangman hooks in locks need to
+     be called atomically.
+
+20170117 dholland in base, reported by Jeffrey Cai, patch from Sam Fishman
+   - Fix off-by-one in tac that makes it skip the first line of files.
+
+20170117 dholland in base, from Sam Fishman
+   - Make badcall's "pipe with unaligned pointer" test clean up after
+     itself if the operation succeeds. Otherwise it leaks fds and that
+     can intefere with other tests.
+
+20170116 dholland in base, reported by Sam Fishman
+   - Don't allow opening an entirely empty pathname to succeed, and
+     don't allow success for this case in badcall either.
+
+20170116 dholland in base, from Sasha Fedorova
+   - Fix write buffer size in filetest.
+
+20160325 dholland in base
+   - Fix macro parenthesis bug in ROUNDUP().
+
+20160304 dholland in base, from Sam Fishman
+   - Make runtest.py handle spacing in the command strings it's given.
+
+20160216 dholland in base
+   - Fix spacing problems in ls -l output for large files.
+
+20160203 dholland in base
+   - Expand comments attached to cpustacks[]/cputhreads[], prompted by
+     James Mickens.
+
+20160125 dholland in base, from Nikhil Benesch.
+   - Fix stupid argument handling bug in test.py.
+
+
 OS/161 2.0.2 released 20160112
 ------------------------------
 
@@ -52,6 +142,14 @@ OS/161 2.0.2 released 20160112
      things vnode_check() looks at are supposed to be constant fields
      anyway. If they aren't actually constant because of bugs, reading
      a stale or even garbage value is not going to hurt more.
+
+20160107 dholland in deadlock-detector
+   - Add a deadlock detector. For now this will be supplied to
+     instructors as a supplementary patch, because it intrudes into
+     the synchronization primitives and affects what students do
+     there. We are planning to try it on our students this coming
+     semester; if that works out well, I'll probably merge it into
+     base.
 
 20160107 dholland in base
    - In testbin/multiexec, if fork fails partway through, continue

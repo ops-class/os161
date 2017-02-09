@@ -681,7 +681,7 @@ checkfilesystem(int nargs, char **args)
 	char *device;
 
 	if (nargs != 2) {
-		kprintf("Usage: fs[12345] filesystem:\n");
+		kprintf("Usage: fs[123456] filesystem:\n");
 		return EINVAL;
 	}
 

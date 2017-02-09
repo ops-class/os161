@@ -273,16 +273,24 @@ static
 void
 semP(struct usem *sem, size_t num)
 {
-	if (read(sem->fd, NULL, num) < 0) {
+	char c[num];
+
+	if (read(sem->fd, c, num) < 0) {
 		err(1, "%s: read", sem->name);
 	}
+	(void)c;
 }
 
 static
 void
 semV(struct usem *sem, size_t num)
 {
-	if (write(sem->fd, NULL, num) < 0) {
+	char c[num];
+
+	/* semfs does not use these values, but be conservative */
+	memset(c, 0, num);
+
+	if (write(sem->fd, c, num) < 0) {
 		err(1, "%s: write", sem->name);
 	}
 }
@@ -326,7 +334,12 @@ makeprocs(bool dowait)
 	for (i=0; i<NJOBS; i++) {
 		pids[i] = fork();
 		if (pids[i]<0) {
-			warn("fork");
+			warn("fork (process %d)", i);
+			if (dowait) {
+				semopen(&s1);
+				semV(&s1, 1);
+				semclose(&s1);
+			}
 		}
 		if (pids[i]==0) {
 			/* child */

@@ -52,6 +52,7 @@ spinlock_init(struct spinlock *splk)
 {
 	spinlock_data_set(&splk->splk_lock, 0);
 	splk->splk_holder = NULL;
+	HANGMAN_LOCKABLEINIT(&splk->splk_hangman, "spinlock");
 }
 
 /*
@@ -85,6 +86,8 @@ spinlock_acquire(struct spinlock *splk)
 			panic("Deadlock on spinlock %p\n", splk);
 		}
 		mycpu->c_spinlocks++;
+
+		HANGMAN_WAIT(&curcpu->c_hangman, &splk->splk_hangman);
 	}
 	else {
 		mycpu = NULL;
@@ -112,6 +115,10 @@ spinlock_acquire(struct spinlock *splk)
 
 	membar_store_any();
 	splk->splk_holder = mycpu;
+
+	if (CURCPU_EXISTS()) {
+		HANGMAN_ACQUIRE(&curcpu->c_hangman, &splk->splk_hangman);
+	}
 }
 
 /*
@@ -125,6 +132,7 @@ spinlock_release(struct spinlock *splk)
 		KASSERT(splk->splk_holder == curcpu->c_self);
 		KASSERT(curcpu->c_spinlocks > 0);
 		curcpu->c_spinlocks--;
+		HANGMAN_RELEASE(&curcpu->c_hangman, &splk->splk_hangman);
 	}
 
 	splk->splk_holder = NULL;

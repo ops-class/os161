@@ -42,6 +42,7 @@
 #include <mainbus.h>
 #include <sys161/bus.h>
 #include <lamebus/lamebus.h>
+#include <lamebus/ltrace.h>
 #include "autoconf.h"
 
 /*
@@ -273,6 +274,15 @@ void
 mainbus_send_ipi(struct cpu *target)
 {
 	lamebus_assert_ipi(lamebus, target);
+}
+
+/*
+ * Trigger the debugger.
+ */
+void
+mainbus_debugger(void)
+{
+	ltrace_stop(0);
 }
 
 /*

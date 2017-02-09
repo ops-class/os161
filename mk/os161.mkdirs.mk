@@ -1,5 +1,5 @@
 #
-# MKDIRS logic
+# OS/161 build environment: MKDIRS logic
 #
 # This generates rules for all intermediate directories as well as
 # the directories listed. (That is, if you say MKDIRS=/usr/bin/foo

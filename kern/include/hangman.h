@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2001, 2002, 2003, 2004, 2005, 2008, 2009
+ * Copyright (c) 2015
  *	The President and Fellows of Harvard College.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,47 +27,58 @@
  * SUCH DAMAGE.
  */
 
-#ifndef _MAINBUS_H_
-#define _MAINBUS_H_
+#ifndef HANGMAN_H
+#define HANGMAN_H
 
 /*
- * Abstract system bus interface.
+ * Simple deadlock detector. Enable with "options hangman" in the
+ * kernel config.
  */
 
+#include "opt-hangman.h"
 
-struct cpu;       /* from <cpu.h> */
-struct trapframe; /* from <machine/trapframe.h> */
+#if OPT_HANGMAN
 
+struct hangman_actor {
+	const char *a_name;
+	const struct hangman_lockable *a_waiting;
+};
 
-/* Initialize the system bus and probe and attach hardware devices. */
-void mainbus_bootstrap(void);
+struct hangman_lockable {
+	const char *l_name;
+	const struct hangman_actor *l_holding;
+};
 
-/* Start up secondary CPUs, once their cpu structures are set up */
-void mainbus_start_cpus(void);
+void hangman_wait(struct hangman_actor *a, struct hangman_lockable *l);
+void hangman_acquire(struct hangman_actor *a, struct hangman_lockable *l);
+void hangman_release(struct hangman_actor *a, struct hangman_lockable *l);
 
-/* Bus-level interrupt handler, called from cpu-level trap/interrupt code */
-void mainbus_interrupt(struct trapframe *);
+#define HANGMAN_ACTOR(sym)	struct hangman_actor sym
+#define HANGMAN_LOCKABLE(sym)	struct hangman_lockable sym
 
-/* Find the size of main memory. */
-/* XXX this interface is not adequately MI */
-size_t mainbus_ramsize(void);
+#define HANGMAN_ACTORINIT(a, n)	    ((a)->a_name = (n), (a)->a_waiting = NULL)
+#define HANGMAN_LOCKABLEINIT(l, n)  ((l)->l_name = (n), (l)->l_holding = NULL)
 
-/* Switch on an inter-processor interrupt. (Low-level.) */
-void mainbus_send_ipi(struct cpu *target);
+#define HANGMAN_LOCKABLE_INITIALIZER	{ "spinlock", NULL }
 
-/* Request breaking into the debugger, where available. */
-void mainbus_debugger(void);
+#define HANGMAN_WAIT(a, l)	hangman_wait(a, l)
+#define HANGMAN_ACQUIRE(a, l)	hangman_acquire(a, l)
+#define HANGMAN_RELEASE(a, l)	hangman_release(a, l)
 
-/*
- * The various ways to shut down the system. (These are very low-level
- * and should generally not be called directly - md_poweroff, for
- * instance, unceremoniously turns the power off without doing
- * anything else.)
- */
-void mainbus_halt(void);
-void mainbus_poweroff(void);
-void mainbus_reboot(void);
-void mainbus_panic(void);
+#else
 
+#define HANGMAN_ACTOR(sym)
+#define HANGMAN_LOCKABLE(sym)
 
-#endif /* _MAINBUS_H_ */
+#define HANGMAN_ACTORINIT(a, name)
+#define HANGMAN_LOCKABLEINIT(a, name)
+
+#define HANGMAN_LOCKABLE_INITIALIZER
+
+#define HANGMAN_WAIT(a, l)
+#define HANGMAN_ACQUIRE(a, l)
+#define HANGMAN_RELEASE(a, l)
+
+#endif
+
+#endif /* HANGMAN_H */

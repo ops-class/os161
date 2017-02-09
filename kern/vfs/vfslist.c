@@ -129,6 +129,23 @@ vfs_biglock_acquire(void)
 	if (!lock_do_i_hold(vfs_biglock)) {
 		lock_acquire(vfs_biglock);
 	}
+	else if (vfs_biglock_depth == 0) {
+		/*
+		 * Supposedly we hold it, but the depth is 0. This may
+		 * mean: (1) the count is messed up, or (2)
+		 * lock_do_i_hold is lying. Since OS/161 ships out of
+		 * the box with unimplemented locks (students
+		 * implement them) that always return true, assume
+		 * situation (2). In this case acquire the lock
+		 * anyway.
+		 *
+		 * Once you have working locks, this won't be the
+		 * case, and if you get here it should be situation
+		 * (1), in which case the count is messed up and one
+		 * can panic.
+		 */
+		lock_acquire(vfs_biglock);
+	}
 	vfs_biglock_depth++;
 }
 
@@ -380,6 +397,9 @@ vfs_doadd(const char *dname, int mountable, struct device *dev, struct fs *fs)
 	const char *volname=NULL;
 	unsigned index;
 	int result;
+
+	/* Silence warning with gcc 4.8 -Og (but not -O2) */
+	index = 0;
 
 	vfs_biglock_acquire();
 
