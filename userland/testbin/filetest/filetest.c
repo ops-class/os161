@@ -46,7 +46,7 @@
 int
 main(int argc, char *argv[])
 {
-	static char writebuf[40] = "Twiddle dee dee, Twiddle dum dum.......\n";
+	static char writebuf[41] = "Twiddle dee dee, Twiddle dum dum.......\n";
 	static char readbuf[41];
 
 	const char *file;

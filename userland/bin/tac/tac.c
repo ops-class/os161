@@ -197,11 +197,9 @@ dumpdata(void)
 
 	indexsize = dolseek(indexfd, indexname, 0, SEEK_CUR);
 	pos = indexsize;
-	while (1) {
+	assert(pos % sizeof(x) == 0);
+	while (pos > 0) {
 		pos -= sizeof(x);
-		if (pos == 0) {
-			break;
-		}
 		assert(pos >= 0);
 		dolseek(indexfd, indexname, pos, SEEK_SET);
 

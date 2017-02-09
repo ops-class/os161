@@ -133,25 +133,52 @@ void
 test(int nowait)
 {
 	int pid0, pid1, pid2, pid3;
+	int depth = 0;
 
 	/*
 	 * Caution: This generates processes geometrically.
 	 *
 	 * It is unrolled to encourage gcc to registerize the pids,
 	 * to prevent wait/exit problems if fork corrupts memory.
+	 *
+	 * Note: if the depth prints trigger and show that the depth
+	 * is too small, the most likely explanation is that the fork
+	 * child is returning from the write() inside putchar()
+	 * instead of from fork() and thus skipping the depth++. This
+	 * is a fairly common problem caused by races in the kernel
+	 * fork code.
 	 */
 
 	pid0 = dofork();
+	depth++;
 	putchar('A');
+	if (depth != 1) {
+		warnx("depth %d, should be 1", depth);
+	}
 	check();
+
 	pid1 = dofork();
+	depth++;
 	putchar('B');
+	if (depth != 2) {
+		warnx("depth %d, should be 2", depth);
+	}
 	check();
+
 	pid2 = dofork();
+	depth++;
 	putchar('C');
+	if (depth != 3) {
+		warnx("depth %d, should be 3", depth);
+	}
 	check();
+
 	pid3 = dofork();
+	depth++;
 	putchar('D');
+	if (depth != 4) {
+		warnx("depth %d, should be 4", depth);
+	}
 	check();
 
 	/*

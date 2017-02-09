@@ -62,7 +62,7 @@ open_empty(void)
 
 	report_begin("open empty string");
 	rv = open("", O_RDONLY);
-	report_check2(rv, errno, 0, EINVAL);
+	report_check(rv, errno, EINVAL);
 	if (rv>=0) {
 		close(rv);
 	}

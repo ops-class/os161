@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
 #include <unistd.h>
 #include <err.h>
 
@@ -84,9 +85,9 @@ void
 Pn(struct usem *sem, unsigned count)
 {
 	ssize_t r;
-	char c;
+	char c[count];
 
-	r = read(sem->fd, &c, count);
+	r = read(sem->fd, c, count);
 	if (r < 0) {
 		err(1, "%s: read", sem->name);
 	}
@@ -105,9 +106,12 @@ void
 Vn(struct usem *sem, unsigned count)
 {
 	ssize_t r;
-	char c;
+	char c[count];
 
-	r = write(sem->fd, &c, count);
+	/* semfs does not use these values, but be conservative */
+	memset(c, 0, count);
+
+	r = write(sem->fd, c, count);
 	if (r < 0) {
 		err(1, "%s: write", sem->name);
 	}

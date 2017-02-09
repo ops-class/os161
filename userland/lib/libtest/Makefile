@@ -5,7 +5,7 @@
 TOP=../../..
 .include "$(TOP)/mk/os161.config.mk"
 
-SRCS=triple.c quint.c
+SRCS=triple.c
 LIB=test
 
 .include  "$(TOP)/mk/os161.lib.mk"
