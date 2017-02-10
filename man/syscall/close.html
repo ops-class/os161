@@ -55,8 +55,8 @@ Standard C Library (libc, -lc)
 
 <h3>Description</h3>
 <p>
-The file handle <em>fd</em> is closed. The same file handle may then
-be returned again from <A HREF=open.html>open</A>,
+The file handle identified by file descriptor <em>fd</em> is closed. 
+The same file handle may then be returned again from <A HREF=open.html>open</A>,
 <A HREF=dup2.html>dup2</A>, <A HREF=pipe.html>pipe</A>, or similar
 calls.
 </p>
@@ -87,7 +87,7 @@ mentioned here.
 <table width=90%>
 <tr><td width=5% rowspan=10>&nbsp;</td>
     <td width=10%>EBADF</td>
-			<td><em>fd</em> is not a valid file handle.</td></tr>
+			<td><em>fd</em> is not a valid file descriptor.</td></tr>
 <tr><td>EIO</td>	<td>A hard I/O error occurred.</td></tr>
 </table>
 </p>

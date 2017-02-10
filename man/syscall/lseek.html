@@ -57,8 +57,8 @@ int </tt><em>whence</em><tt>);</tt>
 <h3>Description</h3>
 <p>
 <tt>lseek</tt> alters the current seek position of the file handle
-<em>filehandle</em>, seeking to a new position based on <em>pos</em>
-and <em>whence</em>.
+identified by file descriptor <em>fd</em>, seeking to a new position 
+based on <em>pos</em> and <em>whence</em>.
 </p>
 
 <p>
@@ -122,7 +122,7 @@ mentioned here.
 <tr><td width=5% rowspan=4>&nbsp;</td>
     <td width=10% valign=top>EBADF</td>
 				<td><em>fd</em> is not a valid file
-				handle.</td></tr>
+				descriptor.</td></tr>
 <tr><td valign=top>ESPIPE</td>	<td><em>fd</em> refers to an object
 				which does not support seeking.</td></tr>
 <tr><td valign=top>EINVAL</td>	<td><em>whence</em> is invalid.</td></tr>
