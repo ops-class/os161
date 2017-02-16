@@ -404,7 +404,7 @@ locktest4(int nargs, char **args) {
     	donesem = NULL;
 
 	kprintf_t("\n");
-	success(test_status, SECRET, "lt1");
+	success(test_status, SECRET, "lt4");
 
     	return 0;
 }
