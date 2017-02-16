@@ -242,24 +242,24 @@ static
 void
 locktestthread2(void *junk, unsigned long num)
 {
-    (void)junk;
+    	(void)junk;
 
-    if(num == 0){
-        lock_acquire(testlock);
-    }
-    else{
-        if(lock_do_i_hold(testlock)){
-            goto fail;
-        }
-    }
+    	if(num == 0){
+        	lock_acquire(testlock);
+    	}
+    	else{
+        	if(lock_do_i_hold(testlock)){
+            		goto fail;
+        	}
+    	}
 
-    V(donesem);
-    return;
+    	V(donesem);
+    	return;
 
 fail:
-    failif(true);
-    V(donesem);
-    return;
+    	failif(true);
+    	V(donesem);
+    	return;
 }
 
 int
@@ -366,47 +366,47 @@ locktest3(int nargs, char **args) {
 
 int 
 locktest4(int nargs, char **args) {
-    (void) nargs;
-    (void) args;
+    	(void) nargs;
+    	(void) args;
 
-    kprintf_n("Starting lt4...\n");
+   	kprintf_n("Starting lt4...\n");
     
-    test_status = TEST161_SUCCESS;
+    	test_status = TEST161_SUCCESS;
 
-    testlock = lock_create("testlock");
-    if(testlock == NULL) {
-        panic("lt4: lock_create failed\n");
-    }
+    	testlock = lock_create("testlock");
+    	if(testlock == NULL) {
+        	panic("lt4: lock_create failed\n");
+    	}
 
-    donesem = sem_create("donesem", 0);
-    if (donesem == NULL) {
-        lock_destroy(testlock);
-		panic("lt1: sem_create failed\n");
+    	donesem = sem_create("donesem", 0);
+    	if (donesem == NULL) {
+        	lock_destroy(testlock);
+		panic("lt4: sem_create failed\n");
 	}
 
-    int i, result;
+    	int i, result;
 	for (i=0; i<2; i++) {
 		kprintf_t(".");
 		result = thread_fork("lt4", NULL, locktestthread2, NULL, i);
 		if (result) {
-			panic("lt1: thread_fork failed: %s\n", strerror(result));
+			panic("lt4: thread_fork failed: %s\n", strerror(result));
 		}
 	}
 
-    for(i=0; i<2; i++) {
-        kprintf_t(".");
-        P(donesem);
-    }
+    	for(i=0; i<2; i++) {
+        	kprintf_t(".");
+        	P(donesem);
+    	}
     
-    lock_destroy(testlock);
-    sem_destroy(donesem);
+    	lock_destroy(testlock);
+    	sem_destroy(donesem);
 	testlock = NULL;
-    donesem = NULL;
+    	donesem = NULL;
 
 	kprintf_t("\n");
 	success(test_status, SECRET, "lt1");
 
-    return 0;
+    	return 0;
 }
 
 static
