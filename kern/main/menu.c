@@ -593,7 +593,7 @@ static const char *testmenu[] = {
 	"[lt1]  Lock test 1           (1)    ",
 	"[lt2]  Lock test 2           (1*)   ",
 	"[lt3]  Lock test 3           (1*)   ",
-    	"[lt4]  Lock test 4           (1)    ",
+    	"[lt4]  Lock test 4           (1*)    ",
 	"[cvt1] CV test 1             (1)    ",
 	"[cvt2] CV test 2             (1)    ",
 	"[cvt3] CV test 3             (1*)   ",
