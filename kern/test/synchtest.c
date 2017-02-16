@@ -243,7 +243,8 @@ void
 locktestthread2(void *junk, unsigned long num)
 {
     	(void)junk;
-        //first thread acquire lock
+        
+	//first thread acquire lock
     	if(num == 0){
         	lock_acquire(testlock);
     	}
@@ -252,8 +253,8 @@ locktestthread2(void *junk, unsigned long num)
         	if(lock_do_i_hold(testlock)){
             		goto fail;
         	}
-            //make sure release panics based on thread matching
-            lock_release(testlock);
+            	//make sure release panics based on thread matching
+            	lock_release(testlock);
     	}
 
     	V(donesem);
@@ -373,7 +374,7 @@ locktest4(int nargs, char **args) {
     	(void) args;
 
    	kprintf_n("Starting lt4...\n");
-    kprintf_n("(This test panics on success!)\n");    
+    	kprintf_n("(This test panics on success!)\n");    
 
     	testlock = lock_create("testlock");
     	if(testlock == NULL) {
@@ -386,7 +387,7 @@ locktest4(int nargs, char **args) {
 		panic("lt4: sem_create failed\n");
 	}
 
-    //Only 2 threads for simplification
+    	//Only 2 threads for simplification
     	int i, result;
 	for (i=0; i<2; i++) {
 		kprintf_t(".");
@@ -402,14 +403,15 @@ locktest4(int nargs, char **args) {
     	}
     
         
-    	//no lock destroy in case a panic is triggered
+    	//no lock destroy in case a panic is triggered, memory leak necessary
     	sem_destroy(donesem);
 	testlock = NULL;
     	donesem = NULL;
 
         secprintf(SECRET, "Should panic...", "lt4");
 
-    /* Should not get here on success. */
+    	/* Should not get here on success. */
+	
 	kprintf_t("\n");
 	success(TEST161_FAIL, SECRET, "lt4");
 
