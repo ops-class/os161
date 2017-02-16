@@ -249,7 +249,7 @@ locktestthread2(void *junk, unsigned long num)
         	lock_acquire(testlock);
     	}
     	else{
-            //test lock do i hold
+            	//test lock do i hold
         	if(lock_do_i_hold(testlock)){
             		goto fail;
         	}
