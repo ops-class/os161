@@ -61,6 +61,7 @@ int semtest(int, char **);
 int locktest(int, char **);
 int locktest2(int, char **);
 int locktest3(int, char **);
+int locktest4(int, char **);
 int cvtest(int, char **);
 int cvtest2(int, char **);
 int cvtest3(int, char **);
