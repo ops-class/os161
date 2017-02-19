@@ -1,0 +1,76 @@
+name: asst2.2
+print_name: ASST2.1
+description: >
+  In this assignment you will add process and system call support to your
+  OS/161 kernel.
+version: 1
+points: 130
+type: asst
+kconfig: ASST2
+userland: true
+meta_name: asst2
+leaderboard: false
+tests:
+# File system system calls (47 points)
+  - id: syscalls/opentest.t
+    points: 5
+  - id: syscalls/closetest.t
+    points: 5
+  - id: syscalls/readwritetest.t
+    points: 10
+  - id: syscalls/fileonlytest.t
+    points: 12
+  - id: syscalls/redirect.t
+    points: 10
+  - id: syscalls/sparsefile.t
+    points: 5
+# Process system call tests (47 points)
+  - id: syscalls/forktest.t
+    points: 15
+  - id: syscalls/shell.t
+    points: 10
+  - id: syscalls/argtest.t
+    points: 5
+  - id: syscalls/bigexec.t
+    points: 8
+  - id: syscalls/factorial.t
+    points: 5
+  - id: syscalls/add.t
+    points: 4
+# Stability tests (36 points)
+# Bad calls (8 points)
+  - id: stability/badcall/badcall-open.t
+    points: 1
+  - id: stability/badcall/badcall-close.t
+    points: 1
+  - id: stability/badcall/badcall-read.t
+    points: 1
+  - id: stability/badcall/badcall-write.t
+    points: 1
+  - id: stability/badcall/badcall-lseek.t
+    points: 1
+  - id: stability/badcall/badcall-dup2.t
+    points: 1
+  - id: stability/badcall/badcall-execv.t
+    points: 1
+  - id: stability/badcall/badcall-waitpid.t
+    points: 1
+# crash
+  - id: stability/crash/crash-allS.t
+    points: 4
+# randcall
+  - id: stability/randcall.t
+    points: 4
+    commands:
+      - id: /testbin/randcall
+        args:
+          - "-f"
+          - "-c 100"
+          - "-r 421"
+          - "2"
+# forkbomb
+  - id: stability/forkbomb.t
+    points: 10
+# forktest
+  - id: stability/forktest-stability.t
+    points: 10

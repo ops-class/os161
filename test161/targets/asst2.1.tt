@@ -1,0 +1,15 @@
+name: asst2.1
+print_name: ASST2.1
+description: >
+  In this part of the assignment, you will add console support.
+version: 1
+points: 20
+type: asst
+kconfig: ASST2
+userland: true
+meta_name: asst2
+leaderboard: false
+tests:
+# Make sure the console works (10 points)
+  - id: syscalls/consoletest.t
+    points: 20
