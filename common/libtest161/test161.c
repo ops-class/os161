@@ -109,7 +109,7 @@ secprintf(const char * secret, const char * msg, const char * name)
 #else
 
 static int
-secprintf_common(use_buf int, size_t len, char *buffer,
+secprintf_common(int use_buf, size_t b_len, char *buffer,
 	const char *secret, const char *msg, const char *name)
 {
 	char *hash, *salt, *fullmsg;
@@ -172,7 +172,7 @@ snsecprintf(size_t b_len, char *buffer, const char *secret, const char *msg, con
 int
 secprintf(const char * secret, const char * msg, const char * name)
 {
-	return snsecprintf(0, 0, NULL, secret, msg, name);
+	return secprintf_common(0, 0, NULL, secret, msg, name);
 }
 
 #endif
