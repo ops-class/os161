@@ -65,9 +65,9 @@ success(int status, const char * secret, const char * name) {
 int
 partial_credit(const char *secret, const char *name, int scored, int total)
 {
-        char buffer[128];
-        snprintf(buffer, 128, "PARTIAL CREDIT %d OF %d", scored, total);
-        return secprintf(secret, buffer, name);
+		char buffer[128];
+		snprintf(buffer, 128, "PARTIAL CREDIT %d OF %d", scored, total);
+		return secprintf(secret, buffer, name);
 }
 #ifndef _KERNEL
 
@@ -88,6 +88,13 @@ say(const char *fmt, ...)
 #ifndef SECRET_TESTING
 
 int
+snsecprintf(size_t len, char *buffer, const char *secret, const char *msg, const char *name)
+{
+	(void)secret;
+	return snprintf(buffer, len, "%s: %s", name, msg);
+}
+
+int
 secprintf(const char * secret, const char * msg, const char * name)
 {
 	(void)secret;
@@ -101,8 +108,9 @@ secprintf(const char * secret, const char * msg, const char * name)
 
 #else
 
-int
-secprintf(const char * secret, const char * msg, const char * name)
+static int
+secprintf_common(use_buf int, size_t len, char *buffer,
+	const char *secret, const char *msg, const char *name)
 {
 	char *hash, *salt, *fullmsg;
 	int res;
@@ -132,11 +140,15 @@ secprintf(const char * secret, const char * msg, const char * name)
 		goto out;
 	}
 
+	if (!use_buf) {
 #ifdef _KERNEL
-	res = kprintf("\n(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
+		res = kprintf("\n(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
 #else
-	res = say("\n(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
+		res = say("\n(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
 #endif
+	} else {
+		res = snprintf(buffer, b_len, "\n(%s, %s, %s, %s: %s)\n", name, hash, salt, name, msg);
+	}
 
 out:
 	// These may be NULL, but that's OK
@@ -149,6 +161,18 @@ out:
 #endif
 
 	return res;
+}
+
+int
+snsecprintf(size_t b_len, char *buffer, const char *secret, const char *msg, const char *name)
+{
+	return secprintf_common(1, b_len, buffer, secret, msg, name);
+}
+
+int
+secprintf(const char * secret, const char * msg, const char * name)
+{
+	return snsecprintf(0, 0, NULL, secret, msg, name);
 }
 
 #endif
