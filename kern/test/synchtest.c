@@ -173,7 +173,9 @@ locktestthread(void *junk, unsigned long num)
 
 	for (i=0; i<NLOCKLOOPS; i++) {
 		kprintf_t(".");
+		KASSERT(!(lock_do_i_hold(testlock)));
 		lock_acquire(testlock);
+		KASSERT(lock_do_i_hold(testlock));
 		random_yielder(4);
 
 		testval1 = num;
@@ -184,38 +186,46 @@ locktestthread(void *junk, unsigned long num)
 			goto fail;
 		}
 		random_yielder(4);
+		KASSERT(lock_do_i_hold(testlock));
 
 		if (testval2%3 != (testval3*testval3)%3) {
 			goto fail;
 		}
 		random_yielder(4);
+		KASSERT(lock_do_i_hold(testlock));
 
 		if (testval3 != testval1%3) {
 			goto fail;
 		}
 		random_yielder(4);
+		KASSERT(lock_do_i_hold(testlock));
 
 		if (testval1 != num) {
 			goto fail;
 		}
 		random_yielder(4);
+		KASSERT(lock_do_i_hold(testlock));
 
 		if (testval2 != num*num) {
 			goto fail;
 		}
 		random_yielder(4);
+		KASSERT(lock_do_i_hold(testlock));
 
 		if (testval3 != num%3) {
 			goto fail;
 		}
 		random_yielder(4);
+		KASSERT(lock_do_i_hold(testlock));
 
 		if (!(lock_do_i_hold(testlock))) {
 			goto fail;
 		}
 		random_yielder(4);
+		KASSERT(lock_do_i_hold(testlock));
 
 		lock_release(testlock);
+		KASSERT(!(lock_do_i_hold(testlock)));
 	}
 
 	/* Check for solutions that don't track ownership properly */
@@ -437,7 +447,7 @@ locktest5(int nargs, char **args) {
 
 	P(donesem);
 	secprintf(SECRET, "Should panic...", "lt5");
-	KASSERT(!(lock_do_i_hold(testlock)));
+	KASSERT(lock_do_i_hold(testlock));
 
   /* Should not get here on success. */
 
