@@ -373,6 +373,8 @@ locktest4(int nargs, char **args) {
   (void) nargs;
   (void) args;
 
+	int result;
+
   kprintf_n("Starting lt4...\n");
   kprintf_n("(This test panics on success!)\n");
 
@@ -411,6 +413,8 @@ int
 locktest5(int nargs, char **args) {
   (void) nargs;
   (void) args;
+
+	int result;
 
   kprintf_n("Starting lt5...\n");
   kprintf_n("(This test panics on success!)\n");
