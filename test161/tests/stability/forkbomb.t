@@ -1,7 +1,7 @@
 ---
 name: "Calm Like a Fork Bomb"
 tags: [stability]
-depends: [console]
+depends: [console,sys_fork]
 sys161:
   ram: 2M
 monitor:
