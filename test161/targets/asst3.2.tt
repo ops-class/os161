@@ -1,0 +1,55 @@
+name: asst3.2
+print_name: ASST3.2
+description: >
+  In this part of ASST3, you will add virtual address spaces to your VM.
+version: 1
+points: 120
+type: asst
+kconfig: ASST3
+userland: true
+meta_name: asst3
+leaderboard: false
+tests:
+# Basic VM (30 points)
+  - id: vm/not-dumbvm-vm.t
+    points: 5
+  - id: vm/sort.t
+    points: 5
+  - id: vm/palin.t
+    points: 5
+  - id: vm/matmult.t
+    mem_leak_points: 2
+    points: 5
+  - id: vm/ctest.t
+    points: 5
+  - id: vm/stacktest.t
+    points: 5
+
+# Concurrent VM (50 points)
+  - id: vm/bigfork.t
+    points: 10
+    mem_leak_points: 2
+  - id: vm/parallelvm.t
+    points: 10
+  - id: vm/quintsort.t
+    points: 10
+  - id: vm/quintmat.t
+    points: 10
+  - id: vm/quinthuge.t
+    points: 10
+
+# Heap (10 points)
+  - id: vm/sbrktest.t
+    points: 8
+    mem_leak_points: 2
+  - id: vm/sbrk-badcall.t
+    points: 2
+
+# Stress tests/misc (30 points)
+  - id: vm/zero.t
+    points: 5
+  - id: vm/stability/vm-stability.t
+    points: 20
+    mem_leak_points: 2
+  - id: vm/stability/forkbomb.t
+    points: 5

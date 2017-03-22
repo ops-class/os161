@@ -3,103 +3,10 @@ print_name: ASST3
 description: >
   In this assignment you will add support for virtual memory to your OS/161
   kernel.
-version: 3
+version: 4
 points: 300
 type: asst
 kconfig: ASST3
 userland: true
-tests:
-# Checkpoint 1 (100 points)
-
-  - id: coremap/not-dumbvm.t
-    points: 20
-  - id: coremap/km1.t
-    points: 10
-    mem_leak_points: 2
-  - id: coremap/km2.t
-    points: 10
-    mem_leak_points: 2
-  - id: coremap/km3.t
-    points: 10
-    mem_leak_points: 2
-  - id: coremap/km4.t
-    points: 25
-    mem_leak_points: 2
-  - id: coremap/coremap-loose.t
-    points: 10
-  - id: coremap/coremap-tight.t
-    points: 15
-
-# Checkpoint 2 (100 points)
-
-# Basic VM (30 points)
-  - id: vm/not-dumbvm-vm.t
-    points: 5
-  - id: vm/sort.t
-    points: 5
-  - id: vm/palin.t
-    points: 5
-  - id: vm/matmult.t
-    mem_leak_points: 2
-    points: 5
-  - id: vm/ctest.t
-    points: 5
-  - id: vm/stacktest.t
-    points: 5
-
-# Concurrent VM (40 points)
-  - id: vm/bigfork.t
-    points: 8
-    mem_leak_points: 2
-  - id: vm/parallelvm.t
-    points: 8
-  - id: vm/quintsort.t
-    points: 8
-  - id: vm/quintmat.t
-    points: 8
-  - id: vm/quinthuge.t
-    points: 8
-
-# Heap (10 points)
-  - id: vm/sbrktest.t
-    points: 8
-    mem_leak_points: 2
-  - id: vm/sbrk-badcall.t
-    points: 2
-
-# Stress tests/misc (20 points)
-  - id: vm/zero.t
-    points: 5
-  - id: vm/stability/vm-stability.t
-    points: 10
-    mem_leak_points: 2
-  - id: vm/stability/forkbomb.t
-    points: 5
-
-# Checkpoint 3 (100 points)
-
-# Basic Swapping (30 points)
-  - id: vm/swap/sort.t
-    mem_leak_points: 2
-    points: 15
-  - id: vm/swap/matmult.t
-    mem_leak_points: 2
-    points: 15
-
-# Concurrent Swapping (70 points)
-  - id: vm/swap/bigfork.t
-    points: 10
-  - id: vm/swap/bigfork-32.t
-    points: 10
-    mem_leak_points: 2
-  - id: vm/swap/parallelvm.t
-    points: 10
-  - id: vm/swap/parallelvm-32.t
-    points: 10
-  - id: vm/swap/quintsort.t
-    points: 10
-  - id: vm/swap/quintmat.t
-    points: 10
-  - id: vm/swap/quinthuge.t
-    points: 10
-    mem_leak_points: 2
+is_meta_target: true
+sub_target_names: ["asst3.1", "asst3.2", "asst3.3"]

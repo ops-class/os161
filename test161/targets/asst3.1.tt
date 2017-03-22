@@ -1,0 +1,31 @@
+name: asst3.1
+print_name: ASST3.1
+description: >
+  In this part of ASST3, you will begin writing your own VM by adding your
+  coremap and page allocator.
+version: 1
+points: 60
+type: asst
+kconfig: ASST3
+userland: true
+meta_name: asst3
+leaderboard: false
+tests:
+  - id: coremap/not-dumbvm.t
+    points: 15
+  - id: coremap/km1.t
+    points: 5
+    mem_leak_points: 2
+  - id: coremap/km2.t
+    points: 5
+    mem_leak_points: 2
+  - id: coremap/km3.t
+    points: 5
+    mem_leak_points: 2
+  - id: coremap/km4.t
+    points: 15
+    mem_leak_points: 2
+  - id: coremap/coremap-loose.t
+    points: 5
+  - id: coremap/coremap-tight.t
+    points: 10

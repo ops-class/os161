@@ -1,0 +1,37 @@
+name: asst3.3
+print_name: ASST3.3
+description: >
+  In this part of ASST3, you will add swapping to your VM.
+version: 1
+points: 120
+type: asst
+kconfig: ASST3
+userland: true
+meta_name: asst3
+leaderboard: false
+tests:
+# Basic Swapping (40 points)
+  - id: vm/swap/sort.t
+    mem_leak_points: 2
+    points: 20
+  - id: vm/swap/matmult.t
+    mem_leak_points: 2
+    points: 20
+
+# Concurrent Swapping (80 points)
+  - id: vm/swap/bigfork.t
+    points: 10
+  - id: vm/swap/bigfork-32.t
+    points: 15
+    mem_leak_points: 2
+  - id: vm/swap/parallelvm.t
+    points: 10
+  - id: vm/swap/parallelvm-32.t
+    points: 15
+  - id: vm/swap/quintsort.t
+    points: 10
+  - id: vm/swap/quintmat.t
+    points: 10
+  - id: vm/swap/quinthuge.t
+    points: 10
+    mem_leak_points: 2
