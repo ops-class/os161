@@ -11,7 +11,7 @@ sys161:
   disk1:
     enabled: true
 monitor:
-  progresstimeout: 15.0
+  progresstimeout: 30.0
   commandtimeout: 760.0
   window: 40
 misc:
